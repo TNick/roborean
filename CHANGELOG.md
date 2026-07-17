@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Changed
+
+- GitHub Actions use Node 24-based majors (`actions/checkout@v5`,
+  `actions/setup-node@v6`, `actions/setup-python@v6`,
+  `pnpm/action-setup@v6`).
+
+### Fixed
+
+- Stop tracking TypeScript `tsconfig.tsbuildinfo` files so CI `tsc -b`
+  rebuilds `dist/` instead of skipping emit when outputs are missing.
+
 ## [0.1.1] - 2026-07-17
 
 ### Added

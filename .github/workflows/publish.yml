@@ -15,17 +15,17 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
-
-      - uses: pnpm/action-setup@v4
 
       - name: Install dependencies
         run: make init-d
@@ -72,9 +72,9 @@ jobs:
             github-environment: pypi-roborean-api-fastapi
     environment: ${{ matrix.github-environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -95,14 +95,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
-
-      - uses: pnpm/action-setup@v4
 
       - name: Install npm with trusted publishing support
         run: npm install -g npm@latest
