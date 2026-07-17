@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Annotated, Any, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Model(BaseModel):
@@ -62,7 +62,14 @@ class Redacted(Model):
 
 
 WorkspaceValue = Annotated[
-    Union[PublicLiteral, SecretRefValue, EqToken, ShapeToken, Bucket, Redacted],
+    Union[
+        PublicLiteral,
+        SecretRefValue,
+        EqToken,
+        ShapeToken,
+        Bucket,
+        Redacted,
+    ],
     Field(discriminator="kind"),
 ]
 
@@ -142,15 +149,110 @@ class Bit(Model):
     capabilities: list[str]
 
 
+class DocumentPreviewSettings(Model):
+    """Preview configuration for a document definition."""
+
+    mode: Literal["none", "text", "html", "drawing-json"]
+    enabled: bool
+
+
 class DocumentDefinition(Model):
     """A deferred document output definition."""
 
     id: str
-    type: str
+    type: Literal["text", "markdown", "xlsx", "docx", "image", "dxf"]
     template_ref: str = Field(alias="templateRef")
+    template_manifest_ref: str | None = Field(
+        default=None, alias="templateManifestRef"
+    )
     driver: str
     output_target: str | None = Field(default=None, alias="outputTarget")
+    ir_family: (
+        Literal["flow", "sheet", "drawing", "raster", "plain"] | None
+    ) = Field(default=None, alias="irFamily")
     settings: dict[str, Any] = Field(default_factory=dict)
+    preview: DocumentPreviewSettings | None = None
+
+
+class TemplateSlot(Model):
+    """A declared template slot."""
+
+    kind: Literal[
+        "text",
+        "richtext",
+        "repeating_table",
+        "image",
+        "cell",
+        "named_range",
+        "block",
+        "layer",
+    ]
+    required: bool = False
+
+
+class TemplateManifest(Model):
+    """Sidecar metadata for a document template."""
+
+    template_id: str = Field(alias="templateId")
+    template_version: str = Field(alias="templateVersion")
+    document_type: Literal[
+        "text", "markdown", "xlsx", "docx", "image", "dxf"
+    ] = Field(alias="documentType")
+    driver: str
+    required_inputs: list[str] = Field(alias="requiredInputs")
+    capabilities: list[str]
+    declared_slots: dict[str, TemplateSlot] = Field(alias="declaredSlots")
+    content_hash: str | None = Field(default=None, alias="contentHash")
+
+
+class DocumentDriverManifest(Model):
+    """Capability advertisement for an installed document driver."""
+
+    driver_id: str = Field(alias="driverId")
+    version: str
+    ir_family: Literal["flow", "sheet", "drawing", "raster", "plain"] = Field(
+        alias="irFamily"
+    )
+    capabilities: list[str]
+    supports_preview: bool = Field(alias="supportsPreview")
+    supports_browser_execution: bool = Field(alias="supportsBrowserExecution")
+    supports_diff: bool = Field(alias="supportsDiff")
+    requires_backend: bool = Field(alias="requiresBackend")
+    template_media_types: list[str] = Field(alias="templateMediaTypes")
+
+
+class DocumentPreview(Model):
+    """Renderer-owned preview payload."""
+
+    document_id: str = Field(alias="documentId")
+    mode: Literal["text", "html", "drawing-json"]
+    body: Any
+    warnings: list[str]
+    generated_at: str = Field(alias="generatedAt")
+    renderer: dict[str, str]
+
+
+class ArtifactRecord(Model):
+    """One generated document artifact referenced from run results."""
+
+    document_id: str = Field(alias="documentId")
+    path: str
+    media_type: str = Field(alias="mediaType")
+    digest_sha256: str = Field(alias="digestSha256")
+    byte_length: int = Field(alias="byteLength")
+    template_id: str = Field(alias="templateId")
+    template_version: str = Field(alias="templateVersion")
+    driver_id: str = Field(alias="driverId")
+    driver_version: str = Field(alias="driverVersion")
+
+
+class DocumentOperation(Model):
+    """A typed document operation emitted by a bit."""
+
+    model_config = ConfigDict(extra="allow")
+
+    document_id: str = Field(alias="documentId")
+    op: str
 
 
 class SetOp(Model):
@@ -203,7 +305,7 @@ class BitTypeManifest(Model):
 class Project(Model):
     """A portable, versioned Roborean project."""
 
-    schema_version: Literal["1.0.0"] = Field(alias="schemaVersion")
+    schema_version: Literal["1.0.0", "1.1.0"] = Field(alias="schemaVersion")
     id: str
     name: str
     description: str | None = None
@@ -242,7 +344,7 @@ class BitResult(Model):
 class CompiledProject(Model):
     """A resolved project ready for deterministic execution."""
 
-    schema_version: Literal["1.0.0"] = Field(alias="schemaVersion")
+    schema_version: Literal["1.0.0", "1.1.0"] = Field(alias="schemaVersion")
     project_id: str = Field(alias="projectId")
     project_name: str = Field(alias="projectName")
     compiled_at: str = Field(alias="compiledAt")
@@ -278,3 +380,110 @@ class RunResults(Model):
     artifacts: list[Any]
     engine_version: str = Field(alias="engineVersion")
     rule_profile_version: str = Field(alias="ruleProfileVersion")
+
+
+class RunTrigger(str, Enum):
+    """How a durable run was requested."""
+
+    CLI = "cli"
+    API = "api"
+    RETRY = "retry"
+    TEST = "test"
+
+
+class RunRequest(Model):
+    """Idempotent request to execute a project."""
+
+    project_id: str = Field(alias="projectId")
+    project_revision: str | None = Field(default=None, alias="projectRevision")
+    idempotency_key: str = Field(alias="idempotencyKey")
+    trigger: RunTrigger
+    workspace_overrides: dict[str, WorkspaceValue] = Field(
+        default_factory=dict, alias="workspaceOverrides"
+    )
+    strict_workspace_access: bool = Field(
+        default=True, alias="strictWorkspaceAccess"
+    )
+    retry_of_run_id: str | None = Field(default=None, alias="retryOfRunId")
+    requested_at: str | None = Field(default=None, alias="requestedAt")
+
+    @field_validator("idempotency_key")
+    @classmethod
+    def _validate_idempotency_key(cls, value: str) -> str:
+        """Reject empty or oversized keys early."""
+        if not value or len(value) > 128:
+            raise ValueError("idempotencyKey must be 1..128 characters")
+        return value
+
+
+class WorkspaceChange(Model):
+    """One workspace key delta for a run diff."""
+
+    key: str
+    before: WorkspaceValue | None
+    after: WorkspaceValue | None
+
+
+class SecretRefAccess(Model):
+    """Metadata that a secret reference was touched without revealing it."""
+
+    bit_id: str = Field(alias="bitId")
+    provider: str
+    name: str
+    version: str | None = None
+
+
+class RunDiff(Model):
+    """Redacted provenance summary for a completed run."""
+
+    workspace_changes: list[WorkspaceChange] = Field(alias="workspaceChanges")
+    bits_activated: list[str] = Field(alias="bitsActivated")
+    bits_skipped_inactive: list[str] = Field(alias="bitsSkippedInactive")
+    bits_failed: list[str] = Field(alias="bitsFailed")
+    secret_refs_accessed: list[SecretRefAccess] = Field(
+        alias="secretRefsAccessed"
+    )
+    document_ops_count: dict[str, int] = Field(alias="documentOpsCount")
+
+
+class RunError(Model):
+    """Structured failure information for a durable run."""
+
+    code: str
+    message: str
+    bit_id: str | None = Field(default=None, alias="bitId")
+
+
+class RunStatus(str, Enum):
+    """Lifecycle status for a durable run record."""
+
+    QUEUED = "queued"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+class RunRecord(Model):
+    """Durable envelope around compile/run artifacts."""
+
+    run_id: str = Field(alias="runId")
+    idempotency_key: str = Field(alias="idempotencyKey")
+    project_id: str = Field(alias="projectId")
+    project_revision: str = Field(alias="projectRevision")
+    compiled_digest: str = Field(alias="compiledDigest")
+    status: RunStatus
+    request: RunRequest
+    results: RunResults | None = None
+    diff: RunDiff | None = None
+    attempt: int = 1
+    retry_policy_snapshot: dict[str, Any] = Field(
+        default_factory=dict, alias="retryPolicySnapshot"
+    )
+    engine_version: str = Field(alias="engineVersion")
+    plugin_versions: dict[str, str] = Field(alias="pluginVersions")
+    error: RunError | None = None
+    created_at: str = Field(alias="createdAt")
+    started_at: str | None = Field(default=None, alias="startedAt")
+    finished_at: str | None = Field(default=None, alias="finishedAt")
+    request_digest: str = Field(default="", alias="requestDigest")

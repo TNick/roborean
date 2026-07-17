@@ -11,8 +11,15 @@ from roborean_spec import (
     WorkspaceValue,
 )
 
-from .base import BitContext, BitHandler, BitOutput
 from ..workspace import get_value
+from .append_text import AppendTextHandler
+from .base import BitContext, BitHandler, BitOutput
+from .drawing_insert_polyline import DrawingInsertPolylineHandler
+from .fake_network import FakeNetworkHandler
+from .flow_append_paragraph import FlowAppendParagraphHandler
+from .raster_draw_text import RasterDrawTextHandler
+from .replace_named_value import ReplaceNamedValueHandler
+from .sheet_set_cells import SheetSetCellsHandler
 
 
 class NoopHandler:
@@ -87,9 +94,44 @@ def _manifest(filename: str) -> BitTypeManifest:
 
 
 def builtin_registry() -> BitTypeRegistry:
-    """Return the registry containing all Phase 1 built-ins."""
+    """Return the registry containing built-in and test helper bit types."""
     registry = BitTypeRegistry()
     registry.register(_manifest("noop.json"), NoopHandler())
     registry.register(_manifest("set_variable.json"), SetVariableHandler())
     registry.register(_manifest("copy_variable.json"), CopyVariableHandler())
+    registry.register(
+        _manifest("replace_named_value.json"), ReplaceNamedValueHandler()
+    )
+    registry.register(_manifest("append_text.json"), AppendTextHandler())
+    registry.register(
+        _manifest("sheet_set_cells.json"), SheetSetCellsHandler()
+    )
+    registry.register(
+        _manifest("flow_append_paragraph.json"),
+        FlowAppendParagraphHandler(),
+    )
+    registry.register(
+        _manifest("drawing_insert_polyline.json"),
+        DrawingInsertPolylineHandler(),
+    )
+    registry.register(
+        _manifest("raster_draw_text.json"), RasterDrawTextHandler()
+    )
+    # Test-only helper used by Phase 2 retry conformance fixtures.
+    registry.register(_manifest("fake_network.json"), FakeNetworkHandler())
     return registry
+
+
+def load_noop_bit_type():
+    """Entry-point factory for ``roborean.noop``."""
+    return _manifest("noop.json"), NoopHandler()
+
+
+def load_set_variable_bit_type():
+    """Entry-point factory for ``roborean.set_variable``."""
+    return _manifest("set_variable.json"), SetVariableHandler()
+
+
+def load_copy_variable_bit_type():
+    """Entry-point factory for ``roborean.copy_variable``."""
+    return _manifest("copy_variable.json"), CopyVariableHandler()

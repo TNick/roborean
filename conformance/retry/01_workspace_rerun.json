@@ -1,0 +1,7 @@
+{
+  "id": "01_workspace_rerun",
+  "projectPackage": "packages/02_set_and_copy",
+  "expected": {
+    "retryAllowed": true
+  }
+}

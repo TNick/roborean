@@ -1,0 +1,30 @@
+{
+  "id": "02_network_forbidden",
+  "project": {
+    "schemaVersion": "1.0.0",
+    "id": "example.network",
+    "name": "Network",
+    "pluginRequirements": [],
+    "workspace": { "variables": [] },
+    "bits": [
+      {
+        "id": "n1",
+        "type": "roborean.fake_network",
+        "when": true,
+        "config": {},
+        "reads": [],
+        "writes": [],
+        "emits": [],
+        "effectClass": "network",
+        "onError": "abort",
+        "capabilities": []
+      }
+    ],
+    "documents": [],
+    "templates": [],
+    "metadata": {}
+  },
+  "expected": {
+    "retryAllowed": false
+  }
+}

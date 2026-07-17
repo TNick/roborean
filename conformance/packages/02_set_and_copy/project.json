@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "example.set-and-copy",
+  "name": "Set and copy",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "title",
+        "schema": { "type": "string" },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Hello"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "title_copy",
+        "schema": { "type": "string" },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": ""
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "set_title",
+      "type": "roborean.set_variable",
+      "when": true,
+      "config": {
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      "reads": [],
+      "writes": ["title"],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.write"]
+    },
+    {
+      "id": "copy_title",
+      "type": "roborean.copy_variable",
+      "when": true,
+      "config": { "from": "title", "to": "title_copy" },
+      "reads": ["title"],
+      "writes": ["title_copy"],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.read", "workspace.write"]
+    }
+  ],
+  "documents": [],
+  "templates": [],
+  "metadata": {}
+}

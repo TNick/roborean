@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D04_docx_letter",
+  "name": "DOCX letter",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "owner_name",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Ada"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "append",
+      "type": "roborean.append_text",
+      "when": true,
+      "config": {
+        "documentId": "letter",
+        "text": "Best regards.",
+        "op": "flow.insert_paragraph"
+      },
+      "reads": [],
+      "writes": [],
+      "emits": [
+        "letter"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "letter",
+      "type": "docx",
+      "driver": "roborean.docx",
+      "templateRef": "letter",
+      "outputTarget": "letter.docx",
+      "irFamily": "flow",
+      "settings": {},
+      "preview": {
+        "mode": "html",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "letter",
+      "path": "templates/letter.docx"
+    }
+  ],
+  "metadata": {}
+}

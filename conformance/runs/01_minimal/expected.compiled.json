@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "projectId": "example.minimal",
   "projectName": "Minimal",
-  "compiledAt": "2026-07-17T08:46:06.171141+00:00",
-  "engineVersion": "0.1.0",
+  "compiledAt": "2026-07-17T09:23:28.777038+00:00",
+  "engineVersion": "0.3.0",
   "ruleProfileVersion": "1.0.0",
-  "digest": "5a4f4e28aeaed7754f158fc31e9600078f31b2770f264cd6c3f8a98af957cbe0",
+  "digest": "f664e49a48a049b4a5c44fe6db479db426b29105ce2fc4d7085afb11527ba328",
   "variables": [
     {
       "key": "title",

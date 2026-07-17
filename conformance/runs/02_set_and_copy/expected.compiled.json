@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "projectId": "example.set-and-copy",
   "projectName": "Set and copy",
-  "compiledAt": "2026-07-17T08:46:06.185760+00:00",
-  "engineVersion": "0.1.0",
+  "compiledAt": "2026-07-17T09:23:28.813601+00:00",
+  "engineVersion": "0.3.0",
   "ruleProfileVersion": "1.0.0",
-  "digest": "dcfe70c935f10788e3bd8af6cca868555b105c56c77659db0353c5f36c9abb02",
+  "digest": "023ecc650faf56859dd84357bccd4f39bf2f66fda3616d03f515a0cec811e878",
   "variables": [
     {
       "key": "title",

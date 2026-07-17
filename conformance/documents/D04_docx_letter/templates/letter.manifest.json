@@ -1,0 +1,20 @@
+{
+  "templateId": "letter",
+  "templateVersion": "1.0.0",
+  "documentType": "docx",
+  "driver": "roborean.docx",
+  "requiredInputs": [
+    "owner_name"
+  ],
+  "capabilities": [
+    "replace_named_value",
+    "flow.insert_paragraph",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "owner_name": {
+      "kind": "text",
+      "required": true
+    }
+  }
+}

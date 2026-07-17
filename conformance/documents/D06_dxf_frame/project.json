@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D06_dxf_frame",
+  "name": "DXF frame",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": []
+  },
+  "bits": [
+    {
+      "id": "frame",
+      "type": "roborean.drawing_insert_polyline",
+      "when": true,
+      "config": {
+        "documentId": "frame",
+        "ops": [
+          {
+            "op": "drawing.ensure_layer",
+            "name": "title"
+          },
+          {
+            "op": "drawing.insert_polyline",
+            "layer": "title",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                100,
+                0
+              ],
+              [
+                100,
+                50
+              ],
+              [
+                0,
+                50
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "op": "drawing.insert_text",
+            "layer": "title",
+            "at": [
+              10,
+              20
+            ],
+            "text": "FRAME",
+            "height": 5
+          }
+        ]
+      },
+      "reads": [],
+      "writes": [],
+      "emits": [
+        "frame"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "frame",
+      "type": "dxf",
+      "driver": "roborean.dxf",
+      "templateRef": "frame",
+      "outputTarget": "frame.dxf",
+      "irFamily": "drawing",
+      "settings": {},
+      "preview": {
+        "mode": "drawing-json",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "frame",
+      "path": "templates/frame.dxf"
+    }
+  ],
+  "metadata": {}
+}

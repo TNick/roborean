@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/run-diff.schema.json",
+  "title": "RunDiff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "workspaceChanges",
+    "bitsActivated",
+    "bitsSkippedInactive",
+    "bitsFailed",
+    "secretRefsAccessed",
+    "documentOpsCount"
+  ],
+  "properties": {
+    "workspaceChanges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "before", "after"],
+        "properties": {
+          "key": { "type": "string" },
+          "before": {
+            "oneOf": [
+              { "type": "null" },
+              { "$ref": "workspace-value.schema.json" }
+            ]
+          },
+          "after": {
+            "oneOf": [
+              { "type": "null" },
+              { "$ref": "workspace-value.schema.json" }
+            ]
+          }
+        }
+      }
+    },
+    "bitsActivated": { "type": "array", "items": { "type": "string" } },
+    "bitsSkippedInactive": { "type": "array", "items": { "type": "string" } },
+    "bitsFailed": { "type": "array", "items": { "type": "string" } },
+    "secretRefsAccessed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["bitId", "provider", "name"],
+        "properties": {
+          "bitId": { "type": "string" },
+          "provider": { "type": "string" },
+          "name": { "type": "string" },
+          "version": { "type": "string" }
+        }
+      }
+    },
+    "documentOpsCount": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    }
+  }
+}

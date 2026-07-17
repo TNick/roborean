@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/document-driver-manifest.schema.json",
+  "title": "DocumentDriverManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "driverId",
+    "version",
+    "irFamily",
+    "capabilities",
+    "supportsPreview",
+    "supportsBrowserExecution",
+    "supportsDiff",
+    "requiresBackend",
+    "templateMediaTypes"
+  ],
+  "properties": {
+    "driverId": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "irFamily": {
+      "type": "string",
+      "enum": ["flow", "sheet", "drawing", "raster", "plain"]
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supportsPreview": { "type": "boolean" },
+    "supportsBrowserExecution": { "type": "boolean" },
+    "supportsDiff": { "type": "boolean" },
+    "requiresBackend": { "type": "boolean" },
+    "templateMediaTypes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

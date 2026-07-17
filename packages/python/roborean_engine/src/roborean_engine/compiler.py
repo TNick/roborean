@@ -4,6 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 
 from jsonschema import Draft202012Validator, ValidationError
 from roborean_spec import (
@@ -24,6 +25,7 @@ from .diagnostics import (
     W_UNUSED_VARIABLE,
     Diagnostic,
 )
+from .documents import compile_documents
 from .rules.parser import parse_rule
 from .rules.profile import RULE_PROFILE_VERSION
 from .rules.typecheck import RuleTypeError, typecheck_rule
@@ -45,6 +47,7 @@ class CompileOptions:
 
     strict_undeclared_access: bool = True
     allow_unresolved_documents: bool = False
+    package_dir: Path | None = None
 
 
 def compute_project_digest(project: Project) -> str:
@@ -174,11 +177,7 @@ def compile_project(
             )
 
     # Surface unused declarations as warnings without blocking valid projects.
-    used = {
-        key
-        for bit in project.bits
-        for key in [*bit.reads, *bit.writes]
-    }
+    used = {key for bit in project.bits for key in [*bit.reads, *bit.writes]}
     for variable in project.variables:
         if variable.key not in used:
             diagnostics.append(
@@ -188,21 +187,29 @@ def compile_project(
                     f"Variable is never read or written: {variable.key}",
                 )
             )
-    if project.documents and not options.allow_unresolved_documents:
-        diagnostics.append(
-            Diagnostic(
-                "error",
-                E_CONFIG,
-                "Documents require drivers that Phase 1 does not provide",
-                "/documents",
+    if project.documents:
+        if options.allow_unresolved_documents:
+            diagnostics.append(
+                Diagnostic(
+                    "warning",
+                    E_CONFIG,
+                    "Document validation skipped (allow_unresolved_documents)",
+                    "/documents",
+                )
             )
-        )
+        else:
+            diagnostics.extend(
+                compile_documents(
+                    project,
+                    package_dir=options.package_dir,
+                )
+            )
     if any(item.severity == "error" for item in diagnostics):
         raise CompileError(diagnostics)
 
     # Preserve resolved runtime data in the schema-shaped compiled artifact.
     return CompiledProject(
-        schemaVersion="1.0.0",
+        schemaVersion=project.schema_version,
         projectId=project.id,
         projectName=project.name,
         compiledAt=datetime.now(UTC).isoformat(),
@@ -210,7 +217,9 @@ def compile_project(
         ruleProfileVersion=RULE_PROFILE_VERSION,
         digest=compute_project_digest(project),
         variables=project.variables,
-        bits=[bit.model_dump(mode="json", by_alias=True) for bit in project.bits],
+        bits=[
+            bit.model_dump(mode="json", by_alias=True) for bit in project.bits
+        ],
         activationExpressions=activation_expressions,
         dependencyMap=build_dependency_map(project),
         documents=project.documents,

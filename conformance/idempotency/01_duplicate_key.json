@@ -1,0 +1,20 @@
+{
+  "id": "01_duplicate_key",
+  "projectPackage": "packages/02_set_and_copy",
+  "request": {
+    "projectId": "example.set-and-copy",
+    "idempotencyKey": "demo-key-1",
+    "trigger": "test",
+    "workspaceOverrides": {},
+    "strictWorkspaceAccess": true
+  },
+  "actions": [
+    { "type": "create_and_execute" },
+    { "type": "create_and_execute" }
+  ],
+  "expected": {
+    "sameRunId": true,
+    "executeCount": 1,
+    "finalStatus": "succeeded"
+  }
+}

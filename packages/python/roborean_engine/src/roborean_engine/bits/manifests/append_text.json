@@ -1,0 +1,18 @@
+{
+  "typeId": "roborean.append_text",
+  "version": "1.0.0",
+  "configSchema": {
+    "type": "object",
+    "required": ["documentId", "text"],
+    "properties": {
+      "documentId": { "type": "string" },
+      "text": { "type": "string" },
+      "op": { "type": "string" }
+    },
+    "additionalProperties": false
+  },
+  "effectClass": "document",
+  "capabilities": ["document.write"],
+  "readsFromConfig": false,
+  "browserSafe": true
+}

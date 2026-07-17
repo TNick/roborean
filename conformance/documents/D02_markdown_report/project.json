@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D02_markdown_report",
+  "name": "Markdown report",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": []
+  },
+  "bits": [
+    {
+      "id": "body",
+      "type": "roborean.flow_append_paragraph",
+      "when": true,
+      "config": {
+        "documentId": "report_doc",
+        "ops": [
+          {
+            "op": "flow.insert_heading",
+            "level": 2,
+            "text": "Summary"
+          },
+          {
+            "op": "flow.insert_paragraph",
+            "runs": [
+              {
+                "text": "All good."
+              }
+            ]
+          },
+          {
+            "op": "flow.replace_table_rows",
+            "table": "items",
+            "rows": [
+              [
+                "Item",
+                "Qty"
+              ],
+              [
+                "A",
+                "1"
+              ],
+              [
+                "B",
+                "2"
+              ]
+            ]
+          }
+        ]
+      },
+      "reads": [],
+      "writes": [],
+      "emits": [
+        "report_doc"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "report_doc",
+      "type": "markdown",
+      "driver": "roborean.markdown",
+      "templateRef": "report",
+      "outputTarget": "report.md",
+      "irFamily": "flow",
+      "settings": {},
+      "preview": {
+        "mode": "text",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "report",
+      "path": "templates/report.md"
+    }
+  ],
+  "metadata": {}
+}

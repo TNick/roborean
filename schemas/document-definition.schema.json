@@ -3,14 +3,34 @@
   "$id": "https://roborean.dev/schemas/document-definition.schema.json",
   "title": "DocumentDefinition",
   "type": "object",
+  "additionalProperties": false,
   "required": ["id", "type", "templateRef", "driver"],
   "properties": {
-    "id": {"type": "string", "minLength": 1},
-    "type": {"type": "string", "minLength": 1},
-    "templateRef": {"type": "string", "minLength": 1},
-    "driver": {"type": "string", "minLength": 1},
-    "outputTarget": {"type": "string"},
-    "settings": {"type": "object", "default": {}}
-  },
-  "additionalProperties": false
+    "id": { "type": "string", "minLength": 1 },
+    "type": {
+      "type": "string",
+      "enum": ["text", "markdown", "xlsx", "docx", "image", "dxf"]
+    },
+    "templateRef": { "type": "string", "minLength": 1 },
+    "templateManifestRef": { "type": "string" },
+    "driver": { "type": "string", "minLength": 1 },
+    "outputTarget": { "type": "string" },
+    "irFamily": {
+      "type": "string",
+      "enum": ["flow", "sheet", "drawing", "raster", "plain"]
+    },
+    "settings": { "type": "object", "default": {} },
+    "preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "enabled"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["none", "text", "html", "drawing-json"]
+        },
+        "enabled": { "type": "boolean" }
+      }
+    }
+  }
 }

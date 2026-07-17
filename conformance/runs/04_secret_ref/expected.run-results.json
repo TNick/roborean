@@ -1,9 +1,9 @@
 {
-  "runId": "81d9453f-4f71-4fe6-beda-63fd3b2ab02e",
+  "runId": "c58585eb-3faf-4a26-8ac8-0e421f4c42bd",
   "projectId": "example.secret-ref",
-  "projectDigest": "ccf31d3eb97e3b48ecbc55442c480029f44627328f589450c9fb975b959e7b91",
-  "startedAt": "2026-07-17T08:46:06.215044+00:00",
-  "finishedAt": "2026-07-17T08:46:06.215044+00:00",
+  "projectDigest": "549a8107a2e1fa1358419afa8c148c24be56573f1ee698f61da76a6c3b818cf7",
+  "startedAt": "2026-07-17T09:23:28.867651+00:00",
+  "finishedAt": "2026-07-17T09:23:28.867651+00:00",
   "status": "success",
   "inputWorkspaceHash": "78cf620ccacb64cb15590bbb78232a81dbdedb40d36e3263d5af255a3e6db36f",
   "finalWorkspaceHash": "0c7cbd8e2d33fff1f81ae9554a0d183431d9c5779f4eb462c1f620bf79a18145",
@@ -14,7 +14,7 @@
       "active": true,
       "activationReason": "always",
       "status": "success",
-      "durationMs": 0.1066999975591898,
+      "durationMs": 0.14879999798722565,
       "workspacePatch": {
         "ops": [
           {
@@ -34,6 +34,6 @@
     }
   ],
   "artifacts": [],
-  "engineVersion": "0.1.0",
+  "engineVersion": "0.3.0",
   "ruleProfileVersion": "1.0.0"
 }

@@ -4,12 +4,23 @@ build-backend = "hatchling.build"
 
 [project]
 name = "roborean-engine"
-version = "0.1.0"
-description = "Deterministic Roborean Phase 1 compiler and runner"
+version = "0.3.0"
+description = "Deterministic Roborean compiler, runner, and durable run service"
 requires-python = ">=3.11"
 dependencies = [
   "jsonschema>=4.23",
-  "roborean-spec>=0.1.0",
+  "roborean-spec>=0.3.0",
+  "roborean-storage-base>=0.2.0",
+  "roborean-storage-dict>=0.2.0",
+  "roborean-storage-sqlalchemy>=0.2.0",
+  "roborean-plugins-base>=0.2.0",
+  "roborean-documents-base>=0.3.0",
+  "roborean-documents-text>=0.3.0",
+  "roborean-documents-markdown>=0.3.0",
+  "roborean-documents-xlsx>=0.3.0",
+  "roborean-documents-docx>=0.3.0",
+  "roborean-documents-image>=0.3.0",
+  "roborean-documents-dxf>=0.3.0",
 ]
 
 [project.optional-dependencies]
@@ -17,6 +28,11 @@ dev = ["pytest>=8.0", "black>=24.0", "isort>=5.0", "flake8>=7.0"]
 
 [project.scripts]
 roborean = "roborean_engine.cli:main"
+
+[project.entry-points."roborean.bit_types"]
+"roborean.noop" = "roborean_engine.bits.registry:load_noop_bit_type"
+"roborean.set_variable" = "roborean_engine.bits.registry:load_set_variable_bit_type"
+"roborean.copy_variable" = "roborean_engine.bits.registry:load_copy_variable_bit_type"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/roborean_engine"]

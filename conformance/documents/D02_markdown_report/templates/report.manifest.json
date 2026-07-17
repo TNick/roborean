@@ -1,0 +1,14 @@
+{
+  "templateId": "report",
+  "templateVersion": "1.0.0",
+  "documentType": "markdown",
+  "driver": "roborean.markdown",
+  "requiredInputs": [],
+  "capabilities": [
+    "flow.insert_heading",
+    "flow.insert_paragraph",
+    "flow.replace_table_rows",
+    "finalize"
+  ],
+  "declaredSlots": {}
+}

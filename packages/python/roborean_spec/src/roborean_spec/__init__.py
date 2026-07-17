@@ -4,26 +4,49 @@ from typing import Any
 
 from .migrations import migrate_project
 from .models import (
+    ArtifactRecord,
     Bit,
     BitResult,
     BitTypeManifest,
     CompiledProject,
     DocumentDefinition,
+    DocumentDriverManifest,
+    DocumentOperation,
+    DocumentPreview,
+    DocumentPreviewSettings,
+    EffectClass,
+    Exposure,
+    OnError,
     Project,
     PublicLiteral,
     RejectOp,
     RuleAst,
+    RunDiff,
+    RunError,
+    RunRecord,
+    RunRequest,
     RunResults,
+    RunStatus,
+    RunTrigger,
+    SecretRefAccess,
     SecretRefValue,
     SetOp,
+    TemplateManifest,
+    TemplateSlot,
     UnsetOp,
     Variable,
+    WorkspaceChange,
     WorkspacePatch,
     WorkspaceValue,
 )
-from .schema_loader import find_repo_root, load_schema, schema_dir, validate_instance
+from .schema_loader import (
+    find_repo_root,
+    load_schema,
+    schema_dir,
+    validate_instance,
+)
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 
 
 def project_from_dict(data: dict[str, Any]) -> Project:
@@ -38,20 +61,38 @@ def project_to_dict(project: Project) -> dict[str, Any]:
 
 
 __all__ = [
+    "ArtifactRecord",
     "Bit",
     "BitResult",
     "BitTypeManifest",
     "CompiledProject",
     "DocumentDefinition",
+    "DocumentDriverManifest",
+    "DocumentOperation",
+    "DocumentPreview",
+    "DocumentPreviewSettings",
+    "EffectClass",
+    "Exposure",
+    "OnError",
     "Project",
     "PublicLiteral",
     "RejectOp",
     "RuleAst",
+    "RunDiff",
+    "RunError",
+    "RunRecord",
+    "RunRequest",
     "RunResults",
+    "RunStatus",
+    "RunTrigger",
+    "SecretRefAccess",
     "SecretRefValue",
     "SetOp",
+    "TemplateManifest",
+    "TemplateSlot",
     "UnsetOp",
     "Variable",
+    "WorkspaceChange",
     "WorkspacePatch",
     "WorkspaceValue",
     "find_repo_root",

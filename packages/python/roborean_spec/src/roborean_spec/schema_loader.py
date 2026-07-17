@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker, RefResolver
-from jsonschema.exceptions import ValidationError
 
 
 def find_repo_root() -> Path:

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/run-record.schema.json",
+  "title": "RunRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "runId",
+    "idempotencyKey",
+    "projectId",
+    "projectRevision",
+    "compiledDigest",
+    "status",
+    "request",
+    "attempt",
+    "engineVersion",
+    "pluginVersions",
+    "createdAt"
+  ],
+  "properties": {
+    "runId": { "type": "string", "minLength": 1 },
+    "idempotencyKey": { "type": "string", "minLength": 1 },
+    "projectId": { "type": "string", "minLength": 1 },
+    "projectRevision": { "type": "string" },
+    "compiledDigest": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "running", "succeeded", "failed", "cancelled"]
+    },
+    "request": { "$ref": "run-request.schema.json" },
+    "results": {
+      "oneOf": [{ "type": "null" }, { "$ref": "run-results.schema.json" }]
+    },
+    "diff": {
+      "oneOf": [{ "type": "null" }, { "$ref": "run-diff.schema.json" }]
+    },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "retryPolicySnapshot": { "type": "object" },
+    "engineVersion": { "type": "string" },
+    "pluginVersions": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "error": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": { "type": "string" },
+            "message": { "type": "string" },
+            "bitId": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "startedAt": { "type": ["string", "null"], "format": "date-time" },
+    "finishedAt": { "type": ["string", "null"], "format": "date-time" },
+    "requestDigest": { "type": "string" }
+  }
+}

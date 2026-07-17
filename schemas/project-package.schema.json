@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/project-package.schema.json",
+  "title": "ProjectPackageManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "entry"],
+  "properties": {
+    "formatVersion": { "type": "string", "const": "1.0.0" },
+    "entry": {
+      "type": "string",
+      "enum": ["project.json", "project.yaml"]
+    },
+    "lockfile": {
+      "type": ["string", "null"],
+      "enum": ["project.lock", null]
+    },
+    "templatesDir": { "type": "string", "default": "documents/templates" },
+    "assetsDir": { "type": "string", "default": "assets" }
+  }
+}

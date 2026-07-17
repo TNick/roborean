@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D05_image_stamp",
+  "name": "Image stamp",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": []
+  },
+  "bits": [
+    {
+      "id": "draw",
+      "type": "roborean.raster_draw_text",
+      "when": true,
+      "config": {
+        "documentId": "stamp",
+        "ops": [
+          {
+            "op": "raster.draw_text",
+            "layer": "main",
+            "text": "DRAFT",
+            "anchor": [
+              20,
+              40
+            ]
+          }
+        ]
+      },
+      "reads": [],
+      "writes": [],
+      "emits": [
+        "stamp"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "stamp",
+      "type": "image",
+      "driver": "roborean.image",
+      "templateRef": "stamp",
+      "outputTarget": "stamp.png",
+      "irFamily": "raster",
+      "settings": {
+        "format": "png"
+      },
+      "preview": {
+        "mode": "drawing-json",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "stamp",
+      "path": "templates/stamp.png"
+    }
+  ],
+  "metadata": {}
+}

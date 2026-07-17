@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/artifacts/artifact-record.schema.json",
+  "title": "ArtifactRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "documentId",
+    "path",
+    "mediaType",
+    "digestSha256",
+    "byteLength",
+    "templateId",
+    "templateVersion",
+    "driverId",
+    "driverVersion"
+  ],
+  "properties": {
+    "documentId": { "type": "string" },
+    "path": { "type": "string" },
+    "mediaType": { "type": "string" },
+    "digestSha256": { "type": "string" },
+    "byteLength": { "type": "integer", "minimum": 0 },
+    "templateId": { "type": "string" },
+    "templateVersion": { "type": "string" },
+    "driverId": { "type": "string" },
+    "driverVersion": { "type": "string" }
+  }
+}

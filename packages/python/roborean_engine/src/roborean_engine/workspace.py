@@ -3,7 +3,6 @@
 import hashlib
 import json
 from dataclasses import dataclass, field
-from typing import Any
 
 from roborean_spec import Project, WorkspaceValue
 
@@ -20,8 +19,7 @@ def initial_snapshot(project: Project) -> WorkspaceSnapshot:
     """Build the initial snapshot from project variable defaults."""
     # Copy model values so a caller cannot mutate project-owned containers.
     values = {
-        variable.key: variable.default_value
-        for variable in project.variables
+        variable.key: variable.default_value for variable in project.variables
     }
     return WorkspaceSnapshot(values=values)
 

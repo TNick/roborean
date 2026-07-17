@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "pnpm run build && pnpm -r test",
-    "lint": "tsc -b packages/typescript/spec packages/typescript/engine",
-    "build": "tsc -b packages/typescript/spec packages/typescript/engine"
+    "lint": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview",
+    "build": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

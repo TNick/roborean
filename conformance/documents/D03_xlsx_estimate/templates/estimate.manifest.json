@@ -1,0 +1,20 @@
+{
+  "templateId": "estimate",
+  "templateVersion": "1.0.0",
+  "documentType": "xlsx",
+  "driver": "roborean.xlsx",
+  "requiredInputs": [
+    "price"
+  ],
+  "capabilities": [
+    "sheet.set_cell",
+    "sheet.set_formula",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "price": {
+      "kind": "cell",
+      "required": true
+    }
+  }
+}

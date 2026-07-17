@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D01_text_hello",
+  "name": "Text hello",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "name",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Ada"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "fill_name",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "hello_doc",
+        "name": "name",
+        "fromKey": "name"
+      },
+      "reads": [
+        "name"
+      ],
+      "writes": [],
+      "emits": [
+        "hello_doc"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "hello_doc",
+      "type": "text",
+      "driver": "roborean.text",
+      "templateRef": "hello",
+      "outputTarget": "hello.txt",
+      "irFamily": "plain",
+      "settings": {},
+      "preview": {
+        "mode": "text",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "hello",
+      "path": "templates/hello.txt"
+    }
+  ],
+  "metadata": {}
+}

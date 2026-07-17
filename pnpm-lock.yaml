@@ -18,6 +18,39 @@ importers:
         specifier: ^3.0.0
         version: 3.2.7(@types/node@22.20.1)
 
+  packages/typescript/documents-base:
+    dependencies:
+      '@roborean/spec':
+        specifier: workspace:*
+        version: link:../spec
+
+  packages/typescript/documents-markdown:
+    dependencies:
+      '@roborean/documents-base':
+        specifier: workspace:*
+        version: link:../documents-base
+
+  packages/typescript/documents-preview:
+    dependencies:
+      '@roborean/documents-base':
+        specifier: workspace:*
+        version: link:../documents-base
+      '@roborean/documents-markdown':
+        specifier: workspace:*
+        version: link:../documents-markdown
+      '@roborean/documents-text':
+        specifier: workspace:*
+        version: link:../documents-text
+      '@roborean/spec':
+        specifier: workspace:*
+        version: link:../spec
+
+  packages/typescript/documents-text:
+    dependencies:
+      '@roborean/documents-base':
+        specifier: workspace:*
+        version: link:../documents-base
+
   packages/typescript/engine:
     dependencies:
       '@roborean/spec':
@@ -485,8 +518,8 @@ packages:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
 
-  postcss@8.5.19:
-    resolution: {integrity: sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ==}
+  postcss@8.5.18:
+    resolution: {integrity: sha512-xdB1oSLHbz1vRWgCDalrCqEFTWzFlhqFC5tIHLMOSUIjhm3XXQ1qrFy8S/ESr1JYRRXqM3c1QFiMZUJdUTqyMQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   require-from-string@2.0.2:
@@ -938,7 +971,7 @@ snapshots:
 
   picomatch@4.0.5: {}
 
-  postcss@8.5.19:
+  postcss@8.5.18:
     dependencies:
       nanoid: 3.3.16
       picocolors: 1.1.1
@@ -1034,7 +1067,7 @@ snapshots:
       esbuild: 0.28.1
       fdir: 6.5.0(picomatch@4.0.5)
       picomatch: 4.0.5
-      postcss: 8.5.19
+      postcss: 8.5.18
       rollup: 4.62.2
       tinyglobby: 0.2.17
     optionalDependencies:

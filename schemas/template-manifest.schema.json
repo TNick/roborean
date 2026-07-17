@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/template-manifest.schema.json",
+  "title": "TemplateManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "templateId",
+    "templateVersion",
+    "documentType",
+    "driver",
+    "requiredInputs",
+    "capabilities",
+    "declaredSlots"
+  ],
+  "properties": {
+    "templateId": { "type": "string", "minLength": 1 },
+    "templateVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "documentType": {
+      "type": "string",
+      "enum": ["text", "markdown", "xlsx", "docx", "image", "dxf"]
+    },
+    "driver": { "type": "string", "minLength": 1 },
+    "requiredInputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "declaredSlots": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "text",
+              "richtext",
+              "repeating_table",
+              "image",
+              "cell",
+              "named_range",
+              "block",
+              "layer"
+            ]
+          },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "contentHash": { "type": "string" }
+  }
+}

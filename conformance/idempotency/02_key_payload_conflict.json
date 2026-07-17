@@ -1,0 +1,27 @@
+{
+  "id": "02_key_payload_conflict",
+  "projectPackage": "packages/02_set_and_copy",
+  "request": {
+    "projectId": "example.set-and-copy",
+    "idempotencyKey": "demo-key-2",
+    "trigger": "test",
+    "workspaceOverrides": {},
+    "strictWorkspaceAccess": true
+  },
+  "conflictRequest": {
+    "projectId": "example.set-and-copy",
+    "idempotencyKey": "demo-key-2",
+    "trigger": "test",
+    "workspaceOverrides": {
+      "title": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "Conflict"
+      }
+    },
+    "strictWorkspaceAccess": true
+  },
+  "expected": {
+    "conflict": true
+  }
+}

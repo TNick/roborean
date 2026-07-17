@@ -6,14 +6,19 @@ from typing import Any
 
 def migrate_project(
     data: dict[str, Any],
-    target: str = "1.0.0",
+    target: str = "1.1.0",
 ) -> dict[str, Any]:
     """Migrate a project dictionary to a supported target version."""
-    # Phase 1 has one format and still returns a detached value for callers.
-    source = data.get("schemaVersion")
+    result = deepcopy(data)
+    source = result.get("schemaVersion")
+    if source == target:
+        return result
+    if source == "1.0.0" and target == "1.1.0":
+        # Document fields are additive; bump the version marker only.
+        result["schemaVersion"] = "1.1.0"
+        return result
     if source == "1.0.0" and target == "1.0.0":
-        return deepcopy(data)
-
+        return result
     raise ValueError(
         f"Unsupported project migration from {source!r} to {target!r}"
     )

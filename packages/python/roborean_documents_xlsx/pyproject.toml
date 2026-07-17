@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "roborean-documents-xlsx"
+version = "0.3.0"
+description = "XLSX document driver for Roborean"
+requires-python = ">=3.11"
+dependencies = [
+  "roborean-documents-base>=0.3.0",
+  "roborean-spec>=0.3.0",
+  "openpyxl>=3.1",
+  "defusedxml>=0.7",
+]
+
+[project.entry-points."roborean.document_drivers"]
+"roborean.xlsx" = "roborean_documents_xlsx.driver:create_driver"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/roborean_documents_xlsx"]

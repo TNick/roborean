@@ -1,0 +1,17 @@
+{
+  "typeId": "roborean.raster_draw_text",
+  "version": "1.0.0",
+  "configSchema": {
+    "type": "object",
+    "required": ["documentId", "ops"],
+    "properties": {
+      "documentId": { "type": "string" },
+      "ops": { "type": "array" }
+    },
+    "additionalProperties": false
+  },
+  "effectClass": "document",
+  "capabilities": ["document.write"],
+  "readsFromConfig": false,
+  "browserSafe": false
+}

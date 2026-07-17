@@ -15,7 +15,7 @@
     "metadata"
   ],
   "properties": {
-    "schemaVersion": {"const": "1.0.0"},
+    "schemaVersion": {"enum": ["1.0.0", "1.1.0"]},
     "id": {"type": "string", "minLength": 1},
     "name": {"type": "string", "minLength": 1},
     "description": {"type": "string"},

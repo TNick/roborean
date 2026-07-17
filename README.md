@@ -66,9 +66,10 @@ Detailed plans live under [`research/`](research/):
 
 ## Status
 
-**Phase 1 (Foundation) is implemented**: canonical schemas under `schemas/`,
-`roborean-spec` / `roborean-engine`, `@roborean/spec` / `@roborean/engine`,
-shared `conformance/` fixtures, and the `roborean` diagnostics CLI.
+**Phases 1–3 are implemented**: canonical schemas, dual-runtime cores,
+durable runs/stores, and the document driver stack (text, markdown, xlsx,
+docx, image, dxf) with TypeScript preview helpers and CLI
+`render` / `preview` / `drivers list`.
 
 ## Development
 

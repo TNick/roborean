@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "projectId": "example.conditional",
   "projectName": "Conditional",
-  "compiledAt": "2026-07-17T08:46:06.201002+00:00",
-  "engineVersion": "0.1.0",
+  "compiledAt": "2026-07-17T09:23:28.850652+00:00",
+  "engineVersion": "0.3.0",
   "ruleProfileVersion": "1.0.0",
-  "digest": "58e9b573d5360c1e700195487e5813d270989a39a911635f6f63b5fc87987dad",
+  "digest": "6e26bdc26a87a6a0ad58cd61ab097a95255c9f1beb4483a7245a04a5eb609094",
   "variables": [
     {
       "key": "parcel.area",

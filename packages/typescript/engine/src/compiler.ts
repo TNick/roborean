@@ -73,9 +73,15 @@ export function compileProject(input: unknown, options: CompileOptions = {}): Co
       emits: [...bit.emits],
     };
   }
-  if (project.documents.length > 0 && !options.allowUnresolvedDocuments) diagnostics.push({ severity: "error", code: "E_SCHEMA", message: "Documents require allowUnresolvedDocuments in Phase 1" });
+  if (project.documents.length > 0 && options.allowUnresolvedDocuments) {
+    diagnostics.push({
+      severity: "warning",
+      code: "E_SCHEMA",
+      message: "Document validation skipped (allowUnresolvedDocuments)",
+    });
+  }
   for (const variable of project.workspace.variables) if (!project.bits.some((bit) => bit.reads.includes(variable.key) || bit.writes.includes(variable.key))) diagnostics.push({ severity: "warning", code: "W_UNUSED_VARIABLE", message: `Unused variable: ${variable.key}` });
   for (const bit of project.bits) if (bit.when !== true && bit.when.op === "const" && bit.when.args[0] === false) diagnostics.push({ severity: "warning", code: "W_DEAD_BIT", message: `Dead bit: ${bit.id}` });
   if (diagnostics.some((item) => item.severity === "error")) throw new CompileError(diagnostics);
-  return { schemaVersion: "1.0.0", projectId: project.id, projectName: project.name, compiledAt: new Date().toISOString(), engineVersion: ENGINE_VERSION, ruleProfileVersion: RULE_PROFILE_VERSION, digest: projectDigest(project), variables: project.workspace.variables, bits: project.bits, activationExpressions, dependencyMap, documents: project.documents, templates: project.templates, pluginVersions: Object.fromEntries(builtinManifests.map((manifest) => [manifest.typeId, manifest.version])), diagnostics };
+  return { schemaVersion: project.schemaVersion ?? "1.0.0", projectId: project.id, projectName: project.name, compiledAt: new Date().toISOString(), engineVersion: ENGINE_VERSION, ruleProfileVersion: RULE_PROFILE_VERSION, digest: projectDigest(project), variables: project.workspace.variables, bits: project.bits, activationExpressions, dependencyMap, documents: project.documents, templates: project.templates, pluginVersions: Object.fromEntries(builtinManifests.map((manifest) => [manifest.typeId, manifest.version])), diagnostics };
 }

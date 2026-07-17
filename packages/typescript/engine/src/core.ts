@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { migrateProject, validate, type Bit, type BitTypeManifest, type Project, type RuleAst, type WorkspacePatch, type WorkspaceSnapshot, type WorkspaceValue } from "@roborean/spec";
 
-export const ENGINE_VERSION = "0.1.0";
+export const ENGINE_VERSION = "0.3.0";
 export const RULE_PROFILE_VERSION = "1.0.0";
 export class RuleEvalError extends Error {}
 export class RuleTypeError extends Error {}

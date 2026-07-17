@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D03_xlsx_estimate",
+  "name": "XLSX estimate",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "price",
+        "schema": {
+          "type": "number"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "number",
+          "value": 10
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "fill",
+      "type": "roborean.sheet_set_cells",
+      "when": true,
+      "config": {
+        "documentId": "estimate",
+        "cells": [
+          {
+            "sheet": "Estimate",
+            "cell": "B1",
+            "fromKey": "price"
+          }
+        ],
+        "formulas": [
+          {
+            "sheet": "Estimate",
+            "cell": "B2",
+            "formula": "=B1*2"
+          }
+        ]
+      },
+      "reads": [
+        "price"
+      ],
+      "writes": [],
+      "emits": [
+        "estimate"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "estimate",
+      "type": "xlsx",
+      "driver": "roborean.xlsx",
+      "templateRef": "estimate",
+      "outputTarget": "estimate.xlsx",
+      "irFamily": "sheet",
+      "settings": {},
+      "preview": {
+        "mode": "html",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "estimate",
+      "path": "templates/estimate.xlsx"
+    }
+  ],
+  "metadata": {}
+}

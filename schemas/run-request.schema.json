@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/run-request.schema.json",
+  "title": "RunRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["projectId", "idempotencyKey", "trigger"],
+  "properties": {
+    "projectId": { "type": "string", "minLength": 1 },
+    "projectRevision": { "type": ["string", "null"] },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": ["cli", "api", "retry", "test"]
+    },
+    "workspaceOverrides": {
+      "type": "object",
+      "additionalProperties": { "$ref": "workspace-value.schema.json" }
+    },
+    "strictWorkspaceAccess": { "type": "boolean", "default": true },
+    "retryOfRunId": { "type": ["string", "null"] },
+    "requestedAt": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

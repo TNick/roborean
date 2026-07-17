@@ -56,6 +56,7 @@ packages/typescript/     # @roborean/* publishable packages
 apps/                    # thin deployables (web, api, cli-diagnostics)
 tools/                   # schema sync, conformance, OpenAPI drift
 research/                # design docs (not runtime code)
+playground/              # scratch, temp files, agent output only
 ```
 
 Python toolchains: **uv** workspaces. TypeScript: **pnpm** workspaces.
@@ -187,8 +188,16 @@ Apps (`apps/web`, `apps/api`, CLI) are thin and not the semantic core.
   passphrase (`gpg.with` / signing disabled for that commit as allowed by
   project practice).
 
-## Experimental code
+## Scratch, temp, and output files
 
-Put throwaway experiments under `playground/` at the repo root. Do not
-land experiments in publishable packages without tests and changelog
-entries.
+Never create temporary files, scratch notes, dumps, CLI output captures,
+or other working artifacts inside the source tree (`packages/`, `apps/`,
+`schemas/`, `conformance/`, `tools/`, `research/`, or the repo root
+outside `playground/`).
+
+Use `playground/` at the repo root for all of that. It exists exactly so
+agents and humans can experiment and leave output without polluting
+publishable packages or golden fixtures.
+
+Put throwaway experiments under `playground/` as well. Do not land
+experiments in publishable packages without tests and changelog entries.
