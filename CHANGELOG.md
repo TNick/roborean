@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-07-17
+
 ## [0.1.2] - 2026-07-17
 
 ### Added
@@ -64,4 +66,5 @@
 
 [0.1.1]: https://github.com/TNick/roborean/compare/846ef574a1c267a96143a80cb33ffe8e935d737c...v0.1.1
 [0.1.2]: https://github.com/TNick/roborean/compare/v0.1.1...v0.1.2
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.2...HEAD
+[0.1.3]: https://github.com/TNick/roborean/compare/v0.1.2...v0.1.3
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.3...HEAD
