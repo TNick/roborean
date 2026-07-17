@@ -7,6 +7,7 @@ name = "roborean-engine"
 version = "0.3.0"
 description = "Deterministic Roborean compiler, runner, and durable run service"
 requires-python = ">=3.11"
+license = "MIT"
 dependencies = [
   "jsonschema>=4.23",
   "roborean-spec>=0.3.0",
@@ -33,6 +34,11 @@ roborean = "roborean_engine.cli:main"
 "roborean.noop" = "roborean_engine.bits.registry:load_noop_bit_type"
 "roborean.set_variable" = "roborean_engine.bits.registry:load_set_variable_bit_type"
 "roborean.copy_variable" = "roborean_engine.bits.registry:load_copy_variable_bit_type"
+
+
+[project.urls]
+Homepage = "https://github.com/TNick/roborean"
+Repository = "https://github.com/TNick/roborean"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/roborean_engine"]

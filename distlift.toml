@@ -1,0 +1,406 @@
+# distlift: lockstep releases — one Git tag v{version} updates all manifests.
+# Local: distlift release simple --patch (or --release-version X.Y.Z)
+# CI: .github/workflows/publish.yml on tag push v*
+
+[release]
+mode = "simple"
+tag_template = "v{version}"
+version_source = "tag"
+default_version = "0.1.0"
+version_format = "major-minor-patch"
+remotes = ["origin"]
+
+[changelog]
+enabled = true
+path = "CHANGELOG.md"
+compare_url_template = "https://github.com/TNick/roborean/compare/{prev}...{next}"
+
+[dependency_updates]
+enabled = true
+include_current_monorepo = true
+python_version_template = ">={version}"
+javascript_version_template = "^{version}"
+
+[[version_files]]
+path = "packages/python/roborean_spec/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = true
+
+[[version_files]]
+path = "packages/python/roborean_storage_base/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_storage_dict/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_storage_sqlalchemy/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_plugins_base/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_documents_base/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_documents_text/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_documents_markdown/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_documents_xlsx/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_documents_docx/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_documents_image/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_documents_dxf/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_engine/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/python/roborean_api_fastapi/pyproject.toml"
+kind = "pyproject"
+language = "python"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/spec/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/engine/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/documents-base/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/documents-text/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/documents-markdown/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/documents-preview/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/validation/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/api-types/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/ui/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[version_files]]
+path = "packages/typescript/editor/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
+[[build.targets]]
+name = "roborean-spec"
+path = "packages/python/roborean_spec"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-spec"
+path = "packages/python/roborean_spec"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-storage-base"
+path = "packages/python/roborean_storage_base"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-storage-base"
+path = "packages/python/roborean_storage_base"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-storage-dict"
+path = "packages/python/roborean_storage_dict"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-storage-dict"
+path = "packages/python/roborean_storage_dict"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-storage-sqlalchemy"
+path = "packages/python/roborean_storage_sqlalchemy"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-storage-sqlalchemy"
+path = "packages/python/roborean_storage_sqlalchemy"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-plugins-base"
+path = "packages/python/roborean_plugins_base"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-plugins-base"
+path = "packages/python/roborean_plugins_base"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-documents-base"
+path = "packages/python/roborean_documents_base"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-documents-base"
+path = "packages/python/roborean_documents_base"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-documents-text"
+path = "packages/python/roborean_documents_text"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-documents-text"
+path = "packages/python/roborean_documents_text"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-documents-markdown"
+path = "packages/python/roborean_documents_markdown"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-documents-markdown"
+path = "packages/python/roborean_documents_markdown"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-documents-xlsx"
+path = "packages/python/roborean_documents_xlsx"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-documents-xlsx"
+path = "packages/python/roborean_documents_xlsx"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-documents-docx"
+path = "packages/python/roborean_documents_docx"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-documents-docx"
+path = "packages/python/roborean_documents_docx"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-documents-image"
+path = "packages/python/roborean_documents_image"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-documents-image"
+path = "packages/python/roborean_documents_image"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-documents-dxf"
+path = "packages/python/roborean_documents_dxf"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-documents-dxf"
+path = "packages/python/roborean_documents_dxf"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-engine"
+path = "packages/python/roborean_engine"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-engine"
+path = "packages/python/roborean_engine"
+ecosystem = "python"
+
+[[build.targets]]
+name = "roborean-api-fastapi"
+path = "packages/python/roborean_api_fastapi"
+ecosystem = "python"
+
+[[publish.targets]]
+name = "roborean-api-fastapi"
+path = "packages/python/roborean_api_fastapi"
+ecosystem = "python"
+
+[[build.targets]]
+name = "ts-spec"
+path = "packages/typescript/spec"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-spec"
+path = "packages/typescript/spec"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-engine"
+path = "packages/typescript/engine"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-engine"
+path = "packages/typescript/engine"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-documents-base"
+path = "packages/typescript/documents-base"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-documents-base"
+path = "packages/typescript/documents-base"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-documents-text"
+path = "packages/typescript/documents-text"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-documents-text"
+path = "packages/typescript/documents-text"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-documents-markdown"
+path = "packages/typescript/documents-markdown"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-documents-markdown"
+path = "packages/typescript/documents-markdown"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-documents-preview"
+path = "packages/typescript/documents-preview"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-documents-preview"
+path = "packages/typescript/documents-preview"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-validation"
+path = "packages/typescript/validation"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-validation"
+path = "packages/typescript/validation"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-api-types"
+path = "packages/typescript/api-types"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-api-types"
+path = "packages/typescript/api-types"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-ui"
+path = "packages/typescript/ui"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-ui"
+path = "packages/typescript/ui"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-editor"
+path = "packages/typescript/editor"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-editor"
+path = "packages/typescript/editor"
+ecosystem = "npm"

@@ -14,4 +14,6 @@
 
 ### Changed
 
+- Export `Redacted` workspace value from the public package API.
+
 ### Fixed

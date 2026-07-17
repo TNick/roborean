@@ -1,0 +1,133 @@
+name: Publish
+
+# Builds and publishes all publishable packages on distlift tag v*.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: make init-d
+
+      - name: Lint and test
+        run: |
+          make lint
+          make test
+
+  publish-pypi:
+    needs: gate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package-path: packages/python/roborean_spec
+            github-environment: pypi-roborean-spec
+          - package-path: packages/python/roborean_storage_base
+            github-environment: pypi-roborean-storage-base
+          - package-path: packages/python/roborean_storage_dict
+            github-environment: pypi-roborean-storage-dict
+          - package-path: packages/python/roborean_storage_sqlalchemy
+            github-environment: pypi-roborean-storage-sqlalchemy
+          - package-path: packages/python/roborean_plugins_base
+            github-environment: pypi-roborean-plugins-base
+          - package-path: packages/python/roborean_documents_base
+            github-environment: pypi-roborean-documents-base
+          - package-path: packages/python/roborean_documents_text
+            github-environment: pypi-roborean-documents-text
+          - package-path: packages/python/roborean_documents_markdown
+            github-environment: pypi-roborean-documents-markdown
+          - package-path: packages/python/roborean_documents_xlsx
+            github-environment: pypi-roborean-documents-xlsx
+          - package-path: packages/python/roborean_documents_docx
+            github-environment: pypi-roborean-documents-docx
+          - package-path: packages/python/roborean_documents_image
+            github-environment: pypi-roborean-documents-image
+          - package-path: packages/python/roborean_documents_dxf
+            github-environment: pypi-roborean-documents-dxf
+          - package-path: packages/python/roborean_engine
+            github-environment: pypi-roborean-engine
+          - package-path: packages/python/roborean_api_fastapi
+            github-environment: pypi-roborean-api-fastapi
+    environment: ${{ matrix.github-environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip build
+
+      - name: Build sdist and wheel
+        working-directory: ${{ matrix.package-path }}
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: ${{ matrix.package-path }}/dist
+
+  publish-npm:
+    needs: gate
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install npm with trusted publishing support
+        run: npm install -g npm@latest
+
+      - name: Install and build
+        run: |
+          pnpm install --registry https://registry.npmjs.org/
+          pnpm run build
+
+      # OIDC: do not set NODE_AUTH_TOKEN — pnpm/npm exchange GitHub id-token.
+      - name: Publish @roborean packages
+        run: |
+          set -euo pipefail
+          for pkg in \
+            @roborean/spec \
+            @roborean/engine \
+            @roborean/documents-base \
+            @roborean/documents-text \
+            @roborean/documents-markdown \
+            @roborean/documents-preview \
+            @roborean/validation \
+            @roborean/api-types \
+            @roborean/ui \
+            @roborean/editor
+          do
+            echo "Publishing ${pkg}..."
+            pnpm --filter "${pkg}" publish --access public --no-git-checks
+          done

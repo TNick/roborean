@@ -2,9 +2,13 @@
   "name": "@roborean/documents-markdown",
   "version": "0.3.0",
   "type": "module",
-  "exports": { ".": "./dist/index.js" },
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "tsc -p tsconfig.json --noEmit",
@@ -12,5 +16,13 @@
   },
   "dependencies": {
     "@roborean/documents-base": "workspace:*"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TNick/roborean.git"
   }
 }

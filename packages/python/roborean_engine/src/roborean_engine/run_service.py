@@ -5,6 +5,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 
 from roborean_spec import (
     RunError,
@@ -21,7 +22,7 @@ from roborean_storage_base import (
 )
 
 from .bits.registry import BitTypeRegistry, builtin_registry
-from .compiler import CompileError, compile_project
+from .compiler import CompileError, CompileOptions, compile_project
 from .diff import build_run_diff
 from .idempotency import normalize_idempotency_key, request_body_digest
 from .retry import decide_retry, retry_policy_snapshot
@@ -41,6 +42,7 @@ class RunService:
     artifacts: ArtifactStore
     registry: BitTypeRegistry | None = None
     secrets: SecretResolver | None = None
+    package_dir_for_project: Callable[[str], Path | None] | None = None
     clock: Callable[[], datetime] = lambda: datetime.now(UTC)
     id_factory: Callable[[], str] = lambda: str(uuid.uuid4())
 
@@ -95,7 +97,14 @@ class RunService:
         self.runs.update(record)
 
         try:
-            compiled = compile_project(project, bit_registry=registry)
+            package_dir = None
+            if self.package_dir_for_project is not None:
+                package_dir = self.package_dir_for_project(project.id)
+            compiled = compile_project(
+                project,
+                bit_registry=registry,
+                options=CompileOptions(package_dir=package_dir),
+            )
             outcome = run_project_detailed(
                 compiled,
                 project,
@@ -104,8 +113,10 @@ class RunService:
                     run_id=run_id,
                     workspace_overrides=dict(request.workspace_overrides),
                     strict_workspace_access=request.strict_workspace_access,
+                    package_dir=package_dir,
                 ),
             )
+            self._persist_run_artifacts(run_id, outcome)
             diff = build_run_diff(
                 outcome.input_workspace,
                 outcome.final_workspace,
@@ -175,6 +186,20 @@ class RunService:
             )
             self.runs.update(record)
             raise
+
+    def _persist_run_artifacts(self, run_id: str, outcome) -> None:
+        """Store generated document bytes for later download."""
+        for document_id, payload in outcome.artifact_payloads.items():
+            media_type = "application/octet-stream"
+            for item in outcome.results.artifacts:
+                if isinstance(item, dict):
+                    if item.get("documentId") == document_id:
+                        media_type = str(
+                            item.get("mediaType", media_type)
+                        )
+                        break
+            key = f"{run_id}/{document_id}"
+            self.artifacts.put_bytes(key, payload, content_type=media_type)
 
     def retry(self, run_id: str, *, force: bool = False) -> RunRecord:
         """Retry a previous run when effect classes allow it."""

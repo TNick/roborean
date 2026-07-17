@@ -24,6 +24,7 @@ members = [
   "packages/python/roborean_documents_docx",
   "packages/python/roborean_documents_image",
   "packages/python/roborean_documents_dxf",
+  "packages/python/roborean_api_fastapi",
 ]
 
 [tool.pytest.ini_options]

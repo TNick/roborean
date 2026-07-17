@@ -17,6 +17,7 @@ node_modules/
 .idea/
 .vscode/*.local
 playground/
+.e2e-ai/
 research/
 .roborean/
 .roborean-sql-artifacts/

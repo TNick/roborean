@@ -1,0 +1,104 @@
+# Roborean E2E control plane (e2e-ai + Playwright webServer).
+project:
+  id: roborean
+
+state:
+  dir: .e2e-ai
+
+target:
+  scope: full_stack
+  surfaces:
+    frontend:
+      path: apps/web
+      editable: true
+      role: source
+    backend:
+      path: apps/api
+      editable: true
+      role: source
+
+playwright:
+  cwd: apps/web
+  list_command:
+    - pnpm
+    - exec
+    - playwright
+    - test
+    - --list
+  run_command:
+    - pnpm
+    - exec
+    - playwright
+    - test
+  report_env:
+    json: PLAYWRIGHT_JSON_OUTPUT_NAME
+    blob: PLAYWRIGHT_BLOB_OUTPUT_FILE
+  base_url_env: PLAYWRIGHT_BASE_URL
+  api_base_env: PLAYWRIGHT_API_BASE
+
+exclude:
+  tests: []
+
+isolation:
+  backend: none
+
+target_runtime:
+  backend: none
+
+full_verification:
+  command:
+    - e2e-ai
+    - verify
+
+routing:
+  role_preferences:
+    planner:
+      - cursor_auto
+      - cursor_gpt
+      - claude_recommended
+      - codex_recommended
+    implementer:
+      - cursor_auto
+      - cursor_composer
+      - claude_recommended
+      - codex_recommended
+    instrumenter:
+      - cursor_auto
+      - cursor_gpt
+      - claude_recommended
+      - codex_recommended
+
+agents:
+  planner:
+    plugin: cursor_auto
+    profile: difficult
+  implementer:
+    plugin: cursor_auto
+    profile: cheap
+  instrumenter:
+    plugin: cursor_auto
+    profile: difficult
+  cursor_auto:
+    provider: cursor
+  cursor_gpt:
+    provider: cursor
+    model_candidates:
+      - gpt-5.6-sol
+      - gpt-5.6-terra
+      - gpt-5.5
+  cursor_composer:
+    provider: cursor
+    model_candidates:
+      - composer-2.5
+  claude_recommended:
+    provider: claude
+    model_candidates:
+      - claude-sonnet-5
+      - claude-opus-4.8
+      - sonnet
+  codex_recommended:
+    provider: codex
+    model_candidates:
+      - gpt-5.6-sol
+      - gpt-5.6-terra
+    reasoning_effort: high

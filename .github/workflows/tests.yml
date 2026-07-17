@@ -1,0 +1,110 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: make init-d
+
+      - name: Lint
+        run: make lint
+
+  test-python:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
+      - name: Install Python packages and test tools
+        run: |
+          python -m venv venv
+          ./venv/bin/pip install --upgrade pip
+          ./venv/bin/pip install --isolated --index-url https://pypi.org/simple/ \
+            -e packages/python/roborean_spec \
+            -e packages/python/roborean_storage_base \
+            -e packages/python/roborean_storage_dict \
+            -e packages/python/roborean_storage_sqlalchemy \
+            -e packages/python/roborean_plugins_base \
+            -e packages/python/roborean_documents_base \
+            -e packages/python/roborean_documents_text \
+            -e packages/python/roborean_documents_markdown \
+            -e packages/python/roborean_documents_xlsx \
+            -e packages/python/roborean_documents_docx \
+            -e packages/python/roborean_documents_image \
+            -e packages/python/roborean_documents_dxf \
+            -e "packages/python/roborean_engine[dev]" \
+            -e packages/python/roborean_api_fastapi \
+            pytest black isort flake8 PyYAML SQLAlchemy httpx \
+            openpyxl defusedxml python-docx docxtpl Pillow ezdxf
+
+      - name: Pytest
+        run: ./venv/bin/python -m pytest packages/python -q
+
+  test-typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install and test TypeScript packages
+        run: |
+          pnpm install --registry https://registry.npmjs.org/
+          pnpm run build
+          pnpm -r test
+
+  platform-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: make init-d
+
+      - name: Install Playwright browsers
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      - name: E2E verify
+        run: make e2e

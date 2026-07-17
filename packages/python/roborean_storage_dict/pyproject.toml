@@ -7,6 +7,8 @@ name = "roborean-storage-dict"
 version = "0.2.0"
 description = "JSON/YAML filesystem persistence for Roborean"
 requires-python = ">=3.11"
+license = "MIT"
+readme = "README.md"
 dependencies = [
   "PyYAML>=6.0",
   "roborean-spec>=0.2.0",
@@ -15,6 +17,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "black>=24.0", "isort>=5.0", "flake8>=7.0"]
+
+
+[project.urls]
+Homepage = "https://github.com/TNick/roborean"
+Repository = "https://github.com/TNick/roborean"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/roborean_storage_dict"]

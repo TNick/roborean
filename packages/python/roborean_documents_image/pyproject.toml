@@ -7,6 +7,7 @@ name = "roborean-documents-image"
 version = "0.3.0"
 description = "Raster image document driver for Roborean"
 requires-python = ">=3.11"
+license = "MIT"
 dependencies = [
   "roborean-documents-base>=0.3.0",
   "roborean-spec>=0.3.0",
@@ -15,6 +16,11 @@ dependencies = [
 
 [project.entry-points."roborean.document_drivers"]
 "roborean.image" = "roborean_documents_image.driver:create_driver"
+
+
+[project.urls]
+Homepage = "https://github.com/TNick/roborean"
+Repository = "https://github.com/TNick/roborean"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/roborean_documents_image"]

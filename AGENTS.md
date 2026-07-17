@@ -178,6 +178,112 @@ TypeScript (illustrative): `@roborean/spec`, `@roborean/engine`,
 
 Apps (`apps/web`, `apps/api`, CLI) are thin and not the semantic core.
 
+## Creating a new package
+
+When you add a **publishable** library under `packages/python/` or
+`packages/typescript/`, wire it into the monorepo and release pipeline.
+Do **not** skip these steps; CI and distlift will not see the package
+otherwise.
+
+**Apps** (`apps/web`, `apps/api`, future CLIs) stay **private**: no
+`distlift.toml` entries, no PyPI/npm publish, no Trusted Publisher setup.
+
+**Lockstep versioning:** all publishable packages share one version line.
+The Git tag `v{version}` is the source of truth (`distlift.toml`
+`version_source = "tag"`). Set the new package’s initial `version` in
+`pyproject.toml` / `package.json` to match siblings (read any existing
+manifest or the latest `v*` tag before choosing).
+
+### Python (`packages/python/roborean_*`)
+
+1. **Scaffold** — match siblings: `pyproject.toml` (Hatchling,
+   `src/<import_name>/`, `tests/`), package `CHANGELOG.md`, tests as
+   `*_test.py`.
+2. **Metadata** in `[project]`:
+   - `license = "MIT"`
+   - `[project.urls]` with `Homepage` and `Repository` →
+     `https://github.com/TNick/roborean`
+   - `readme = "README.md"` when the package has a README
+   - `requires-python = ">=3.11"`
+3. **uv workspace** — add the package path to `[tool.uv.workspace].members`
+   in root [`pyproject.toml`](pyproject.toml).
+4. **Makefile** — append the path to `PY_PACKAGES` in
+   [`Makefile`](Makefile) so `make init` / `init-d` install it editable.
+5. **distlift** — in root [`distlift.toml`](distlift.toml):
+   - one `[[version_files]]` (`kind = "pyproject"`, `language = "python"`,
+     `primary = false`; only `roborean_spec` stays primary)
+   - matching `[[build.targets]]` and `[[publish.targets]]` with
+     `ecosystem = "python"`
+6. **GitHub Actions** — add the same path to the `include` matrix in
+   [`.github/workflows/publish.yml`](.github/workflows/publish.yml) with a
+   unique `github-environment: pypi-<pypi-project-name>`, and to the editable
+   `pip install -e …` list in
+   [`.github/workflows/tests.yml`](.github/workflows/tests.yml)
+   (`test-python` job).
+7. **Registry (maintainer, once per package)** — document in
+   [`playground/Developers.md`](playground/Developers.md): create the PyPI
+   project, GitHub environment `pypi-<pypi-project-name>`, and a Trusted
+   Publisher for workflow `publish.yml` with that **same** environment name.
+8. **Changelog** — add an `## [Unreleased]` entry in the new package
+   `CHANGELOG.md` (and root `CHANGELOG.md` if the addition is notable
+   repo-wide).
+
+### TypeScript (`packages/typescript/*`, scope `@roborean/*`)
+
+1. **Scaffold** — `package.json`, `tsconfig.json` (extend repo
+   `tsconfig.base.json`, `composite: true`, `outDir: dist`), `src/`,
+   Vitest config if siblings use it, package `CHANGELOG.md`.
+2. **Metadata** in `package.json`:
+   - `"license": "MIT"`
+   - `"publishConfig": { "access": "public" }`
+   - `"repository": { "type": "git", "url": "https://github.com/TNick/roborean.git" }`
+   - `"files": ["dist"]`, `"exports"`, `"types"` pointing at `dist/`
+   - sibling deps as `"workspace:*"` (distlift rewrites on release)
+3. **pnpm** — new folder under `packages/typescript/` is picked up by
+   [`pnpm-workspace.yaml`](pnpm-workspace.yaml) automatically; run
+   `pnpm install` from the repo root.
+4. **Root TypeScript build** — add the package path to **`build`** and
+   **`lint`** script lists in root [`package.json`](package.json)
+   (`tsc -b …`). Order dependencies before dependents in that list when
+   practical.
+5. **distlift** — in [`distlift.toml`](distlift.toml):
+   - `[[version_files]]` with `kind = "package-json"`,
+     `language = "javascript"`
+   - `[[build.targets]]` / `[[publish.targets]]` with `ecosystem = "npm"`
+6. **GitHub Actions** — add `@roborean/<name>` to the **ordered** publish
+   loop in [`.github/workflows/publish.yml`](.github/workflows/publish.yml)
+   **after** its workspace dependencies (same order as today: spec → engine
+   / documents-base → … → editor).
+7. **Registry (maintainer)** — ensure the npm user/org can publish
+   `@roborean/*`; see [`playground/Developers.md`](playground/Developers.md).
+8. **Changelog** — package `CHANGELOG.md` under `## [Unreleased]`.
+
+### After wiring
+
+- Run `make init-d` (or refresh venv + `pnpm install`) and `make test`.
+- If the package affects schemas or dual-runtime semantics, run
+  `make conformance` (and document fixtures as required by phase docs).
+- For a **first release** of a new PyPI/npm name, a maintainer must
+  complete registry setup before the tag push; agents should call that out
+  in the PR or task summary.
+
+### Checklist (copy for PRs)
+
+| Step | Python | TypeScript |
+|------|--------|------------|
+| Package scaffold + tests | yes | yes |
+| MIT + repository metadata | `pyproject.toml` | `package.json` |
+| Workspace (`uv` / pnpm) | root `pyproject.toml` | auto via glob |
+| `Makefile` `PY_PACKAGES` | yes | — |
+| Root `package.json` `build`/`lint` | — | yes |
+| `distlift.toml` (3 blocks) | yes | yes |
+| `publish.yml` + `tests.yml` | yes | yes (publish order) |
+| Package `CHANGELOG.md` | yes | yes |
+| `playground/Developers.md` (new PyPI name) | GitHub env + Trusted Publisher | if new scope/name |
+
+When adding a Python package, the GitHub environment name must match PyPI’s
+**Environment name** field exactly (`pypi-roborean-*`).
+
 ## Git and commits
 
 - Commits only when the user asks. Imperative mood; optionally prefix with

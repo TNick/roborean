@@ -14,4 +14,7 @@
 
 ### Changed
 
+- Durable runs persist document artifact bytes and use project package
+  directories when compiling document-enabled projects.
+
 ### Fixed

@@ -7,12 +7,19 @@ name = "roborean-storage-base"
 version = "0.2.0"
 description = "Persistence ports for Roborean projects and runs"
 requires-python = ">=3.11"
+license = "MIT"
+readme = "README.md"
 dependencies = [
   "roborean-spec>=0.2.0",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "black>=24.0", "isort>=5.0", "flake8>=7.0"]
+
+
+[project.urls]
+Homepage = "https://github.com/TNick/roborean"
+Repository = "https://github.com/TNick/roborean"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/roborean_storage_base"]

@@ -1,7 +1,14 @@
-.PHONY: init init-d test lint delint conformance test-storage conformance-documents
+.PHONY: init init-d test lint delint conformance test-storage conformance-documents api web platform openapi openapi-check e2e e2e-discover e2e-run e2e-repair e2e-doctor parity-dryrun
 
+ifeq ($(OS),Windows_NT)
 PYTHON = venv/Scripts/python.exe
 PIP = venv/Scripts/pip.exe
+else
+PYTHON = venv/bin/python
+PIP = venv/bin/pip
+endif
+
+E2E_AI_PATH ?= D:/prog/__py_libs__/e2e-ai
 
 PY_PACKAGES = \
 	packages/python/roborean_spec \
@@ -16,7 +23,8 @@ PY_PACKAGES = \
 	packages/python/roborean_documents_docx \
 	packages/python/roborean_documents_image \
 	packages/python/roborean_documents_dxf \
-	packages/python/roborean_engine
+	packages/python/roborean_engine \
+	packages/python/roborean_api_fastapi
 
 init:
 	python -m venv venv
@@ -27,8 +35,46 @@ init:
 init-d: init
 	$(PIP) install --isolated --index-url https://pypi.org/simple/ \
 		-e "packages/python/roborean_engine[dev]" \
-		pytest black isort flake8 PyYAML SQLAlchemy \
-		openpyxl defusedxml python-docx docxtpl Pillow ezdxf
+		-e packages/python/roborean_api_fastapi \
+		-e apps/api \
+		pytest black isort flake8 PyYAML SQLAlchemy httpx \
+		openpyxl defusedxml python-docx docxtpl Pillow ezdxf \
+		"uvicorn[standard]"
+	$(PYTHON) tools/install_e2e_ai.py
+
+api:
+	$(PYTHON) -m uvicorn roborean_api_app.main:build --factory --reload --port 8000
+
+web:
+	pnpm --filter web dev
+
+platform:
+	@echo "Run make api and make web in separate terminals"
+
+openapi:
+	$(PYTHON) tools/export_openapi.py
+	pnpm --filter @roborean/api-types run generate
+
+openapi-check:
+	$(PYTHON) tools/check_openapi_drift.py
+
+parity-dryrun:
+	$(PYTHON) tools/compare_dryrun_parity.py
+
+e2e:
+	$(PYTHON) -m e2e_ai verify
+
+e2e-discover:
+	$(PYTHON) -m e2e_ai discover
+
+e2e-run:
+	$(PYTHON) -m e2e_ai run --all
+
+e2e-repair:
+	$(PYTHON) -m e2e_ai repair
+
+e2e-doctor:
+	$(PYTHON) -m e2e_ai doctor
 
 test:
 	$(PYTHON) -m pytest packages/python -q

@@ -66,9 +66,8 @@ Detailed plans live under [`research/`](research/):
 
 ## Status
 
-**Phases 1–3 are implemented**: canonical schemas, dual-runtime cores,
-durable runs/stores, and the document driver stack (text, markdown, xlsx,
-docx, image, dxf) with TypeScript preview helpers and CLI
+**Phases 1–4 are implemented**: canonical schemas, dual-runtime cores,
+durable runs/stores, document drivers, FastAPI + React platform shell, and CLI
 `render` / `preview` / `drivers list`.
 
 ## Development
@@ -79,6 +78,9 @@ See [`AGENTS.md`](AGENTS.md) for contributor and agent conventions.
 make init-d
 make test
 make conformance
+make e2e          # e2e-ai verify (Playwright + local API/web)
+e2e-ai doctor     # config check from repo root
+e2e-ai repair     # optional AI fix loop when tests fail
 roborean validate conformance/projects/02_set_and_copy.json
 roborean run conformance/projects/02_set_and_copy.json
 ```

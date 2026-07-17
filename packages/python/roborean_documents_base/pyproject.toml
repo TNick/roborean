@@ -7,12 +7,19 @@ name = "roborean-documents-base"
 version = "0.3.0"
 description = "Document driver protocols and session manager for Roborean"
 requires-python = ">=3.11"
+license = "MIT"
+readme = "README.md"
 dependencies = [
   "roborean-spec>=0.3.0",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+
+
+[project.urls]
+Homepage = "https://github.com/TNick/roborean"
+Repository = "https://github.com/TNick/roborean"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/roborean_documents_base"]

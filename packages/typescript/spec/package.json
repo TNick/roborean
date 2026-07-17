@@ -2,9 +2,13 @@
   "name": "@roborean/spec",
   "version": "0.3.0",
   "type": "module",
-  "exports": { ".": "./dist/index.js" },
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "tsc -p tsconfig.json --noEmit",
@@ -14,5 +18,13 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "zod": "^3.24.1"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TNick/roborean.git"
   }
 }

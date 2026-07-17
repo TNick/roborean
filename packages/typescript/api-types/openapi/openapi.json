@@ -1,0 +1,1585 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Roborean API",
+    "version": "0.4.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "description": "Return liveness and engine version.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List Projects",
+        "description": "List project summaries.",
+        "operationId": "list_projects_v1_projects_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Projects V1 Projects Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Create Project",
+        "description": "Create a stored project.",
+        "operationId": "create_project_v1_projects_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get Project",
+        "description": "Fetch one project.",
+        "operationId": "get_project_v1_projects__project_id__get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Update Project",
+        "description": "Replace a project.",
+        "operationId": "update_project_v1_projects__project_id__put",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Delete Project",
+        "description": "Delete a project.",
+        "operationId": "delete_project_v1_projects__project_id__delete",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/compile": {
+      "post": {
+        "tags": [
+          "compile"
+        ],
+        "summary": "Compile Project",
+        "description": "Compile a stored project.",
+        "operationId": "compile_project_v1_projects__project_id__compile_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/CompileRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompileResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/runs": {
+      "post": {
+        "tags": [
+          "runs"
+        ],
+        "summary": "Create Run",
+        "description": "Execute a durable run.",
+        "operationId": "create_run_v1_projects__project_id__runs_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "runs"
+        ],
+        "summary": "List Runs",
+        "description": "List runs for a project.",
+        "operationId": "list_runs_v1_projects__project_id__runs_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RunSummary"
+                  },
+                  "title": "Response List Runs V1 Projects  Project Id  Runs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "runs"
+        ],
+        "summary": "Get Run",
+        "description": "Fetch one run.",
+        "operationId": "get_run_v1_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/runs/{run_id}/artifacts/{artifact_id}": {
+      "get": {
+        "tags": [
+          "artifacts"
+        ],
+        "summary": "Download Artifact",
+        "description": "Stream one stored artifact (document id).",
+        "operationId": "download_artifact_v1_runs__run_id__artifacts__artifact_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "artifact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Artifact Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/preview": {
+      "post": {
+        "tags": [
+          "previews"
+        ],
+        "summary": "Preview Document",
+        "description": "Return a browser-safe document preview.",
+        "operationId": "preview_document_v1_projects__project_id__preview_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Bit": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "when": {
+            "anyOf": [
+              {
+                "type": "boolean",
+                "const": true
+              },
+              {
+                "$ref": "#/components/schemas/RuleAst"
+              }
+            ],
+            "title": "When"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config"
+          },
+          "reads": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reads"
+          },
+          "writes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Writes"
+          },
+          "emits": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Emits"
+          },
+          "effectClass": {
+            "$ref": "#/components/schemas/EffectClass"
+          },
+          "onError": {
+            "$ref": "#/components/schemas/OnError"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Capabilities"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "when",
+          "config",
+          "reads",
+          "writes",
+          "emits",
+          "effectClass",
+          "onError",
+          "capabilities"
+        ],
+        "title": "Bit",
+        "description": "An ordered conditional unit of project work."
+      },
+      "Bucket": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "bucket",
+            "title": "Kind"
+          },
+          "bucket": {
+            "type": "string",
+            "title": "Bucket"
+          },
+          "bounds": {
+            "anyOf": [
+              {
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bounds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "bucket"
+        ],
+        "title": "Bucket",
+        "description": "A bucketed value with optional numeric bounds."
+      },
+      "CompileRequest": {
+        "properties": {
+          "strictUndeclaredAccess": {
+            "type": "boolean",
+            "title": "Strictundeclaredaccess",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CompileRequest",
+        "description": "Optional compile flags."
+      },
+      "CompileResponse": {
+        "properties": {
+          "compiled": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Compiled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "compiled"
+        ],
+        "title": "CompileResponse",
+        "description": "Compiled project snapshot."
+      },
+      "DiagnosticDto": {
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning",
+              "info"
+            ],
+            "title": "Severity"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "severity",
+          "code",
+          "message"
+        ],
+        "title": "DiagnosticDto",
+        "description": "One compile or validation diagnostic."
+      },
+      "DocumentDefinition": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "markdown",
+              "xlsx",
+              "docx",
+              "image",
+              "dxf"
+            ],
+            "title": "Type"
+          },
+          "templateRef": {
+            "type": "string",
+            "title": "Templateref"
+          },
+          "templateManifestRef": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Templatemanifestref"
+          },
+          "driver": {
+            "type": "string",
+            "title": "Driver"
+          },
+          "outputTarget": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outputtarget"
+          },
+          "irFamily": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "flow",
+                  "sheet",
+                  "drawing",
+                  "raster",
+                  "plain"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Irfamily"
+          },
+          "settings": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Settings"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentPreviewSettings"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "templateRef",
+          "driver"
+        ],
+        "title": "DocumentDefinition",
+        "description": "A deferred document output definition."
+      },
+      "DocumentPreviewSettings": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "none",
+              "text",
+              "html",
+              "drawing-json"
+            ],
+            "title": "Mode"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "enabled"
+        ],
+        "title": "DocumentPreviewSettings",
+        "description": "Preview configuration for a document definition."
+      },
+      "EffectClass": {
+        "type": "string",
+        "enum": [
+          "pure",
+          "workspace",
+          "document",
+          "filesystem",
+          "network",
+          "external-process",
+          "transactional-external"
+        ],
+        "title": "EffectClass",
+        "description": "Classifies a bit's execution effects."
+      },
+      "EqToken": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "eq_token",
+            "title": "Kind"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "token"
+        ],
+        "title": "EqToken",
+        "description": "An equality-preserving opaque token."
+      },
+      "Exposure": {
+        "type": "string",
+        "enum": [
+          "backendOnly",
+          "redactedToClient",
+          "clientVisible"
+        ],
+        "title": "Exposure",
+        "description": "Controls whether a workspace value can reach clients."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "OnError": {
+        "type": "string",
+        "enum": [
+          "abort",
+          "skip",
+          "continue"
+        ],
+        "title": "OnError",
+        "description": "Controls a run after a failed bit."
+      },
+      "PreviewRequest": {
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "title": "Documentid"
+          },
+          "workspaceOverrides": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Workspaceoverrides"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "documentId"
+        ],
+        "title": "PreviewRequest",
+        "description": "Preview one document definition."
+      },
+      "PreviewResponse": {
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "title": "Documentid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "html",
+              "text",
+              "sheet-json",
+              "drawing-json",
+              "unsupported"
+            ],
+            "title": "Kind"
+          },
+          "body": {
+            "title": "Body"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/DiagnosticDto"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "documentId",
+          "kind",
+          "body"
+        ],
+        "title": "PreviewResponse",
+        "description": "Browser-safe preview payload."
+      },
+      "Project": {
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "enum": [
+              "1.0.0",
+              "1.1.0"
+            ],
+            "title": "Schemaversion"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "pluginRequirements": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Pluginrequirements"
+          },
+          "workspace": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/Variable"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Workspace"
+          },
+          "bits": {
+            "items": {
+              "$ref": "#/components/schemas/Bit"
+            },
+            "type": "array",
+            "title": "Bits"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentDefinition"
+            },
+            "type": "array",
+            "title": "Documents"
+          },
+          "templates": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Templates"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schemaVersion",
+          "id",
+          "name",
+          "pluginRequirements",
+          "workspace",
+          "bits",
+          "documents",
+          "templates",
+          "metadata"
+        ],
+        "title": "Project",
+        "description": "A portable, versioned Roborean project."
+      },
+      "ProjectCreate": {
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "project"
+        ],
+        "title": "ProjectCreate",
+        "description": "Create one stored project."
+      },
+      "ProjectDetail": {
+        "properties": {
+          "project": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Project"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "project"
+        ],
+        "title": "ProjectDetail",
+        "description": "Redacted project payload."
+      },
+      "ProjectSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "schemaVersion": {
+            "type": "string",
+            "title": "Schemaversion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "schemaVersion"
+        ],
+        "title": "ProjectSummary",
+        "description": "List row for projects."
+      },
+      "ProjectUpdate": {
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/Project"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "project"
+        ],
+        "title": "ProjectUpdate",
+        "description": "Replace a stored project."
+      },
+      "PublicLiteral": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "public_literal",
+            "title": "Kind"
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "date"
+            ],
+            "title": "Datatype"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "dataType",
+          "value"
+        ],
+        "title": "PublicLiteral",
+        "description": "A public literal workspace value."
+      },
+      "Redacted": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "redacted",
+            "title": "Kind"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "secret",
+              "policy",
+              "consent",
+              "unknown"
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "reason"
+        ],
+        "title": "Redacted",
+        "description": "A value withheld by secret or policy rules."
+      },
+      "RuleAst": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "and",
+              "or",
+              "not",
+              "eq",
+              "ne",
+              "lt",
+              "le",
+              "gt",
+              "ge",
+              "has",
+              "const",
+              "var"
+            ],
+            "title": "Op"
+          },
+          "args": {
+            "items": {},
+            "type": "array",
+            "title": "Args"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "op",
+          "args"
+        ],
+        "title": "RuleAst",
+        "description": "A recursive CEL-profile rule expression."
+      },
+      "RunCreate": {
+        "properties": {
+          "dryRun": {
+            "type": "boolean",
+            "title": "Dryrun",
+            "default": false
+          },
+          "stopOnBitError": {
+            "type": "boolean",
+            "title": "Stoponbiterror",
+            "default": true
+          },
+          "workspaceOverrides": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Workspaceoverrides"
+          },
+          "strictWorkspaceAccess": {
+            "type": "boolean",
+            "title": "Strictworkspaceaccess",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RunCreate",
+        "description": "Body for POST /runs."
+      },
+      "RunDetail": {
+        "properties": {
+          "runId": {
+            "type": "string",
+            "title": "Runid"
+          },
+          "projectId": {
+            "type": "string",
+            "title": "Projectid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "results": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Results"
+          },
+          "diff": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diff"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "runId",
+          "projectId",
+          "status"
+        ],
+        "title": "RunDetail",
+        "description": "Redacted durable run."
+      },
+      "RunSummary": {
+        "properties": {
+          "runId": {
+            "type": "string",
+            "title": "Runid"
+          },
+          "projectId": {
+            "type": "string",
+            "title": "Projectid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finishedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "runId",
+          "projectId",
+          "status",
+          "createdAt"
+        ],
+        "title": "RunSummary",
+        "description": "Run list item."
+      },
+      "SecretRefValue": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "secret_ref",
+            "title": "Kind"
+          },
+          "ref": {
+            "type": "string",
+            "title": "Ref"
+          },
+          "displayHint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Displayhint"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "ref"
+        ],
+        "title": "SecretRefValue",
+        "description": "A reference to a secret held outside the portable project."
+      },
+      "ShapeToken": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "shape_token",
+            "title": "Kind"
+          },
+          "shape": {
+            "type": "string",
+            "enum": [
+              "email",
+              "phone",
+              "iban",
+              "uuid",
+              "code"
+            ],
+            "title": "Shape"
+          },
+          "length": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Length"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "shape"
+        ],
+        "title": "ShapeToken",
+        "description": "A value represented by its structural shape."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Variable": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "schema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Schema"
+          },
+          "defaultValue": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PublicLiteral"
+              },
+              {
+                "$ref": "#/components/schemas/SecretRefValue"
+              },
+              {
+                "$ref": "#/components/schemas/EqToken"
+              },
+              {
+                "$ref": "#/components/schemas/ShapeToken"
+              },
+              {
+                "$ref": "#/components/schemas/Bucket"
+              },
+              {
+                "$ref": "#/components/schemas/Redacted"
+              }
+            ],
+            "title": "Defaultvalue",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "bucket": "#/components/schemas/Bucket",
+                "eq_token": "#/components/schemas/EqToken",
+                "public_literal": "#/components/schemas/PublicLiteral",
+                "redacted": "#/components/schemas/Redacted",
+                "secret_ref": "#/components/schemas/SecretRefValue",
+                "shape_token": "#/components/schemas/ShapeToken"
+              }
+            }
+          },
+          "const": {
+            "type": "boolean",
+            "title": "Const",
+            "default": false
+          },
+          "exposure": {
+            "$ref": "#/components/schemas/Exposure"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "schema",
+          "defaultValue",
+          "exposure"
+        ],
+        "title": "Variable",
+        "description": "A declared workspace variable."
+      }
+    }
+  }
+}
