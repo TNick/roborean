@@ -19,6 +19,8 @@
   and clean unused imports that were failing `make lint`.
 - CI platform E2E runs Playwright once with a shared `webServer` instead
   of `e2e-ai verify`'s per-test restarts.
+- Platform E2E builds `@roborean/*` packages before Playwright so Vite and
+  Node can resolve `exports` entry points under `dist/`.
 
 ## [0.1.1] - 2026-07-17
 
