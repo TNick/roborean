@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "test": "pnpm run build && pnpm -r test",
-    "lint": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types",
+    "lint": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types && prettier --check \"packages/typescript/**/*.{ts,tsx,js,jsx,mjs,cjs}\" \"apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}\"",
+    "format": "prettier --write \"packages/typescript/**/*.{ts,tsx,js,jsx,mjs,cjs}\" \"apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}\"",
     "build": "node packages/typescript/spec/scripts/embed-schemas.mjs && tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "prettier": "^3.5.3",
     "typescript": "^5.0.0",
     "vitest": "^3.0.0"
   },

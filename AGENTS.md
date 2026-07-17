@@ -61,8 +61,13 @@ playground/              # scratch, temp files, agent output only
 
 Python toolchains: **uv** workspaces. TypeScript: **pnpm** workspaces.
 Use the root `Makefile` targets (`init`, `init-d`, `test`, `lint`,
-`delint`, `conformance`, later `openapi-check` / `e2e`) instead of ad-hoc
-one-off install paths when they exist.
+`delint`, `pre-commit`, `conformance`, later `openapi-check` / `e2e`)
+instead of ad-hoc one-off install paths when they exist.
+
+`make init-d` installs [pre-commit](https://pre-commit.com) and runs
+`pre-commit install` so formatters **rewrite** staged files on commit
+(Black/isort for Python, Prettier for TypeScript/JS; flake8 only checks).
+To fix the whole tree: `make delint` or `make pre-commit`.
 
 ## Environment
 
@@ -77,12 +82,26 @@ the global interpreter.
 
 | Language | Indent | Format / lint |
 |----------|--------|----------------|
-| Python | 4 spaces | Black (line length 80), isort (`profile=black`), Flake8 (Google docstrings); optional mypy in dev extras |
-| TypeScript / TSX | 2 spaces | ESLint + Prettier; `tsc` clean for packages |
+| Python | 4 spaces | Black (line length 80), isort (`profile=black`), Flake8 (Google docstrings); pre-commit autofix on commit; optional mypy in dev extras |
+| TypeScript / TSX | 2 spaces | Prettier (print width 80); `tsc` clean for packages; pre-commit autofix on commit |
 | JSON Schema / JSON fixtures | 2 spaces | Stable key order in golden files when practical |
 
-Markdown: one level-one header per file; blank line after titles; wrap at
-80 characters; fenced code blocks with a language tag.
+Lines should not be longer than 80 characters (Black, Prettier, and
+Markdown wrap all follow this). A file name should never start with an
+underscore.
+
+### Markdown
+
+In repository Markdown (docs, READMEs, `AGENTS.md`, research notes):
+
+- One level-one header per file; blank line after titles; wrap at 80
+  characters; fenced code blocks with a language tag.
+- Use inline backticks for paths, symbols, DOM ids, CLI commands, and
+  other literals (for example `#container`, `apps/web`, `make test`).
+- Do not combine bold with backticks (`**`…`**` around a code span, or
+  `` **`#container`** ``); backticks alone are enough.
+- Reserve `**bold**` for ordinary prose emphasis when no code font
+  applies.
 
 ### Python style
 
@@ -90,6 +109,15 @@ Markdown: one level-one header per file; blank line after titles; wrap at
 - Google-style docstrings: first paragraph on the same line as the opening
   `"""`; document class attributes under `Attributes`; document
   `@property` members on the class docstring.
+- All classes must have docstrings. Class docstrings must document each
+  class attribute, including private ones.
+- Class attributes must be declared with a specific type right after the
+  class docstring, leaving a single blank line between them. Public
+  attributes should come first, then private attributes, separated by a
+  blank line.
+- All functions and methods must have docstrings, including functions
+  defined inside other functions. Docstrings must document each argument
+  (and the return value when useful).
 - Split code into short blocks; each block preceded by a blank line and a
   short comment describing what it does. Avoid trailing inline comments.
 - Naming: packages/modules `snake_case`, classes `PascalCase`,
@@ -100,12 +128,64 @@ Markdown: one level-one header per file; blank line after titles; wrap at
 - Never use `try: ... except Exception: pass`. In handlers use
   `logger.debug(...)` or `logger.log(1, ..., exc_info=True)` with a short
   explanation.
-- Keep `TYPE_CHECKING` imports even if the type checker complains locally.
+- When an import is only used for types, import it under
+  `if TYPE_CHECKING:` and quote the annotation. Keep `TYPE_CHECKING`
+  imports even if the type checker complains locally.
+- Avoid using `getattr` when the class is known and already has that
+  attribute.
 - Domain models are Pydantic (or schema-backed), not SQLAlchemy ORM
   entities. ORM stays in storage adapters and maps to/from domain models.
 - YAML: `yaml.safe_load` only for untrusted content.
 
 ### TypeScript / React style
+
+**Comment and documentation layout** (new and edited TypeScript under
+`packages/typescript/**` and `apps/web/**`):
+
+- Logical blocks of code should start with a `//` comment describing what
+  that block does. The comment should be preceded by a blank line.
+- When adding a `const` or `let` inside a function, method, or
+  arrow-function body, add a brief `//` comment immediately before it,
+  preceded by a blank line. The comment should explain what the variable
+  holds or what purpose it serves. A single comment may document a
+  related group of two to four declarations that share one purpose.
+- Standalone `//` comment lines must be preceded by either a blank line
+  or another standalone comment line. Standalone `//` comments and
+  standalone `/* ... */` or JSDoc block comments must wrap to 80
+  characters per line.
+- Control-flow blocks (`if`, `for`, `while`, `do`, `switch`, `try`, and
+  similar) must be preceded by either a blank line or a comment line.
+  Prefer a short `//` comment that explains the logical block.
+  Block-bodied arrow functions assigned to class fields or constants
+  follow the same spacing rule and should be documented like functions.
+- All classes, interfaces, and types (including `type` aliases) should
+  have JSDoc comments. Treat both private and public members the same.
+  A type alias such as `type ListParams = {...}` is documented like an
+  interface. The first line of each type-level docstring must be a short
+  summary. A blank JSDoc line (a `*` line with no text) must follow that
+  summary and separate it from the rest. Each type member and class
+  member must be documented. The documentation block before every class,
+  interface, and type-literal member must be preceded by a blank line.
+- When a member is typed as a function, use a block JSDoc with a blank
+  line after the summary and an `@param` entry for each parameter.
+  `@returns` is optional on interface members.
+- Functions and methods use the same shape: a one-line summary, then a
+  blank JSDoc line, then further content. Document every parameter
+  (`@param`) and the return value (`@returns`). Document exceptions the
+  caller may need to handle when relevant (`@throws` or prose). Treat
+  block-bodied class-field arrows and `const` arrows as functions for
+  this rule.
+- After a closing block JSDoc (`*/`), continue on the next line with the
+  declared symbol (`function`, `class`, `type`, field, etc.); do not
+  insert an empty line between `*/` and that declaration—the required
+  blank separator stays inside the comment only.
+- Each React component should be documented. Prefer function components.
+  The props type should be an interface declared above the component when
+  it declares at least one member. A component tree that spans more than
+  80 lines should be split into smaller components even if they are not
+  reusable.
+
+**Package and React conventions:**
 
 - Prefer explicit workspace packages (`@roborean/*`) over dumping logic
   into `apps/web`.

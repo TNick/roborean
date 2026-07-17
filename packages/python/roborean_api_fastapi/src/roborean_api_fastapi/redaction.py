@@ -40,7 +40,9 @@ def redact_project_for_client(project: Project) -> dict[str, Any]:
     for variable in project.workspace.get("variables", []):
         if isinstance(variable, dict):
             variable = Variable.model_validate(variable)
-        item = variable.model_dump(mode="json", by_alias=True, exclude_none=True)
+        item = variable.model_dump(
+            mode="json", by_alias=True, exclude_none=True
+        )
         item["defaultValue"] = redact_workspace_value(
             variable.default_value,
             exposure=variable.exposure,

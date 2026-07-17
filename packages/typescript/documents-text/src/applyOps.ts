@@ -9,7 +9,10 @@ function publicValue(value: unknown): string {
 }
 
 /** Apply text/plain document ops to a template string. */
-export function applyTextOps(template: string, ops: DocumentOperation[]): string {
+export function applyTextOps(
+  template: string,
+  ops: DocumentOperation[],
+): string {
   let body = template;
   for (const op of ops) {
     if (op.op === "replace_named_value") {
@@ -24,6 +27,9 @@ export function applyTextOps(template: string, ops: DocumentOperation[]): string
   return body;
 }
 
-export function previewText(template: string, ops: DocumentOperation[]): string {
+export function previewText(
+  template: string,
+  ops: DocumentOperation[],
+): string {
   return applyTextOps(template, ops);
 }

@@ -100,7 +100,5 @@ export function sha256Hex(value: string): string {
     hash[7] = (hash[7] + h) >>> 0;
   }
 
-  return [...hash]
-    .map((word) => word.toString(16).padStart(8, "0"))
-    .join("");
+  return [...hash].map((word) => word.toString(16).padStart(8, "0")).join("");
 }

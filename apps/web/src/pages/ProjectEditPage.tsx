@@ -25,7 +25,11 @@ export function ProjectEditPage() {
   }
   return (
     <Stack sx={{ p: 2 }}>
-      <ProjectEditor project={project} projectId={id} apiBaseUrl={API_BASE_URL} />
+      <ProjectEditor
+        project={project}
+        projectId={id}
+        apiBaseUrl={API_BASE_URL}
+      />
     </Stack>
   );
 }

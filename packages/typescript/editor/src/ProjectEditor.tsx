@@ -89,7 +89,9 @@ export function ProjectEditor({
           <Panel title="Bit detail">
             {selectedBit ? (
               <Stack spacing={1}>
-                <Typography variant="body2">Type: {selectedBit.type}</Typography>
+                <Typography variant="body2">
+                  Type: {selectedBit.type}
+                </Typography>
                 <Typography variant="body2">
                   Effect: {selectedBit.effectClass}
                 </Typography>

@@ -17,7 +17,9 @@ export function RunDetailPage() {
   return (
     <Stack sx={{ p: 3 }} spacing={1}>
       <Typography variant="h5">Run {runId}</Typography>
-      <Typography variant="body2">Status: {run?.status ?? "loading"}</Typography>
+      <Typography variant="body2">
+        Status: {run?.status ?? "loading"}
+      </Typography>
     </Stack>
   );
 }

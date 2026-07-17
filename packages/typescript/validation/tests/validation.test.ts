@@ -13,7 +13,11 @@ const sample: Project = {
       {
         key: "title",
         schema: { type: "string" },
-        defaultValue: { kind: "public_literal", dataType: "string", value: "Hi" },
+        defaultValue: {
+          kind: "public_literal",
+          dataType: "string",
+          value: "Hi",
+        },
         exposure: "clientVisible",
       },
     ],
@@ -23,7 +27,10 @@ const sample: Project = {
       id: "b1",
       type: "roborean.set_variable",
       when: true,
-      config: { key: "title", value: { kind: "public_literal", dataType: "string", value: "World" } },
+      config: {
+        key: "title",
+        value: { kind: "public_literal", dataType: "string", value: "World" },
+      },
       reads: [],
       writes: ["title"],
       emits: [],

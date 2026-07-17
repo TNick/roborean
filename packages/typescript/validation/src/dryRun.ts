@@ -3,12 +3,7 @@ import { compileProject, runProject, type Diagnostic } from "@roborean/engine";
 
 import type { EditorDiagnostic } from "./projectDiagnostics.js";
 
-const BACKEND_EFFECTS = new Set([
-  "network",
-  "external",
-  "document",
-  "storage",
-]);
+const BACKEND_EFFECTS = new Set(["network", "external", "document", "storage"]);
 
 function mapDiagnostic(item: Diagnostic): EditorDiagnostic {
   return {

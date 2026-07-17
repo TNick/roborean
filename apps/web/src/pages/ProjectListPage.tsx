@@ -48,7 +48,10 @@ export function ProjectListPage() {
       <List>
         {projects.map((project) => (
           <ListItem key={project.id} disablePadding>
-            <ListItemButton component={RouterLink} to={`/projects/${project.id}`}>
+            <ListItemButton
+              component={RouterLink}
+              to={`/projects/${project.id}`}
+            >
               <ListItemText primary={project.name} secondary={project.id} />
             </ListItemButton>
           </ListItem>

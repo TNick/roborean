@@ -6,10 +6,7 @@ export function migrateProject(data: unknown): Project {
     throw new Error("Project must be an object");
   }
   const project = structuredClone(data) as Record<string, unknown>;
-  if (
-    project.schemaVersion !== "1.0.0" &&
-    project.schemaVersion !== "1.1.0"
-  ) {
+  if (project.schemaVersion !== "1.0.0" && project.schemaVersion !== "1.1.0") {
     throw new Error(
       `Unsupported schema version: ${String(project.schemaVersion)}`,
     );

@@ -43,13 +43,17 @@ export function buildDependencyGraph(project: Project): {
         to: { kind: "document", id: docId },
         reason: "emit",
       });
-      if (!nodes.some((node) => node.kind === "document" && node.id === docId)) {
+      if (
+        !nodes.some((node) => node.kind === "document" && node.id === docId)
+      ) {
         nodes.push({ kind: "document", id: docId });
       }
     }
   }
   for (const document of project.documents) {
-    if (!nodes.some((node) => node.kind === "document" && node.id === document.id)) {
+    if (
+      !nodes.some((node) => node.kind === "document" && node.id === document.id)
+    ) {
       nodes.push({ kind: "document", id: document.id });
     }
   }

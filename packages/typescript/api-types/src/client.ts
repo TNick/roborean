@@ -63,9 +63,19 @@ export function createRoboreanClient(opts: RoboreanClientOptions) {
   });
   return {
     listProjects: () =>
-      request<ProjectSummary[]>(opts.baseUrl, "/v1/projects", { headers: headers() }, fetchImpl),
+      request<ProjectSummary[]>(
+        opts.baseUrl,
+        "/v1/projects",
+        { headers: headers() },
+        fetchImpl,
+      ),
     getProject: (id: string) =>
-      request<ProjectDetail>(opts.baseUrl, `/v1/projects/${id}`, { headers: headers() }, fetchImpl),
+      request<ProjectDetail>(
+        opts.baseUrl,
+        `/v1/projects/${id}`,
+        { headers: headers() },
+        fetchImpl,
+      ),
     createProject: (body: ProjectCreate) =>
       request<ProjectDetail>(
         opts.baseUrl,
@@ -85,6 +95,11 @@ export function createRoboreanClient(opts: RoboreanClientOptions) {
         fetchImpl,
       ),
     getRun: (runId: string) =>
-      request<RunDetail>(opts.baseUrl, `/v1/runs/${runId}`, { headers: headers() }, fetchImpl),
+      request<RunDetail>(
+        opts.baseUrl,
+        `/v1/runs/${runId}`,
+        { headers: headers() },
+        fetchImpl,
+      ),
   };
 }

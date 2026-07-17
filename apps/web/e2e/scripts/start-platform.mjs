@@ -4,7 +4,10 @@ import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const webRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const webRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 const repoRoot = path.resolve(webRoot, "../..");
 const storePath = path.join(repoRoot, "playground/e2e-store");
 const artifactRoot = path.join(repoRoot, "playground/e2e-artifacts");
@@ -17,10 +20,7 @@ const webBase = `http://127.0.0.1:${webPort}`;
 const isWin = process.platform === "win32";
 const python =
   process.env.ROBOREAN_E2E_PYTHON ??
-  path.join(
-    repoRoot,
-    isWin ? "venv/Scripts/python.exe" : "venv/bin/python",
-  );
+  path.join(repoRoot, isWin ? "venv/Scripts/python.exe" : "venv/bin/python");
 
 function rmDir(target) {
   fs.rmSync(target, { recursive: true, force: true });
@@ -124,15 +124,7 @@ const viteEnv = {
 const web = spawnLogged(
   "web",
   isWin ? "pnpm.cmd" : "pnpm",
-  [
-    "exec",
-    "vite",
-    "--host",
-    "127.0.0.1",
-    "--port",
-    webPort,
-    "--strictPort",
-  ],
+  ["exec", "vite", "--host", "127.0.0.1", "--port", webPort, "--strictPort"],
   { cwd: webRoot, env: viteEnv },
 );
 

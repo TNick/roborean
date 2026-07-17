@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- `pre-commit` in `make init-d` (git hooks installed automatically). Black
+  and isort rewrite Python on commit; Prettier rewrites TypeScript/JS.
+  `make delint` / `make pre-commit` run formatters on the full tree.
+
 ### Changed
 
 - GitHub Actions use Node 24-based majors (`actions/checkout@v5`,

@@ -1,10 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL =
-  process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:15173";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:15173";
 
-const apiBase =
-  process.env.PLAYWRIGHT_API_BASE ?? "http://127.0.0.1:18080";
+const apiBase = process.env.PLAYWRIGHT_API_BASE ?? "http://127.0.0.1:18080";
 
 const jsonOutput = process.env.PLAYWRIGHT_JSON_OUTPUT_NAME;
 

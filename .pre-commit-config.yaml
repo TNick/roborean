@@ -1,14 +1,57 @@
+# See https://pre-commit.com
+# Formatters rewrite files (fix); flake8 only checks.
+# Python hooks use PyPI; Prettier uses an isolated Node env.
+exclude: |
+  (?x)^(
+    venv/|
+    \.venv/|
+    node_modules/|
+    playground/|
+    \.e2e-ai/|
+    packages/typescript/.*/dist/|
+    packages/typescript/.*/src/embedded_schemas\.ts|
+    pnpm-lock\.yaml
+  )
+
 repos:
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
+  - repo: local
     hooks:
       - id: black
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
+        name: black
+        entry: black
+        language: python
+        types: [python]
+        files: ^(packages/python|tools)/
+        additional_dependencies: ["black==25.1.0"]
+
       - id: isort
-        args: ["--profile", "black"]
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
+        name: isort
+        entry: isort
+        language: python
+        types: [python]
+        files: ^(packages/python|tools)/
+        args: ["--profile", "black", "--line-length", "80"]
+        additional_dependencies: ["isort==6.0.1"]
+
       - id: flake8
+        name: flake8
+        entry: flake8
+        language: python
+        types: [python]
+        files: ^(packages/python|tools)/
+        additional_dependencies: ["flake8==7.1.2"]
+
+      - id: prettier
+        name: prettier
+        entry: prettier --write
+        language: node
+        types_or: [javascript, jsx, ts, tsx]
+        files: ^(packages/typescript|apps/web)/
+        additional_dependencies: ["prettier@3.5.3"]
+        exclude: |
+          (?x)^(
+            packages/typescript/.*/dist/|
+            packages/typescript/.*/src/embedded_schemas\.ts|
+            apps/web/test-results/|
+            apps/web/playwright-report/
+          )

@@ -1,4 +1,7 @@
-import type { DocumentOperation, DocumentPreview } from "@roborean/documents-base";
+import type {
+  DocumentOperation,
+  DocumentPreview,
+} from "@roborean/documents-base";
 import { applyMarkdownOps } from "@roborean/documents-markdown";
 import { applyTextOps } from "@roborean/documents-text";
 
@@ -10,7 +13,10 @@ export type PreviewInput = {
 
 export function previewDocument(input: PreviewInput): DocumentPreview {
   const generatedAt = new Date().toISOString();
-  if (input.definition.type === "text" || input.definition.driver === "roborean.text") {
+  if (
+    input.definition.type === "text" ||
+    input.definition.driver === "roborean.text"
+  ) {
     const body = applyTextOps(input.templateText ?? "", input.ops);
     return {
       documentId: input.definition.id,
@@ -73,7 +79,9 @@ function buildSheetHtml(ops: DocumentOperation[]): string {
   for (const op of ops) {
     if (op.op === "sheet.set_cell") {
       const value = op.value as { value?: unknown } | undefined;
-      cells.push(`<tr><td>${String(op.cell)}</td><td>${String(value?.value ?? "")}</td></tr>`);
+      cells.push(
+        `<tr><td>${String(op.cell)}</td><td>${String(value?.value ?? "")}</td></tr>`,
+      );
     }
   }
   return `<div class="roborean-xlsx"><table>${cells.join("")}</table></div>`;
@@ -83,7 +91,9 @@ function buildFlowHtml(ops: DocumentOperation[]): string {
   const parts = ['<div class="roborean-docx">'];
   for (const op of ops) {
     if (op.op === "flow.insert_heading") {
-      parts.push(`<h${Number(op.level)}>${String(op.text)}</h${Number(op.level)}>`);
+      parts.push(
+        `<h${Number(op.level)}>${String(op.text)}</h${Number(op.level)}>`,
+      );
     } else if (op.op === "flow.insert_paragraph") {
       const runs = (op.runs as Array<{ text: string }> | undefined) ?? [];
       parts.push(`<p>${runs.map((run) => run.text).join("")}</p>`);

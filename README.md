@@ -75,12 +75,14 @@ durable runs/stores, document drivers, FastAPI + React platform shell, and CLI
 See [`AGENTS.md`](AGENTS.md) for contributor and agent conventions.
 
 ```bash
-make init-d
+make init-d           # venv, packages, pnpm, e2e-ai, pre-commit hooks
+make delint           # autofix Python + TypeScript/JS format
+make pre-commit       # run all hooks on the tree
 make test
 make conformance
-make e2e          # e2e-ai verify (Playwright + local API/web)
-e2e-ai doctor     # config check from repo root
-e2e-ai repair     # optional AI fix loop when tests fail
+make e2e              # Playwright (or e2e-ai verify locally)
+e2e-ai doctor         # config check from repo root
+e2e-ai repair         # optional AI fix loop when tests fail
 roborean validate conformance/projects/02_set_and_copy.json
 roborean run conformance/projects/02_set_and_copy.json
 ```

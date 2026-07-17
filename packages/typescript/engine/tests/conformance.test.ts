@@ -1,17 +1,27 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { compileProject, applyPatch, evaluateRule, runProject } from "../src/index.js";
+import {
+  compileProject,
+  applyPatch,
+  evaluateRule,
+  runProject,
+} from "../src/index.js";
 
 const root = resolve(import.meta.dirname, "../../../../");
-const fixture = (path: string): any => JSON.parse(readFileSync(resolve(root, path), "utf8"));
+const fixture = (path: string): any =>
+  JSON.parse(readFileSync(resolve(root, path), "utf8"));
 
 describe("shared conformance fixtures", () => {
   for (const name of readdirSync(resolve(root, "conformance/rules"))) {
     it(`evaluates ${name}`, () => {
       const vector = fixture(`conformance/rules/${name}`);
-      if (vector.expectedError) expect(() => evaluateRule(vector.rule, vector.workspace)).toThrow();
-      else expect(evaluateRule(vector.rule, vector.workspace)).toBe(vector.expected);
+      if (vector.expectedError)
+        expect(() => evaluateRule(vector.rule, vector.workspace)).toThrow();
+      else
+        expect(evaluateRule(vector.rule, vector.workspace)).toBe(
+          vector.expected,
+        );
     });
   }
   for (const name of readdirSync(resolve(root, "conformance/patches"))) {
@@ -35,9 +45,16 @@ describe("shared conformance fixtures", () => {
     const compiled = compileProject(project);
     const result = runProject(compiled, project, { runId: "test" });
     expect(result.status).toBe("success");
-    expect(result.bitResults.map((bit) => bit.status)).toEqual(["success", "success"]);
+    expect(result.bitResults.map((bit) => bit.status)).toEqual([
+      "success",
+      "success",
+    ]);
   });
   it("rejects invalid undeclared writes during compilation", () => {
-    expect(() => compileProject(fixture("conformance/projects/05_invalid_undeclared_write.json"))).toThrow();
+    expect(() =>
+      compileProject(
+        fixture("conformance/projects/05_invalid_undeclared_write.json"),
+      ),
+    ).toThrow();
   });
 });

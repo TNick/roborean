@@ -61,7 +61,9 @@ test("local dry-run patches match server run for set-and-copy", async ({
 test("API project responses redact backend-only secrets", async ({
   request,
 }) => {
-  const project = loadJson("conformance/projects/04_secret_ref.json") as Project;
+  const project = loadJson(
+    "conformance/projects/04_secret_ref.json",
+  ) as Project;
   const createResponse = await request.post(`${apiBase}/v1/projects`, {
     data: { project },
   });

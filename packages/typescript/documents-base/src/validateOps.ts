@@ -1,6 +1,10 @@
 import type { DocumentOperation, DriverManifest } from "./types.js";
 
-export type Diagnostic = { severity: "error" | "warning"; code: string; message: string };
+export type Diagnostic = {
+  severity: "error" | "warning";
+  code: string;
+  message: string;
+};
 
 export function validateDocumentOperations(
   ops: DocumentOperation[],

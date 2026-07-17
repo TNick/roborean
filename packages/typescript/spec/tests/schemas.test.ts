@@ -7,7 +7,10 @@ describe("canonical schemas", () => {
   it("loads project schema and parses minimal fixture", () => {
     const root = resolve(import.meta.dirname, "../../../../");
     const fixture = JSON.parse(
-      readFileSync(resolve(root, "conformance/projects/01_minimal.json"), "utf8"),
+      readFileSync(
+        resolve(root, "conformance/projects/01_minimal.json"),
+        "utf8",
+      ),
     );
     expect(loadSchema("project").title).toBe("Project");
     expect(validate("project", fixture).valid).toBe(true);

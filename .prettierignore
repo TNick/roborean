@@ -1,0 +1,14 @@
+venv/
+.venv/
+node_modules/
+dist/
+build/
+coverage/
+playground/
+.e2e-ai/
+pnpm-lock.yaml
+package-lock.json
+**/*.tsbuildinfo
+**/embedded_schemas.ts
+apps/web/test-results/
+apps/web/playwright-report/

@@ -1,4 +1,4 @@
-.PHONY: init init-d test lint delint conformance test-storage conformance-documents api web platform openapi openapi-check e2e e2e-discover e2e-run e2e-repair e2e-doctor parity-dryrun
+.PHONY: init init-d test lint delint pre-commit conformance test-storage conformance-documents api web platform openapi openapi-check e2e e2e-discover e2e-run e2e-repair e2e-doctor parity-dryrun
 
 ifeq ($(OS),Windows_NT)
 PYTHON = venv/Scripts/python.exe
@@ -37,10 +37,11 @@ init-d: init
 		-e "packages/python/roborean_engine[dev]" \
 		-e packages/python/roborean_api_fastapi \
 		-e apps/api \
-		pytest black isort flake8 PyYAML SQLAlchemy httpx \
+		pytest black isort flake8 pre-commit PyYAML SQLAlchemy httpx \
 		openpyxl defusedxml python-docx docxtpl Pillow ezdxf \
 		"uvicorn[standard]"
 	$(PYTHON) tools/install_e2e_ai.py
+	$(PYTHON) -m pre_commit install
 
 api:
 	$(PYTHON) -m uvicorn roborean_api_app.main:build --factory --reload --port 8000
@@ -90,9 +91,15 @@ lint:
 	$(PYTHON) -m flake8 packages/python tools
 	pnpm run lint
 
+# Autofix format (Python Black/isort + TypeScript/JS Prettier).
 delint:
 	$(PYTHON) -m black packages/python tools
 	$(PYTHON) -m isort packages/python tools
+	pnpm run format
+
+# Run every pre-commit hook on the tree (formatters fix; flake8 checks).
+pre-commit:
+	$(PYTHON) -m pre_commit run --all-files
 
 conformance:
 	$(PYTHON) tools/run_conformance.py
