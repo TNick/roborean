@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "roborean-engine"
-version = "0.1.1"
+version = "0.1.2"
 description = "Deterministic Roborean compiler, runner, and durable run service"
 requires-python = ">=3.11"
 license = "MIT"

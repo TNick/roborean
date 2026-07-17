@@ -2,45 +2,36 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-17
+
 ### Added
 
-- `pre-commit` in `make init-d` (git hooks installed automatically). Black
-  and isort rewrite Python on commit; Prettier rewrites TypeScript/JS.
-  `make delint` / `make pre-commit` run formatters on the full tree.
+- `pre-commit` in `make init-d` (git hooks installed automatically). Black and isort rewrite Python on commit; Prettier rewrites TypeScript/JS. `make delint` / `make pre-commit` run formatters on the full tree.
 
 ### Changed
 
-- Pin Prettier to `3.9.5` in both root `package.json` and the pre-commit
-  hook so `make lint` / CI and `make pre-commit` apply the same formatting.
-- `make pre-commit` runs hooks twice so autofix rewrites do not leave the
-  target failing after the first pass.
-
-- GitHub Actions use Node 24-based majors (`actions/checkout@v5`,
-  `actions/setup-node@v6`, `actions/setup-python@v6`,
-  `pnpm/action-setup@v6`).
+- Pin Prettier to `3.9.5` in both root `package.json` and the pre-commit hook so `make lint` / CI and `make pre-commit` apply the same formatting.
+- `make pre-commit` runs hooks twice so autofix rewrites do not leave the target failing after the first pass.
+- GitHub Actions use Node 24-based majors (`actions/checkout@v5`, `actions/setup-node@v6`, `actions/setup-python@v6`, `pnpm/action-setup@v6`).
+- Fix CI tests
+- No matching distribution found
+- Another CI error
+- Added a Build TypeScript packages step before Playwright in platform-e2e.
+- 3/3 Playwright tests pass locally
+- more CI errors fixed. Now using pre-commit
+- One more linting error
 
 ### Fixed
 
-- Stop tracking TypeScript `tsconfig.tsbuildinfo` files so CI `tsc -b`
-  rebuilds `dist/` instead of skipping emit when outputs are missing.
-- Align inter-package Python dependency pins with lockstep `0.1.1` so
-  editable CI installs no longer require unpublished `>=0.2`/`>=0.3`/
-  `>=0.4` releases from PyPI.
-- Add `.flake8` (`max-line-length = 80`) so Flake8 matches Black; format
-  and clean unused imports that were failing `make lint`.
-- CI platform E2E runs Playwright once with a shared `webServer` instead
-  of `e2e-ai verify`'s per-test restarts.
-- Platform E2E builds `@roborean/*` packages before Playwright so Vite and
-  Node can resolve `exports` entry points under `dist/`.
-- `@roborean/engine` no longer imports `node:crypto`, so the web app can
-  load dry-run / compile helpers in the browser.
-- `@roborean/spec` embeds canonical JSON Schemas instead of reading them
-  with `node:fs`, fixing blank Vite pages in platform E2E.
-- API project redaction omits null optional fields so client dry-run
-  validation no longer fails with `must be string` on `description` /
-  `label`.
-- Vite web app dedupes React / MUI and allows monorepo `fs` access for
-  workspace package source aliases.
+- Stop tracking TypeScript `tsconfig.tsbuildinfo` files so CI `tsc -b` rebuilds `dist/` instead of skipping emit when outputs are missing.
+- Align inter-package Python dependency pins with lockstep `0.1.1` so editable CI installs no longer require unpublished `>=0.2`/`>=0.3`/ `>=0.4` releases from PyPI.
+- Add `.flake8` (`max-line-length = 80`) so Flake8 matches Black; format and clean unused imports that were failing `make lint`.
+- CI platform E2E runs Playwright once with a shared `webServer` instead of `e2e-ai verify`'s per-test restarts.
+- Platform E2E builds `@roborean/*` packages before Playwright so Vite and Node can resolve `exports` entry points under `dist/`.
+- `@roborean/engine` no longer imports `node:crypto`, so the web app can load dry-run / compile helpers in the browser.
+- `@roborean/spec` embeds canonical JSON Schemas instead of reading them with `node:fs`, fixing blank Vite pages in platform E2E.
+- API project redaction omits null optional fields so client dry-run validation no longer fails with `must be string` on `description` / `label`.
+- Vite web app dedupes React / MUI and allows monorepo `fs` access for workspace package source aliases.
 
 ## [0.1.1] - 2026-07-17
 
@@ -72,4 +63,5 @@
 - Root `pyproject.toml` is marked as a non-package uv workspace so `pip install -e .` no longer fails trying to build `roborean-workspace` with Hatchling.
 
 [0.1.1]: https://github.com/TNick/roborean/compare/846ef574a1c267a96143a80cb33ffe8e935d737c...v0.1.1
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.1...HEAD
+[0.1.2]: https://github.com/TNick/roborean/compare/v0.1.1...v0.1.2
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.2...HEAD
