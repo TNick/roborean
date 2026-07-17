@@ -7,7 +7,7 @@ Thin ASGI entry that wires `roborean-api-fastapi`.
 ```bash
 roborean-api
 # or
-uvicorn roborean_api_app.main:build --factory --reload --port 8000
+uvicorn roborean_api_app.main:build --factory --reload --port 8765
 ```
 
 ## Environment

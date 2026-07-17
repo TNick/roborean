@@ -16,6 +16,12 @@
 
 - Durable runs persist document artifact bytes and use project package
   directories when compiling document-enabled projects.
+- Align core engine module docstrings, typed attributes, and block
+  comments with repository Python style guidelines.
+- Align secrets and rules submodule docstrings, typed attributes, and
+  block comments with repository Python style guidelines.
+- Align built-in bits submodule docstrings, typed attributes, and block
+  comments with repository Python style guidelines.
 
 ### Fixed
 

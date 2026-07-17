@@ -15,14 +15,34 @@ logger = logging.getLogger(__name__)
 
 
 class SqlAlchemyRunRepository:
-    """Persist durable runs through SQLAlchemy sessions."""
+    """Persist durable runs through SQLAlchemy sessions.
+
+    Attributes:
+        _session_factory: Factory that opens short-lived ORM sessions.
+    """
+
+    _session_factory: sessionmaker
 
     def __init__(self, session_factory: sessionmaker) -> None:
-        """Bind to a session factory."""
+        """Bind to a session factory.
+
+        Args:
+            session_factory: SQLAlchemy sessionmaker for this repository.
+        """
         self._session_factory = session_factory
 
     def get(self, run_id: str) -> RunRecord:
-        """Return one run by identifier."""
+        """Return one run by identifier.
+
+        Args:
+            run_id: Durable run identifier.
+
+        Returns:
+            Persisted run record.
+
+        Raises:
+            NotFoundError: When the run is not stored.
+        """
         with self._session_factory() as session:
             row = session.get(RunRow, run_id)
             if row is None:
@@ -32,7 +52,15 @@ class SqlAlchemyRunRepository:
     def get_by_idempotency(
         self, project_id: str, idempotency_key: str
     ) -> RunRecord | None:
-        """Return an existing run for an idempotency key, if any."""
+        """Return an existing run for an idempotency key, if any.
+
+        Args:
+            project_id: Project that owns the run.
+            idempotency_key: Client-supplied idempotency key.
+
+        Returns:
+            Matching run record, or None when no prior run exists.
+        """
         with self._session_factory() as session:
             row = session.scalar(
                 select(RunRow).where(
@@ -43,8 +71,16 @@ class SqlAlchemyRunRepository:
             return None if row is None else row_to_run(row)
 
     def save(self, record: RunRecord) -> None:
-        """Insert a new run, mapping unique violations to conflicts."""
+        """Insert a new run, mapping unique violations to conflicts.
+
+        Args:
+            record: Run record to insert.
+
+        Raises:
+            ConflictError: When the idempotency key already exists.
+        """
         with self._session_factory() as session:
+            # Pre-check idempotency before attempting the insert.
             existing = session.scalar(
                 select(RunRow).where(
                     RunRow.project_id == record.project_id,
@@ -57,6 +93,7 @@ class SqlAlchemyRunRepository:
                         "idempotency key reused with a different request body"
                     )
                 raise ConflictError("idempotency key already exists")
+
             session.add(run_to_row(record))
             try:
                 session.commit()
@@ -70,11 +107,20 @@ class SqlAlchemyRunRepository:
                 raise ConflictError("idempotency key already exists") from error
 
     def update(self, record: RunRecord) -> None:
-        """Replace an existing run row."""
+        """Replace an existing run row.
+
+        Args:
+            record: Run record that replaces the stored version.
+
+        Raises:
+            NotFoundError: When the run is not stored.
+        """
         with self._session_factory() as session:
             row = session.get(RunRow, record.run_id)
             if row is None:
                 raise NotFoundError(record.run_id)
+
+            # Copy mutable columns from the mapped domain record.
             mapped = run_to_row(record)
             row.status = mapped.status
             row.request_json = mapped.request_json
@@ -92,7 +138,15 @@ class SqlAlchemyRunRepository:
     def list_for_project(
         self, project_id: str, *, limit: int = 50
     ) -> list[RunRecord]:
-        """List recent runs for a project, newest first."""
+        """List recent runs for a project, newest first.
+
+        Args:
+            project_id: Project whose runs should be listed.
+            limit: Maximum number of runs to return.
+
+        Returns:
+            Recent run records for the project.
+        """
         with self._session_factory() as session:
             rows = session.scalars(
                 select(RunRow)

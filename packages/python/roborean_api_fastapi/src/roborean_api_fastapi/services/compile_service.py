@@ -17,8 +17,22 @@ def compile_stored_project(
     registry: BitTypeRegistry,
     package_dir: Path | None,
 ) -> CompileResponse:
-    """Compile a stored project package."""
+    """Compile a stored project package.
+
+    Args:
+        repo: Project persistence port.
+        project_id: Identifier of the project to compile.
+        body: Compile options from the HTTP request.
+        registry: Bit type registry used by the compiler.
+        package_dir: Optional on-disk package directory for templates.
+
+    Returns:
+        Compiled project payload for the client.
+    """
+    # Load the current project revision from storage.
     project = repo.get(project_id)
+
+    # Compile with request-controlled strictness and package path.
     compiled = compile_project(
         project,
         bit_registry=registry,

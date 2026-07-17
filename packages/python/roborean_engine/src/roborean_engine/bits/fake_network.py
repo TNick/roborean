@@ -9,5 +9,12 @@ class FakeNetworkHandler:
     """Return an empty patch while advertising network effects."""
 
     def execute(self, context: BitContext) -> BitOutput:
-        """Execute without workspace changes."""
+        """Execute without workspace changes.
+
+        Args:
+            context: Bit inputs (unused; required by the handler protocol).
+
+        Returns:
+            Empty workspace patch with no document operations.
+        """
         return BitOutput(WorkspacePatch(ops=[]), [], [])

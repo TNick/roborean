@@ -26,7 +26,7 @@ from .compiler import CompileError, CompileOptions, compile_project
 from .diff import build_run_diff
 from .idempotency import normalize_idempotency_key, request_body_digest
 from .retry import decide_retry, retry_policy_snapshot
-from .runner import RunOptions, run_project_detailed
+from .runner import RunOptions, RunOutcome, run_project_detailed
 from .secrets.port import SecretResolver
 from .version import ENGINE_VERSION
 
@@ -35,7 +35,24 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RunService:
-    """Create, execute, and retry durable runs through storage ports."""
+    """Create, execute, and retry durable runs through storage ports.
+
+    Attributes:
+        projects: Repository port for reading and writing project
+            definitions and revisions.
+        runs: Repository port for persisting durable run records.
+        artifacts: Store port for persisting generated document bytes.
+        registry: Optional bit type registry; falls back to the builtin
+            registry when unset.
+        secrets: Optional secret resolver reserved for secret-aware
+            compilation and execution steps.
+        package_dir_for_project: Optional callable resolving a project's
+            on-disk package directory, used to locate document templates.
+        clock: Callable returning the current UTC time; overridable for
+            tests.
+        id_factory: Callable returning a new unique run identifier;
+            overridable for tests.
+    """
 
     projects: ProjectRepository
     runs: RunRepository
@@ -47,7 +64,22 @@ class RunService:
     id_factory: Callable[[], str] = lambda: str(uuid.uuid4())
 
     def create_and_execute(self, request: RunRequest) -> RunRecord:
-        """Idempotently create and execute a run for ``request``."""
+        """Idempotently create and execute a run for ``request``.
+
+        Args:
+            request: Run request describing the project, revision, and
+                idempotency key to execute.
+
+        Returns:
+            The durable run record after execution, whether it succeeded
+            or failed.
+
+        Raises:
+            ConflictError: When the idempotency key was already used with
+                a different request body.
+        """
+        # Return the existing run when the idempotency key was already
+        # used with the same request body; conflict otherwise.
         key = normalize_idempotency_key(request.idempotency_key)
         digest = request_body_digest(request)
         existing = self.runs.get_by_idempotency(request.project_id, key)
@@ -58,6 +90,8 @@ class RunService:
                 )
             return existing
 
+        # Resolve the project at the requested revision, or the latest
+        # known revision when none was specified.
         if request.project_revision:
             project = self.projects.get_revision(
                 request.project_id, request.project_revision
@@ -67,6 +101,7 @@ class RunService:
             project = self.projects.get(request.project_id)
             revision = "1"
 
+        # Build and persist the initial queued run record.
         registry = self.registry or builtin_registry()
         now = self.clock().isoformat()
         run_id = self.id_factory()
@@ -97,6 +132,8 @@ class RunService:
         self.runs.update(record)
 
         try:
+            # Compile and execute the project, then persist artifacts and
+            # the workspace diff produced by the run.
             package_dir = None
             if self.package_dir_for_project is not None:
                 package_dir = self.package_dir_for_project(project.id)
@@ -122,6 +159,9 @@ class RunService:
                 outcome.final_workspace,
                 outcome.results,
             )
+
+            # Derive the final run status and, on failure, the first
+            # failed bit's error information.
             finished = self.clock().isoformat()
             status = (
                 RunStatus.SUCCEEDED
@@ -157,6 +197,8 @@ class RunService:
             self.runs.update(record)
             return record
         except CompileError as error:
+            # Compilation failures never reach execution; record and
+            # return the failed run rather than raising to the caller.
             logger.debug("Compile failed for run %s", run_id, exc_info=True)
             finished = self.clock().isoformat()
             record = record.model_copy(
@@ -172,6 +214,8 @@ class RunService:
             self.runs.update(record)
             return record
         except Exception as error:
+            # Unexpected failures are recorded as failed runs and then
+            # re-raised so callers see the original exception.
             logger.debug("Run %s failed", run_id, exc_info=True)
             finished = self.clock().isoformat()
             record = record.model_copy(
@@ -187,8 +231,14 @@ class RunService:
             self.runs.update(record)
             raise
 
-    def _persist_run_artifacts(self, run_id: str, outcome) -> None:
-        """Store generated document bytes for later download."""
+    def _persist_run_artifacts(self, run_id: str, outcome: RunOutcome) -> None:
+        """Store generated document bytes for later download.
+
+        Args:
+            run_id: Identifier of the run the artifacts belong to.
+            outcome: Execution outcome carrying artifact payloads and
+                their metadata.
+        """
         for document_id, payload in outcome.artifact_payloads.items():
             media_type = "application/octet-stream"
             for item in outcome.results.artifacts:
@@ -200,7 +250,21 @@ class RunService:
             self.artifacts.put_bytes(key, payload, content_type=media_type)
 
     def retry(self, run_id: str, *, force: bool = False) -> RunRecord:
-        """Retry a previous run when effect classes allow it."""
+        """Retry a previous run when effect classes allow it.
+
+        Args:
+            run_id: Identifier of the run to retry.
+            force: When ``True``, bypass the retry policy check.
+
+        Returns:
+            The durable run record produced by the retry attempt.
+
+        Raises:
+            ConflictError: When the retry policy forbids retrying this
+                run and ``force`` is not set.
+        """
+        # Recompile the original project to evaluate the current retry
+        # policy before creating a new run attempt.
         original = self.runs.get(run_id)
         if original.request.project_revision:
             project = self.projects.get_revision(
@@ -214,6 +278,7 @@ class RunService:
         if not decision.allowed:
             raise ConflictError(f"Retry forbidden: {decision.reason}")
 
+        # Build a new request tied to the original run and execute it.
         attempt = original.attempt + 1
         retry_key = f"{original.idempotency_key}:retry:{attempt}"
         request = original.request.model_copy(
@@ -226,11 +291,26 @@ class RunService:
         return self.create_and_execute(request)
 
     def get(self, run_id: str) -> RunRecord:
-        """Load one durable run."""
+        """Load one durable run.
+
+        Args:
+            run_id: Identifier of the run to load.
+
+        Returns:
+            The stored durable run record.
+        """
         return self.runs.get(run_id)
 
     def list_for_project(
         self, project_id: str, *, limit: int = 50
     ) -> list[RunRecord]:
-        """List durable runs for a project."""
+        """List durable runs for a project.
+
+        Args:
+            project_id: Identifier of the project whose runs to list.
+            limit: Maximum number of run records to return.
+
+        Returns:
+            Durable run records for the project, most recent first.
+        """
         return self.runs.list_for_project(project_id, limit=limit)

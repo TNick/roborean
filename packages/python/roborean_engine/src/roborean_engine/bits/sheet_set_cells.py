@@ -11,10 +11,19 @@ class SheetSetCellsHandler:
     """Write multiple spreadsheet cells from config."""
 
     def execute(self, context: BitContext) -> BitOutput:
-        """Build document operations for each configured cell."""
+        """Build document operations for each configured cell.
+
+        Args:
+            context: Bit inputs including document id, cells, and formulas.
+
+        Returns:
+            Empty workspace patch and sheet document operations.
+        """
         config = context.bit.config
         document_id = str(config["documentId"])
         ops = []
+
+        # Emit set_cell ops from literals or workspace keys.
         for cell in config.get("cells", []):
             if "fromKey" in cell:
                 value = get_value(context.workspace, str(cell["fromKey"]))
@@ -32,6 +41,8 @@ class SheetSetCellsHandler:
                 }
             )
             ops.append(op.model_dump(mode="json", by_alias=True))
+
+        # Emit set_formula ops for configured formula cells.
         for formula in config.get("formulas", []):
             op = DocumentOperation.model_validate(
                 {
@@ -43,4 +54,5 @@ class SheetSetCellsHandler:
                 }
             )
             ops.append(op.model_dump(mode="json", by_alias=True))
+
         return BitOutput(WorkspacePatch(ops=[]), [], ops)

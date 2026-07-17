@@ -1,7 +1,18 @@
 {
     "cSpell.words": [
+        "defusedxml",
+        "distlift",
+        "docxtpl",
+        "dryrun",
+        "ezdxf",
         "htmlcov",
+        "isort",
+        "openpyxl",
+        "pipefail",
         "pycache",
-        "roborean"
+        "pypa",
+        "pypi",
+        "roborean",
+        "sdist"
     ]
 }

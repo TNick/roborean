@@ -13,12 +13,26 @@ from .workspace import WorkspaceSnapshot
 
 
 def redact_workspace_value_for_diff(value: WorkspaceValue) -> WorkspaceValue:
-    """Return a value safe to persist in diffs (refs stay refs)."""
+    """Return a value safe to persist in diffs (refs stay refs).
+
+    Args:
+        value: Workspace value from before/after snapshots.
+
+    Returns:
+        Value suitable for durable diff storage.
+    """
     return value
 
 
 def _parse_secret_ref(ref: str) -> tuple[str, str]:
-    """Split ``sec:provider:name`` into provider and name."""
+    """Split ``sec:provider:name`` into provider and name.
+
+    Args:
+        ref: Secret reference string, preferably ``sec:provider:name``.
+
+    Returns:
+        Tuple of provider and name (best-effort for malformed refs).
+    """
     parts = ref.split(":")
     if len(parts) >= 3 and parts[0] == "sec":
         return parts[1], ":".join(parts[2:])
@@ -30,7 +44,17 @@ def build_run_diff(
     final_workspace: WorkspaceSnapshot,
     results: RunResults,
 ) -> RunDiff:
-    """Compare snapshots and summarize bit outcomes without secret values."""
+    """Compare snapshots and summarize bit outcomes without secret values.
+
+    Args:
+        input_workspace: Workspace snapshot at run start.
+        final_workspace: Workspace snapshot after execution.
+        results: Bit results used for activation and secret summaries.
+
+    Returns:
+        Durable run diff with workspace changes and bit summaries.
+    """
+    # Diff workspace keys present in either snapshot.
     keys = sorted(set(input_workspace.values) | set(final_workspace.values))
     changes: list[WorkspaceChange] = []
     for key in keys:
@@ -69,6 +93,7 @@ def build_run_diff(
     secret_access: list[SecretRefAccess] = []
     doc_counts: dict[str, int] = {}
 
+    # Summarize bit outcomes and secret refs touched by patches.
     for bit in results.bit_results:
         if bit.status == "inactive":
             inactive.append(bit.bit_id)

@@ -8,7 +8,13 @@ from roborean_spec import CompiledProject, EffectClass, Project
 
 @dataclass(frozen=True)
 class RetryDecision:
-    """Whether a retry may proceed and how."""
+    """Whether a retry may proceed and how.
+
+    Attributes:
+        allowed: Whether a retry is permitted under policy.
+        reason: Short machine-oriented reason string.
+        mode: Retry mode or ``forbidden`` when disallowed.
+    """
 
     allowed: bool
     reason: str
@@ -42,7 +48,16 @@ def decide_retry(
     *,
     force: bool = False,
 ) -> RetryDecision:
-    """Decide whether the project's active effect classes allow retry."""
+    """Decide whether the project's active effect classes allow retry.
+
+    Args:
+        project: Project whose bits declare effect classes.
+        compiled: Compiled project snapshot (reserved for future checks).
+        force: When true, override forbidden effect classes.
+
+    Returns:
+        Retry decision describing allowance and mode.
+    """
     # Consider every bit's declared effect class; inactive bits still pin
     # the project risk profile for retries.
     decisions = []
@@ -51,13 +66,23 @@ def decide_retry(
         decisions.append(decision)
         if not decision.allowed and not force:
             return decision
+
     if force and any(not item.allowed for item in decisions):
         return RetryDecision(True, "forced", "rerun_with_current")
+
     if all(item.mode == "replay_pure" for item in decisions):
         return RetryDecision(True, "pure", "replay_pure")
+
     return RetryDecision(True, "workspace_or_document", "rerun_with_current")
 
 
 def retry_policy_snapshot(project: Project) -> dict[str, str]:
-    """Capture per-bit effect classes for the run record."""
+    """Capture per-bit effect classes for the run record.
+
+    Args:
+        project: Project whose bits declare effect classes.
+
+    Returns:
+        Mapping of bit id to effect-class value string.
+    """
     return {bit.id: bit.effect_class.value for bit in project.bits}

@@ -16,7 +16,14 @@ W_DEAD_BIT = "W_DEAD_BIT"
 
 @dataclass(frozen=True)
 class Diagnostic:
-    """A portable compiler or runtime diagnostic."""
+    """A portable compiler or runtime diagnostic.
+
+    Attributes:
+        severity: Diagnostic level (``error``, ``warning``, or ``info``).
+        code: Stable machine-readable diagnostic code.
+        message: Human-readable diagnostic text.
+        path: Optional JSON-pointer-like location within the project.
+    """
 
     severity: Literal["error", "warning", "info"]
     code: str
@@ -24,5 +31,9 @@ class Diagnostic:
     path: str | None = None
 
     def to_dict(self) -> dict[str, str | None]:
-        """Return a JSON-compatible diagnostic."""
+        """Return a JSON-compatible diagnostic.
+
+        Returns:
+            Mapping of diagnostic fields suitable for JSON serialization.
+        """
         return asdict(self)

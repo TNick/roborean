@@ -10,7 +10,17 @@ _KEY_RE = re.compile(r"^[A-Za-z0-9._:-]+$")
 
 
 def normalize_idempotency_key(key: str) -> str:
-    """Validate and return a normalized idempotency key."""
+    """Validate and return a normalized idempotency key.
+
+    Args:
+        key: Client-supplied idempotency key.
+
+    Returns:
+        Stripped key that matches the allowed character set.
+
+    Raises:
+        ValueError: When the key is empty, too long, or malformed.
+    """
     value = key.strip()
     if not value or len(value) > 128 or not _KEY_RE.match(value):
         raise ValueError(f"Invalid idempotency key: {key!r}")
@@ -18,7 +28,14 @@ def normalize_idempotency_key(key: str) -> str:
 
 
 def request_body_digest(request: RunRequest) -> str:
-    """Hash the stable portion of a run request."""
+    """Hash the stable portion of a run request.
+
+    Args:
+        request: Run request whose body should be digested.
+
+    Returns:
+        Hex-encoded SHA-256 digest of the stable request body.
+    """
     # Exclude requestedAt so clock skew cannot break idempotency.
     payload = request.model_dump(
         mode="json",

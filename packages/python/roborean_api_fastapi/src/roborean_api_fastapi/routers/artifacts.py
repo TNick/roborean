@@ -17,7 +17,21 @@ def download_artifact(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> Response:
-    """Stream one stored artifact (document id)."""
+    """Stream one stored artifact (document id).
+
+    Args:
+        run_id: Durable run that owns the artifact.
+        artifact_id: Document id used as the artifact key suffix.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Raw artifact bytes with a best-effort media type.
+
+    Raises:
+        ApiError: When the artifact bytes are missing from storage.
+    """
+    # Load the run so we can resolve the artifact media type.
     record = state.run_service.get(run_id)
     media_type = "application/octet-stream"
     for item in record.results.artifacts if record.results else []:
@@ -33,6 +47,8 @@ def download_artifact(
                 else item.media_type
             )
             break
+
+    # Fetch bytes from the artifact store keyed by run and document.
     key = f"{run_id}/{artifact_id}"
     try:
         payload = state.artifacts.get_bytes(key)
@@ -42,4 +58,5 @@ def download_artifact(
             code="E_NOT_FOUND",
             message=f"artifact not found: {artifact_id}",
         ) from error
+
     return Response(content=payload, media_type=media_type)

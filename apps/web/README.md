@@ -6,8 +6,9 @@ Vite + React shell for `@roborean/editor`.
 pnpm --filter web dev
 ```
 
-Set `VITE_API_BASE_URL` (default `http://localhost:8000`). Playwright E2E uses
-`15173` / `18080` via `webServer` so dev servers on `5173` / `8000` can stay up.
+Set `VITE_API_BASE_URL` (default `http://localhost:8765`). Playwright E2E
+uses `15173` / `18080` via `webServer` so dev servers on `5173` / `8765` can
+stay up.
 
 ## E2E
 

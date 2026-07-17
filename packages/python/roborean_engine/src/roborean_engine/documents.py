@@ -19,10 +19,15 @@ E_INPUT_UNSATISFIED = "E_INPUT_UNSATISFIED"
 
 
 def default_driver_registry() -> DriverRegistry:
-    """Load installed document drivers, falling back to in-process imports."""
+    """Load installed document drivers, falling back to in-process imports.
+
+    Returns:
+        Registry populated with available document drivers.
+    """
     registry = load_entry_point_drivers()
     if registry.list_ids():
         return registry
+
     # Editable installs may not expose entry points yet; import directly.
     from roborean_documents_docx.driver import create_driver as docx
     from roborean_documents_dxf.driver import create_driver as dxf
@@ -42,9 +47,19 @@ def compile_documents(
     package_dir: Path | None = None,
     registry: DriverRegistry | None = None,
 ) -> list[Diagnostic]:
-    """Validate document definitions, manifests, and driver availability."""
+    """Validate document definitions, manifests, and driver availability.
+
+    Args:
+        project: Project containing document definitions.
+        package_dir: Optional package root used to load template manifests.
+        registry: Optional driver registry; defaults to installed drivers.
+
+    Returns:
+        Diagnostics for missing templates, drivers, or inputs.
+    """
     if not project.documents:
         return []
+
     registry = registry or default_driver_registry()
     diagnostics: list[Diagnostic] = []
     template_ids = {item["id"] for item in project.templates}
@@ -55,6 +70,8 @@ def compile_documents(
 
     for index, definition in enumerate(project.documents):
         path = f"/documents/{index}"
+
+        # Require template table entries referenced by documents.
         if definition.template_ref not in template_ids:
             diagnostics.append(
                 Diagnostic(
@@ -64,6 +81,8 @@ def compile_documents(
                     path,
                 )
             )
+
+        # Require an installed driver for each document definition.
         try:
             registry.get(definition.driver)
         except KeyError:
@@ -75,6 +94,7 @@ def compile_documents(
                     path,
                 )
             )
+
         if store is not None and definition.template_ref in template_ids:
             try:
                 manifest = store.load_manifest(
@@ -108,6 +128,7 @@ def compile_documents(
                         path,
                     )
                 )
+
         if definition.output_target is None:
             diagnostics.append(
                 Diagnostic(
@@ -117,4 +138,5 @@ def compile_documents(
                     path,
                 )
             )
+
     return diagnostics

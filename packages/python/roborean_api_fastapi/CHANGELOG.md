@@ -11,6 +11,17 @@
 
 ### Changed
 
+- Align core API module docstrings, typed attributes, and block
+  comments with repository Python style guidelines.
+- Align API service module docstrings, type hints, and block comments
+  with repository Python style guidelines.
+- Align API schema DTO class attribute docstrings with repository
+  Python style guidelines.
+- Align API router endpoint docstrings, type hints, and block comments
+  with repository Python style guidelines.
+- Align OpenAPI customization helper docstring and block comments with
+  repository Python style guidelines.
+
 ### Fixed
 
 - Lower inter-package dependency pins to `>=0.1.1` to match lockstep

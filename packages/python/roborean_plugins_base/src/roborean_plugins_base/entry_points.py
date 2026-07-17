@@ -21,7 +21,16 @@ def load_bit_type_entry_points(
     Each entry point should resolve to a zero-arg callable that returns
     ``(BitTypeManifest, BitHandler)`` or an object with ``manifest`` and
     ``handler`` attributes.
+
+    Args:
+        allow_third_party: When true, load third-party trust tiers. When
+            omitted, follows ``ROBOREAN_ALLOW_THIRD_PARTY_PLUGINS``.
+
+    Returns:
+        List of ``(PluginManifest, (BitTypeManifest, handler))`` pairs for
+        trusted installed bit types.
     """
+    # Default third-party loading from the process environment.
     if allow_third_party is None:
         allow_third_party = os.environ.get(
             "ROBOREAN_ALLOW_THIRD_PARTY_PLUGINS", ""
@@ -36,20 +45,25 @@ def load_bit_type_entry_points(
         try:
             factory = item.load()
             payload = factory() if callable(factory) else factory
+
+            # Accept either attribute bags or ``(manifest, handler)`` tuples.
             if hasattr(payload, "manifest") and hasattr(payload, "handler"):
                 bit_manifest = payload.manifest
                 handler = payload.handler
             else:
                 bit_manifest, handler = payload
+
             trust = TrustTier.CORE
             if hasattr(payload, "trust_tier"):
                 trust = TrustTier(payload.trust_tier)
+
             if trust == TrustTier.THIRD_PARTY and not allow_third_party:
                 logger.debug(
                     "Skipping third-party bit type %s",
                     item.name,
                 )
                 continue
+
             plugin = PluginManifest(
                 id=bit_manifest.type_id,
                 version=bit_manifest.version,
@@ -65,4 +79,5 @@ def load_bit_type_entry_points(
                 item.name,
                 exc_info=True,
             )
+
     return loaded

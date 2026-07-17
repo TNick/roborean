@@ -11,7 +11,13 @@ class Base(DeclarativeBase):
 
 
 class SchemaMetaRow(Base):
-    """Tracks the storage schema version."""
+    """Tracks the storage schema version.
+
+    Attributes:
+        __tablename__: ``"schema_meta"``.
+        id: Primary key row identifier.
+        version: Current storage schema version number.
+    """
 
     __tablename__ = "schema_meta"
 
@@ -20,7 +26,18 @@ class SchemaMetaRow(Base):
 
 
 class ProjectRow(Base):
-    """Current project document storage."""
+    """Current project document storage.
+
+    Attributes:
+        __tablename__: ``"projects"``.
+        id: Project identifier and primary key.
+        revision: Identifier of the revision currently stored.
+        name: Human-readable project name.
+        schema_version: Project schema version string.
+        body_json: Serialized project document, as JSON text.
+        created_at: Timestamp when the row was first created.
+        updated_at: Timestamp when the row was last updated.
+    """
 
     __tablename__ = "projects"
 
@@ -34,7 +51,19 @@ class ProjectRow(Base):
 
 
 class ProjectRevisionRow(Base):
-    """Immutable project revision snapshots."""
+    """Immutable project revision snapshots.
+
+    Attributes:
+        __tablename__: ``"project_revisions"``.
+        project_id: Project identifier; part of the composite primary
+            key.
+        revision: Revision identifier; part of the composite primary
+            key.
+        body_json: Serialized project document, as JSON text.
+        compiled_json: Serialized compiled output, as JSON text, or
+            ``None`` when the revision has not been compiled.
+        created_at: Timestamp when the revision snapshot was created.
+    """
 
     __tablename__ = "project_revisions"
 
@@ -46,7 +75,41 @@ class ProjectRevisionRow(Base):
 
 
 class RunRow(Base):
-    """Durable run records."""
+    """Durable run records.
+
+    Attributes:
+        __tablename__: ``"runs"``.
+        __table_args__: Unique constraint on
+            (``project_id``, ``idempotency_key``), named
+            ``"uq_runs_project_idempotency"``.
+        run_id: Run identifier and primary key.
+        project_id: Project identifier owning the run.
+        project_revision: Project revision the run was compiled
+            against.
+        idempotency_key: Idempotency key supplied by the run request.
+        status: Run status value, as a string.
+        request_json: Serialized run request, as JSON text.
+        results_json: Serialized run results, as JSON text, or
+            ``None`` when the run has not produced results.
+        diff_json: Serialized run diff, as JSON text, or ``None``
+            when no diff is available.
+        attempt: Attempt number for this run, starting at ``1``.
+        engine_version: Engine version that executed the run.
+        plugin_versions_json: Serialized plugin version map, as JSON
+            text.
+        compiled_digest: Digest of the compiled project used by the
+            run.
+        error_json: Serialized run error, as JSON text, or ``None``
+            when the run has not errored.
+        request_digest: Digest of the run request body.
+        retry_policy_json: Serialized retry policy snapshot, as JSON
+            text.
+        created_at: Timestamp when the run record was created.
+        started_at: Timestamp when the run started, or ``None`` when
+            it has not started yet.
+        finished_at: Timestamp when the run finished, or ``None``
+            when it has not finished yet.
+    """
 
     __tablename__ = "runs"
     __table_args__ = (

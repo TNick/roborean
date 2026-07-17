@@ -7,13 +7,25 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Model(BaseModel):
-    """Base model that mirrors schemas without extra properties."""
+    """Base model that mirrors schemas without extra properties.
+
+    Attributes:
+        model_config: Pydantic configuration forbidding fields that are
+            not declared on the model.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
 
 class PublicLiteral(Model):
-    """A public literal workspace value."""
+    """A public literal workspace value.
+
+    Attributes:
+        kind: Discriminator identifying this value as a public literal.
+        data_type: The literal's declared type (``dataType`` alias): one
+            of ``string``, ``number``, ``boolean``, or ``date``.
+        value: The literal value itself.
+    """
 
     kind: Literal["public_literal"]
     data_type: Literal["string", "number", "boolean", "date"] = Field(
@@ -23,7 +35,15 @@ class PublicLiteral(Model):
 
 
 class SecretRefValue(Model):
-    """A reference to a secret held outside the portable project."""
+    """A reference to a secret held outside the portable project.
+
+    Attributes:
+        kind: Discriminator identifying this value as a secret
+            reference.
+        ref: Opaque identifier used to resolve the secret at run time.
+        display_hint: Optional human-readable hint (``displayHint``
+            alias) shown in place of the secret value.
+    """
 
     kind: Literal["secret_ref"]
     ref: str
@@ -31,7 +51,14 @@ class SecretRefValue(Model):
 
 
 class EqToken(Model):
-    """An equality-preserving opaque token."""
+    """An equality-preserving opaque token.
+
+    Attributes:
+        kind: Discriminator identifying this value as an equality token.
+        token: The opaque token value used for equality comparisons.
+        domain: Optional domain that scopes the token's equality
+            semantics.
+    """
 
     kind: Literal["eq_token"]
     token: str
@@ -39,7 +66,14 @@ class EqToken(Model):
 
 
 class ShapeToken(Model):
-    """A value represented by its structural shape."""
+    """A value represented by its structural shape.
+
+    Attributes:
+        kind: Discriminator identifying this value as a shape token.
+        shape: The structural shape category, one of ``email``,
+            ``phone``, ``iban``, ``uuid``, or ``code``.
+        length: Optional length constraint for the underlying value.
+    """
 
     kind: Literal["shape_token"]
     shape: Literal["email", "phone", "iban", "uuid", "code"]
@@ -47,7 +81,14 @@ class ShapeToken(Model):
 
 
 class Bucket(Model):
-    """A bucketed value with optional numeric bounds."""
+    """A bucketed value with optional numeric bounds.
+
+    Attributes:
+        kind: Discriminator identifying this value as a bucket.
+        bucket: Identifier of the bucket the value falls into.
+        bounds: Optional inclusive lower and upper numeric bounds for
+            the bucket.
+    """
 
     kind: Literal["bucket"]
     bucket: str
@@ -55,12 +96,21 @@ class Bucket(Model):
 
 
 class Redacted(Model):
-    """A value withheld by secret or policy rules."""
+    """A value withheld by secret or policy rules.
+
+    Attributes:
+        kind: Discriminator identifying this value as redacted.
+        reason: Why the value was withheld, one of ``secret``,
+            ``policy``, ``consent``, or ``unknown``.
+    """
 
     kind: Literal["redacted"]
     reason: Literal["secret", "policy", "consent", "unknown"]
 
 
+# A workspace value discriminated by its `kind` field; one of
+# PublicLiteral, SecretRefValue, EqToken, ShapeToken, Bucket, or
+# Redacted.
 WorkspaceValue = Annotated[
     Union[
         PublicLiteral,
@@ -75,7 +125,14 @@ WorkspaceValue = Annotated[
 
 
 class Exposure(str, Enum):
-    """Controls whether a workspace value can reach clients."""
+    """Controls whether a workspace value can reach clients.
+
+    Attributes:
+        BACKEND_ONLY: The value never leaves the backend.
+        REDACTED_TO_CLIENT: The value reaches the client only after
+            redaction.
+        CLIENT_VISIBLE: The value may be sent to the client as-is.
+    """
 
     BACKEND_ONLY = "backendOnly"
     REDACTED_TO_CLIENT = "redactedToClient"
@@ -83,7 +140,18 @@ class Exposure(str, Enum):
 
 
 class Variable(Model):
-    """A declared workspace variable."""
+    """A declared workspace variable.
+
+    Attributes:
+        key: The variable's unique workspace key.
+        schema_: JSON Schema (``schema`` alias) describing valid values.
+        default_value: Default workspace value (``defaultValue`` alias)
+            used when no override is provided.
+        const: Whether the variable's value is immutable once set.
+        exposure: Client-visibility policy for the variable's value.
+        description: Optional human-readable description of the
+            variable.
+    """
 
     key: str
     schema_: dict[str, Any] = Field(alias="schema")
@@ -94,7 +162,15 @@ class Variable(Model):
 
 
 class RuleAst(Model):
-    """A recursive CEL-profile rule expression."""
+    """A recursive CEL-profile rule expression.
+
+    Attributes:
+        op: The operator for this expression node, one of ``and``,
+            ``or``, ``not``, ``eq``, ``ne``, ``lt``, ``le``, ``gt``,
+            ``ge``, ``has``, ``const``, or ``var``.
+        args: Operands for the operator, which may themselves be nested
+            rule expressions or literal values.
+    """
 
     op: Literal[
         "and",
@@ -114,7 +190,18 @@ class RuleAst(Model):
 
 
 class EffectClass(str, Enum):
-    """Classifies a bit's execution effects."""
+    """Classifies a bit's execution effects.
+
+    Attributes:
+        PURE: No observable side effects.
+        WORKSPACE: Mutates the workspace only.
+        DOCUMENT: Emits document operations.
+        FILESYSTEM: Reads or writes the local filesystem.
+        NETWORK: Performs network I/O.
+        EXTERNAL_PROCESS: Invokes an external process.
+        TRANSACTIONAL_EXTERNAL: Calls an external system that supports
+            transactional semantics.
+    """
 
     PURE = "pure"
     WORKSPACE = "workspace"
@@ -126,7 +213,13 @@ class EffectClass(str, Enum):
 
 
 class OnError(str, Enum):
-    """Controls a run after a failed bit."""
+    """Controls a run after a failed bit.
+
+    Attributes:
+        ABORT: Stop the run immediately.
+        SKIP: Skip the failed bit and continue.
+        CONTINUE: Continue the run despite the failure.
+    """
 
     ABORT = "abort"
     SKIP = "skip"
@@ -134,7 +227,23 @@ class OnError(str, Enum):
 
 
 class Bit(Model):
-    """An ordered conditional unit of project work."""
+    """An ordered conditional unit of project work.
+
+    Attributes:
+        id: Unique identifier of the bit within the project.
+        type: The bit type implementation to execute.
+        label: Optional human-readable label for the bit.
+        when: Activation condition; either always-true or a rule
+            expression evaluated against the workspace.
+        config: Bit-specific configuration payload.
+        reads: Workspace keys the bit declares it reads.
+        writes: Workspace keys the bit declares it writes.
+        emits: Document operation kinds the bit declares it emits.
+        effect_class: Effect classification (``effectClass`` alias) used
+            for retry and idempotency handling.
+        on_error: Behavior to apply on failure (``onError`` alias).
+        capabilities: Capability identifiers required to run the bit.
+    """
 
     id: str
     type: str
@@ -150,14 +259,40 @@ class Bit(Model):
 
 
 class DocumentPreviewSettings(Model):
-    """Preview configuration for a document definition."""
+    """Preview configuration for a document definition.
+
+    Attributes:
+        mode: The preview rendering mode, one of ``none``, ``text``,
+            ``html``, or ``drawing-json``.
+        enabled: Whether preview generation is enabled.
+    """
 
     mode: Literal["none", "text", "html", "drawing-json"]
     enabled: bool
 
 
 class DocumentDefinition(Model):
-    """A deferred document output definition."""
+    """A deferred document output definition.
+
+    Attributes:
+        id: Unique identifier of the document within the project.
+        type: Document family, one of ``text``, ``markdown``, ``xlsx``,
+            ``docx``, ``image``, or ``dxf``.
+        template_ref: Reference to the template used to render the
+            document (``templateRef`` alias).
+        template_manifest_ref: Optional reference to the template's
+            manifest (``templateManifestRef`` alias).
+        driver: Identifier of the document driver used to render the
+            document.
+        output_target: Optional workspace key or path describing where
+            the rendered artifact should be written (``outputTarget``
+            alias).
+        ir_family: Optional intermediate-representation family produced
+            by the driver (``irFamily`` alias): one of ``flow``,
+            ``sheet``, ``drawing``, ``raster``, or ``plain``.
+        settings: Driver-specific rendering settings.
+        preview: Optional preview configuration for the document.
+    """
 
     id: str
     type: Literal["text", "markdown", "xlsx", "docx", "image", "dxf"]
@@ -175,7 +310,15 @@ class DocumentDefinition(Model):
 
 
 class TemplateSlot(Model):
-    """A declared template slot."""
+    """A declared template slot.
+
+    Attributes:
+        kind: The slot category, one of ``text``, ``richtext``,
+            ``repeating_table``, ``image``, ``cell``, ``named_range``,
+            ``block``, or ``layer``.
+        required: Whether the slot must be filled for the template to
+            be valid.
+    """
 
     kind: Literal[
         "text",
@@ -191,7 +334,26 @@ class TemplateSlot(Model):
 
 
 class TemplateManifest(Model):
-    """Sidecar metadata for a document template."""
+    """Sidecar metadata for a document template.
+
+    Attributes:
+        template_id: Unique identifier of the template (``templateId``
+            alias).
+        template_version: Version of the template (``templateVersion``
+            alias).
+        document_type: Document family the template targets
+            (``documentType`` alias): one of ``text``, ``markdown``,
+            ``xlsx``, ``docx``, ``image``, or ``dxf``.
+        driver: Identifier of the document driver the template targets.
+        required_inputs: Workspace keys the template requires
+            (``requiredInputs`` alias).
+        capabilities: Capability identifiers required to render the
+            template.
+        declared_slots: Slots declared by the template, keyed by slot
+            name (``declaredSlots`` alias).
+        content_hash: Optional content hash used to detect template
+            drift (``contentHash`` alias).
+    """
 
     template_id: str = Field(alias="templateId")
     template_version: str = Field(alias="templateVersion")
@@ -206,7 +368,26 @@ class TemplateManifest(Model):
 
 
 class DocumentDriverManifest(Model):
-    """Capability advertisement for an installed document driver."""
+    """Capability advertisement for an installed document driver.
+
+    Attributes:
+        driver_id: Unique identifier of the driver (``driverId`` alias).
+        version: Version of the driver.
+        ir_family: Intermediate-representation family the driver
+            produces (``irFamily`` alias): one of ``flow``, ``sheet``,
+            ``drawing``, ``raster``, or ``plain``.
+        capabilities: Capability identifiers the driver supports.
+        supports_preview: Whether the driver supports preview
+            generation (``supportsPreview`` alias).
+        supports_browser_execution: Whether the driver can run in a
+            browser runtime (``supportsBrowserExecution`` alias).
+        supports_diff: Whether the driver supports diffing output
+            (``supportsDiff`` alias).
+        requires_backend: Whether the driver requires a backend runtime
+            (``requiresBackend`` alias).
+        template_media_types: Media types accepted for the driver's
+            templates (``templateMediaTypes`` alias).
+    """
 
     driver_id: str = Field(alias="driverId")
     version: str
@@ -222,7 +403,21 @@ class DocumentDriverManifest(Model):
 
 
 class DocumentPreview(Model):
-    """Renderer-owned preview payload."""
+    """Renderer-owned preview payload.
+
+    Attributes:
+        document_id: Identifier of the document being previewed
+            (``documentId`` alias).
+        mode: The preview rendering mode, one of ``text``, ``html``, or
+            ``drawing-json``.
+        body: The rendered preview content.
+        warnings: Non-fatal warnings produced while rendering the
+            preview.
+        generated_at: Timestamp when the preview was generated
+            (``generatedAt`` alias).
+        renderer: Metadata describing the renderer that produced the
+            preview.
+    """
 
     document_id: str = Field(alias="documentId")
     mode: Literal["text", "html", "drawing-json"]
@@ -233,7 +428,26 @@ class DocumentPreview(Model):
 
 
 class ArtifactRecord(Model):
-    """One generated document artifact referenced from run results."""
+    """One generated document artifact referenced from run results.
+
+    Attributes:
+        document_id: Identifier of the document that produced the
+            artifact (``documentId`` alias).
+        path: Storage path or key of the artifact.
+        media_type: MIME type of the artifact (``mediaType`` alias).
+        digest_sha256: SHA-256 digest of the artifact bytes
+            (``digestSha256`` alias).
+        byte_length: Size of the artifact in bytes (``byteLength``
+            alias).
+        template_id: Identifier of the template used to render the
+            artifact (``templateId`` alias).
+        template_version: Version of the template used to render the
+            artifact (``templateVersion`` alias).
+        driver_id: Identifier of the driver used to render the artifact
+            (``driverId`` alias).
+        driver_version: Version of the driver used to render the
+            artifact (``driverVersion`` alias).
+    """
 
     document_id: str = Field(alias="documentId")
     path: str
@@ -247,7 +461,15 @@ class ArtifactRecord(Model):
 
 
 class DocumentOperation(Model):
-    """A typed document operation emitted by a bit."""
+    """A typed document operation emitted by a bit.
+
+    Attributes:
+        model_config: Pydantic configuration allowing extra fields,
+            since operations carry driver-specific payloads.
+        document_id: Identifier of the target document (``documentId``
+            alias).
+        op: The operation kind to apply to the document.
+    """
 
     model_config = ConfigDict(extra="allow")
 
@@ -256,7 +478,13 @@ class DocumentOperation(Model):
 
 
 class SetOp(Model):
-    """Set one workspace key."""
+    """Set one workspace key.
+
+    Attributes:
+        op: Discriminator identifying this operation as a set.
+        key: Workspace key being set.
+        value: New value assigned to the workspace key.
+    """
 
     op: Literal["set"]
     key: str
@@ -264,20 +492,33 @@ class SetOp(Model):
 
 
 class UnsetOp(Model):
-    """Remove one workspace key."""
+    """Remove one workspace key.
+
+    Attributes:
+        op: Discriminator identifying this operation as an unset.
+        key: Workspace key being removed.
+    """
 
     op: Literal["unset"]
     key: str
 
 
 class RejectOp(Model):
-    """Record a rejected workspace mutation."""
+    """Record a rejected workspace mutation.
+
+    Attributes:
+        op: Discriminator identifying this operation as a reject.
+        key: Workspace key whose mutation was rejected.
+        reason: Human-readable reason the mutation was rejected.
+    """
 
     op: Literal["reject"]
     key: str
     reason: str
 
 
+# A single workspace patch operation discriminated by its `op` field;
+# one of SetOp, UnsetOp, or RejectOp.
 PatchOp = Annotated[
     Union[SetOp, UnsetOp, RejectOp],
     Field(discriminator="op"),
@@ -285,13 +526,32 @@ PatchOp = Annotated[
 
 
 class WorkspacePatch(Model):
-    """An ordered, auditable list of workspace mutations."""
+    """An ordered, auditable list of workspace mutations.
+
+    Attributes:
+        ops: Ordered sequence of patch operations to apply.
+    """
 
     ops: list[PatchOp]
 
 
 class BitTypeManifest(Model):
-    """Describes an installed bit implementation."""
+    """Describes an installed bit implementation.
+
+    Attributes:
+        type_id: Unique identifier of the bit type (``typeId`` alias).
+        version: Version of the bit type implementation.
+        config_schema: JSON Schema describing valid bit configuration
+            (``configSchema`` alias).
+        effect_class: Effect classification declared by the bit type
+            (``effectClass`` alias).
+        capabilities: Capability identifiers required to run the bit
+            type.
+        reads_from_config: Whether the bit type's declared reads depend
+            on its configuration (``readsFromConfig`` alias).
+        browser_safe: Whether the bit type can execute in a browser
+            runtime (``browserSafe`` alias).
+    """
 
     type_id: str = Field(alias="typeId")
     version: str
@@ -303,7 +563,24 @@ class BitTypeManifest(Model):
 
 
 class Project(Model):
-    """A portable, versioned Roborean project."""
+    """A portable, versioned Roborean project.
+
+    Attributes:
+        schema_version: Schema version the project conforms to
+            (``schemaVersion`` alias): one of ``1.0.0`` or ``1.1.0``.
+        id: Unique identifier of the project.
+        name: Human-readable project name.
+        description: Optional human-readable project description.
+        plugin_requirements: Plugin dependency declarations
+            (``pluginRequirements`` alias).
+        workspace: Declared workspace variables, keyed by group name.
+        bits: Ordered list of bits that make up the project.
+        documents: Document definitions produced by the project.
+        templates: Template references used by the project's documents.
+        metadata: Free-form project metadata.
+        variables: Declared workspace variables, read from the
+            ``variables`` group of `workspace`.
+    """
 
     schema_version: Literal["1.0.0", "1.1.0"] = Field(alias="schemaVersion")
     id: str
@@ -320,12 +597,38 @@ class Project(Model):
 
     @property
     def variables(self) -> list[Variable]:
-        """Return declared workspace variables."""
+        """Return the declared workspace variables.
+
+        Returns:
+            The list of variables stored under the ``variables`` key of
+            `workspace`.
+        """
         return self.workspace["variables"]
 
 
 class BitResult(Model):
-    """The recorded result of one bit execution."""
+    """The recorded result of one bit execution.
+
+    Attributes:
+        bit_id: Identifier of the executed bit (``bitId`` alias).
+        type: The bit type that was executed.
+        active: Whether the bit's activation condition evaluated to
+            true.
+        activation_reason: Why the bit was (or was not) active
+            (``activationReason`` alias): a boolean or the literal
+            ``always``.
+        status: Outcome of the execution, one of ``success``,
+            ``skipped``, ``failed``, or ``inactive``.
+        duration_ms: Execution duration in milliseconds (``durationMs``
+            alias).
+        workspace_patch: Workspace mutations produced by the bit
+            (``workspacePatch`` alias).
+        document_ops: Document operations emitted by the bit
+            (``documentOps`` alias).
+        diagnostics: Diagnostic messages produced during execution.
+        plugin_version: Version of the plugin that provided the bit
+            type (``pluginVersion`` alias).
+    """
 
     bit_id: str = Field(alias="bitId")
     type: str
@@ -342,7 +645,34 @@ class BitResult(Model):
 
 
 class CompiledProject(Model):
-    """A resolved project ready for deterministic execution."""
+    """A resolved project ready for deterministic execution.
+
+    Attributes:
+        schema_version: Schema version the project conforms to
+            (``schemaVersion`` alias).
+        project_id: Identifier of the source project (``projectId``
+            alias).
+        project_name: Name of the source project (``projectName``
+            alias).
+        compiled_at: Timestamp when compilation occurred (``compiledAt``
+            alias).
+        engine_version: Version of the engine that performed the
+            compilation (``engineVersion`` alias).
+        rule_profile_version: Version of the rule evaluation profile
+            used (``ruleProfileVersion`` alias).
+        digest: Content digest of the compiled project.
+        variables: Resolved workspace variables.
+        bits: Resolved bit definitions ready for execution.
+        activation_expressions: Compiled activation rule expressions,
+            keyed by bit id (``activationExpressions`` alias).
+        dependency_map: Declared reads/writes/emits per bit, keyed by
+            bit id (``dependencyMap`` alias).
+        documents: Document definitions produced by the project.
+        templates: Template references used by the project's documents.
+        plugin_versions: Versions of plugins used to compile the
+            project, keyed by plugin id (``pluginVersions`` alias).
+        diagnostics: Diagnostic messages produced during compilation.
+    """
 
     schema_version: Literal["1.0.0", "1.1.0"] = Field(alias="schemaVersion")
     project_id: str = Field(alias="projectId")
@@ -366,7 +696,31 @@ class CompiledProject(Model):
 
 
 class RunResults(Model):
-    """The portable output record for a Phase 1 execution."""
+    """The portable output record for a Phase 1 execution.
+
+    Attributes:
+        run_id: Unique identifier of the run (``runId`` alias).
+        project_id: Identifier of the executed project (``projectId``
+            alias).
+        project_digest: Content digest of the compiled project
+            (``projectDigest`` alias).
+        started_at: Timestamp when the run started (``startedAt``
+            alias).
+        finished_at: Timestamp when the run finished (``finishedAt``
+            alias).
+        status: Outcome of the run, one of ``success``, ``failed``, or
+            ``aborted``.
+        input_workspace_hash: Hash of the workspace before execution
+            (``inputWorkspaceHash`` alias).
+        final_workspace_hash: Hash of the workspace after execution
+            (``finalWorkspaceHash`` alias).
+        bit_results: Per-bit execution results (``bitResults`` alias).
+        artifacts: Document artifacts produced by the run.
+        engine_version: Version of the engine that executed the run
+            (``engineVersion`` alias).
+        rule_profile_version: Version of the rule evaluation profile
+            used (``ruleProfileVersion`` alias).
+    """
 
     run_id: str = Field(alias="runId")
     project_id: str = Field(alias="projectId")
@@ -383,7 +737,14 @@ class RunResults(Model):
 
 
 class RunTrigger(str, Enum):
-    """How a durable run was requested."""
+    """How a durable run was requested.
+
+    Attributes:
+        CLI: The run was requested from the command line.
+        API: The run was requested through the API.
+        RETRY: The run is a retry of a previous run.
+        TEST: The run was requested by a test harness.
+    """
 
     CLI = "cli"
     API = "api"
@@ -392,7 +753,26 @@ class RunTrigger(str, Enum):
 
 
 class RunRequest(Model):
-    """Idempotent request to execute a project."""
+    """Idempotent request to execute a project.
+
+    Attributes:
+        project_id: Identifier of the project to execute (``projectId``
+            alias).
+        project_revision: Optional revision of the project to execute
+            (``projectRevision`` alias).
+        idempotency_key: Client-supplied key used to deduplicate
+            retries (``idempotencyKey`` alias).
+        trigger: How the run was requested.
+        workspace_overrides: Workspace values that override project
+            defaults (``workspaceOverrides`` alias).
+        strict_workspace_access: Whether undeclared workspace reads or
+            writes should fail the run (``strictWorkspaceAccess``
+            alias).
+        retry_of_run_id: Optional identifier of the run being retried
+            (``retryOfRunId`` alias).
+        requested_at: Optional timestamp when the request was made
+            (``requestedAt`` alias).
+    """
 
     project_id: str = Field(alias="projectId")
     project_revision: str | None = Field(default=None, alias="projectRevision")
@@ -410,14 +790,31 @@ class RunRequest(Model):
     @field_validator("idempotency_key")
     @classmethod
     def _validate_idempotency_key(cls, value: str) -> str:
-        """Reject empty or oversized keys early."""
+        """Reject empty or oversized idempotency keys early.
+
+        Args:
+            value: The candidate idempotency key to validate.
+
+        Returns:
+            The validated idempotency key, unchanged.
+
+        Raises:
+            ValueError: If `value` is empty or longer than 128
+                characters.
+        """
         if not value or len(value) > 128:
             raise ValueError("idempotencyKey must be 1..128 characters")
         return value
 
 
 class WorkspaceChange(Model):
-    """One workspace key delta for a run diff."""
+    """One workspace key delta for a run diff.
+
+    Attributes:
+        key: The workspace key that changed.
+        before: The value before the run, or ``None`` if it was unset.
+        after: The value after the run, or ``None`` if it was unset.
+    """
 
     key: str
     before: WorkspaceValue | None
@@ -425,7 +822,15 @@ class WorkspaceChange(Model):
 
 
 class SecretRefAccess(Model):
-    """Metadata that a secret reference was touched without revealing it."""
+    """Metadata that a secret reference was touched without revealing it.
+
+    Attributes:
+        bit_id: Identifier of the bit that accessed the secret
+            (``bitId`` alias).
+        provider: Identifier of the secret provider.
+        name: Name of the secret within the provider.
+        version: Optional version of the secret that was accessed.
+    """
 
     bit_id: str = Field(alias="bitId")
     provider: str
@@ -434,7 +839,22 @@ class SecretRefAccess(Model):
 
 
 class RunDiff(Model):
-    """Redacted provenance summary for a completed run."""
+    """Redacted provenance summary for a completed run.
+
+    Attributes:
+        workspace_changes: Workspace key deltas produced by the run
+            (``workspaceChanges`` alias).
+        bits_activated: Identifiers of bits whose activation condition
+            was true (``bitsActivated`` alias).
+        bits_skipped_inactive: Identifiers of bits skipped because they
+            were inactive (``bitsSkippedInactive`` alias).
+        bits_failed: Identifiers of bits that failed during execution
+            (``bitsFailed`` alias).
+        secret_refs_accessed: Secret references touched during the run
+            (``secretRefsAccessed`` alias).
+        document_ops_count: Number of document operations emitted,
+            keyed by operation kind (``documentOpsCount`` alias).
+    """
 
     workspace_changes: list[WorkspaceChange] = Field(alias="workspaceChanges")
     bits_activated: list[str] = Field(alias="bitsActivated")
@@ -447,7 +867,14 @@ class RunDiff(Model):
 
 
 class RunError(Model):
-    """Structured failure information for a durable run."""
+    """Structured failure information for a durable run.
+
+    Attributes:
+        code: Machine-readable error code.
+        message: Human-readable error message.
+        bit_id: Optional identifier of the bit that caused the failure
+            (``bitId`` alias).
+    """
 
     code: str
     message: str
@@ -455,7 +882,15 @@ class RunError(Model):
 
 
 class RunStatus(str, Enum):
-    """Lifecycle status for a durable run record."""
+    """Lifecycle status for a durable run record.
+
+    Attributes:
+        QUEUED: The run has been accepted but not started.
+        RUNNING: The run is currently executing.
+        SUCCEEDED: The run completed successfully.
+        FAILED: The run completed with a failure.
+        CANCELLED: The run was cancelled before completion.
+    """
 
     QUEUED = "queued"
     RUNNING = "running"
@@ -465,7 +900,40 @@ class RunStatus(str, Enum):
 
 
 class RunRecord(Model):
-    """Durable envelope around compile/run artifacts."""
+    """Durable envelope around compile/run artifacts.
+
+    Attributes:
+        run_id: Unique identifier of the run (``runId`` alias).
+        idempotency_key: Client-supplied key used to deduplicate
+            retries (``idempotencyKey`` alias).
+        project_id: Identifier of the project being executed
+            (``projectId`` alias).
+        project_revision: Revision of the project being executed
+            (``projectRevision`` alias).
+        compiled_digest: Content digest of the compiled project
+            (``compiledDigest`` alias).
+        status: Current lifecycle status of the run.
+        request: The original run request.
+        results: Optional portable results once the run finishes.
+        diff: Optional redacted provenance summary once the run
+            finishes.
+        attempt: One-based attempt number for this run.
+        retry_policy_snapshot: Retry policy in effect when the run was
+            created (``retryPolicySnapshot`` alias).
+        engine_version: Version of the engine executing the run
+            (``engineVersion`` alias).
+        plugin_versions: Versions of plugins used by the run, keyed by
+            plugin id (``pluginVersions`` alias).
+        error: Optional structured failure information.
+        created_at: Timestamp when the run record was created
+            (``createdAt`` alias).
+        started_at: Optional timestamp when execution started
+            (``startedAt`` alias).
+        finished_at: Optional timestamp when execution finished
+            (``finishedAt`` alias).
+        request_digest: Digest used to detect duplicate requests
+            (``requestDigest`` alias).
+    """
 
     run_id: str = Field(alias="runId")
     idempotency_key: str = Field(alias="idempotencyKey")

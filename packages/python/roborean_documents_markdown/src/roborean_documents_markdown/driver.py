@@ -1,10 +1,12 @@
 """Markdown / CommonMark document driver."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Mapping
+from typing import Any
 
 from roborean_documents_base.capabilities import assert_op_allowed
+from roborean_documents_base.template_store import DocumentTemplateStore
 from roborean_spec import (
     DocumentDriverManifest,
     DocumentOperation,
@@ -15,7 +17,15 @@ from roborean_spec import (
 
 @dataclass
 class MarkdownSession:
-    """AST buffer for Markdown generation."""
+    """AST buffer for Markdown generation.
+
+    Attributes:
+        document_id: Document definition identifier for this session.
+        driver_id: Driver id that owns the session.
+        nodes: Ordered flow/plain nodes to render.
+        ops_applied: Serialized operations applied so far.
+        template_prefix: Template text rendered ahead of nodes.
+    """
 
     document_id: str
     driver_id: str
@@ -25,10 +35,20 @@ class MarkdownSession:
 
 
 def render_commonmark(nodes: list[dict[str, Any]], prefix: str = "") -> str:
-    """Render a minimal node list to CommonMark."""
+    """Render a minimal node list to CommonMark.
+
+    Args:
+        nodes: Ordered heading, paragraph, and table nodes.
+        prefix: Optional template text placed before rendered nodes.
+
+    Returns:
+        CommonMark body ending with a trailing newline.
+    """
     parts: list[str] = []
     if prefix:
         parts.append(prefix.rstrip("\n"))
+
+    # Render each node kind into CommonMark fragments.
     for node in nodes:
         kind = node["kind"]
         if kind == "heading":
@@ -44,15 +64,24 @@ def render_commonmark(nodes: list[dict[str, Any]], prefix: str = "") -> str:
             parts.append("| " + " | ".join("---" for _ in header) + " |")
             for row in rows[1:]:
                 parts.append("| " + " | ".join(row) + " |")
+
     body = "\n\n".join(parts).rstrip() + "\n"
     return body
 
 
 class MarkdownDocumentDriver:
-    """CommonMark driver using flow operations."""
+    """CommonMark driver using flow operations.
 
-    driver_id = "roborean.markdown"
-    manifest = DocumentDriverManifest(
+    Attributes:
+        driver_id: Stable driver identifier.
+        manifest: Driver capability and media-type manifest.
+
+        _template: Loaded Markdown template prefix text.
+        _manifest: Template sidecar manifest from ``load_template``.
+    """
+
+    driver_id: str = "roborean.markdown"
+    manifest: DocumentDriverManifest = DocumentDriverManifest(
         driverId="roborean.markdown",
         version="0.3.0",
         irFamily="flow",
@@ -72,21 +101,46 @@ class MarkdownDocumentDriver:
         templateMediaTypes=["text/markdown"],
     )
 
+    _template: str
+    _manifest: TemplateManifest | None
+
     def __init__(self) -> None:
         """Initialize empty template state."""
         self._template = ""
-        self._manifest: TemplateManifest | None = None
+        self._manifest = None
 
-    def load_template(self, template_ref, *, store, manifest) -> None:
-        """Load Markdown template prefix."""
+    def load_template(
+        self,
+        template_ref: str,
+        *,
+        store: DocumentTemplateStore,
+        manifest: TemplateManifest,
+    ) -> None:
+        """Load Markdown template prefix.
+
+        Args:
+            template_ref: Template identifier within the project package.
+            store: Template store used to resolve template bytes.
+            manifest: Validated template sidecar manifest.
+        """
         text = store.load_bytes(template_ref).decode("utf-8")
         self._template = text.replace("\r\n", "\n")
         self._manifest = manifest
 
     def begin_session(
-        self, workspace, metadata: Mapping[str, Any]
+        self,
+        workspace: Any,
+        metadata: Mapping[str, Any],
     ) -> MarkdownSession:
-        """Start a Markdown session."""
+        """Start a Markdown session.
+
+        Args:
+            workspace: Current workspace snapshot (unused for Markdown).
+            metadata: Session metadata such as ``documentId``.
+
+        Returns:
+            Open session with the loaded template prefix.
+        """
         return MarkdownSession(
             document_id=str(metadata.get("documentId", "")),
             driver_id=self.driver_id,
@@ -96,10 +150,20 @@ class MarkdownDocumentDriver:
     def apply_operation(
         self, session: MarkdownSession, op: DocumentOperation
     ) -> None:
-        """Apply one flow/plain operation."""
+        """Apply one flow/plain operation.
+
+        Args:
+            session: Open Markdown session that receives the operation.
+            op: Typed document operation to apply.
+
+        Raises:
+            UnsupportedOperationError: When the op is outside capabilities.
+        """
         assert_op_allowed(self.manifest, op)
         data = op.model_dump(mode="python", by_alias=True)
         session.ops_applied.append(op.model_dump(mode="json", by_alias=True))
+
+        # Append AST nodes or rewrite named slots in the template prefix.
         if op.op == "flow.insert_heading":
             session.nodes.append(
                 {
@@ -128,16 +192,34 @@ class MarkdownDocumentDriver:
             )
 
     def finalize(self, session: MarkdownSession) -> None:
-        """No-op finalize."""
+        """No-op finalize.
+
+        Args:
+            session: Open session about to be serialized.
+        """
         return
 
     def serialize(self, session: MarkdownSession) -> bytes:
-        """Return CommonMark UTF-8 bytes."""
+        """Return CommonMark UTF-8 bytes.
+
+        Args:
+            session: Finalized session to serialize.
+
+        Returns:
+            UTF-8 encoded CommonMark document.
+        """
         body = render_commonmark(session.nodes, session.template_prefix)
         return body.encode("utf-8")
 
     def preview(self, session: MarkdownSession) -> DocumentPreview:
-        """Identity preview of CommonMark text."""
+        """Identity preview of CommonMark text.
+
+        Args:
+            session: Finalized session to preview.
+
+        Returns:
+            Text preview matching the serialized CommonMark body.
+        """
         return DocumentPreview(
             documentId=session.document_id,
             mode="text",
@@ -152,5 +234,9 @@ class MarkdownDocumentDriver:
 
 
 def create_driver() -> MarkdownDocumentDriver:
-    """Entry-point factory."""
+    """Entry-point factory.
+
+    Returns:
+        New ``MarkdownDocumentDriver`` instance.
+    """
     return MarkdownDocumentDriver()

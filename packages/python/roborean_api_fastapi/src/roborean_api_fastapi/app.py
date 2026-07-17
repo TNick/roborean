@@ -12,10 +12,21 @@ from .settings import Settings
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
-    """Build the Roborean HTTP API."""
+    """Build the Roborean HTTP API.
+
+    Args:
+        settings: Optional settings override; loads from the environment
+            when omitted.
+
+    Returns:
+        Configured FastAPI application instance.
+    """
     app = FastAPI(title="Roborean API", version="0.4.0")
+
+    # Resolve settings and bind shared repositories to app state.
     resolved = attach_app_state(app, settings)
 
+    # Allow browser clients during local development.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=resolved.cors_origins,
@@ -25,6 +36,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     install_exception_handlers(app)
 
+    # Mount versioned HTTP routers.
     app.include_router(health.router)
     app.include_router(projects.router)
     app.include_router(compile.router)
@@ -33,8 +45,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(previews.router)
 
     def custom_openapi() -> dict:
+        """Build and cache the customized OpenAPI schema.
+
+        Returns:
+            OpenAPI document dictionary for the mounted routes.
+        """
         if app.openapi_schema:
             return app.openapi_schema
+
+        # Generate the base schema then apply Roborean customizations.
         schema = get_openapi(
             title=app.title,
             version=app.version,
@@ -44,5 +63,4 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return app.openapi_schema
 
     app.openapi = custom_openapi
-    _ = resolved
     return app

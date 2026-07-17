@@ -15,7 +15,7 @@ def main() -> None:
         "roborean_api_app.main:build",
         factory=True,
         host="0.0.0.0",
-        port=8000,
+        port=8765,
         reload=True,
     )
 

@@ -33,17 +33,33 @@ from .version import ENGINE_VERSION
 
 
 class CompileError(ValueError):
-    """Raised when one or more error diagnostics prevent compilation."""
+    """Raised when one or more error diagnostics prevent compilation.
+
+    Attributes:
+        diagnostics: Error and warning diagnostics collected during compile.
+    """
+
+    diagnostics: list[Diagnostic]
 
     def __init__(self, diagnostics: list[Diagnostic]) -> None:
-        """Preserve diagnostics for CLI and test callers."""
+        """Preserve diagnostics for CLI and test callers.
+
+        Args:
+            diagnostics: Diagnostics that caused compilation to fail.
+        """
         super().__init__("Project compilation failed")
         self.diagnostics = diagnostics
 
 
 @dataclass(frozen=True)
 class CompileOptions:
-    """Controls strictness for project compilation."""
+    """Controls strictness for project compilation.
+
+    Attributes:
+        strict_undeclared_access: Reject bits that declare unknown keys.
+        allow_unresolved_documents: Skip document validation when true.
+        package_dir: Optional package root for template/manifest checks.
+    """
 
     strict_undeclared_access: bool = True
     allow_unresolved_documents: bool = False
@@ -51,7 +67,14 @@ class CompileOptions:
 
 
 def compute_project_digest(project: Project) -> str:
-    """Hash the canonical JSON project representation."""
+    """Hash the canonical JSON project representation.
+
+    Args:
+        project: Project to digest.
+
+    Returns:
+        Hex-encoded SHA-256 digest of canonical project JSON.
+    """
     payload = json.dumps(
         project_to_dict(project),
         ensure_ascii=False,
@@ -62,7 +85,14 @@ def compute_project_digest(project: Project) -> str:
 
 
 def build_dependency_map(project: Project) -> dict[str, dict[str, list[str]]]:
-    """Build declared dependency edges keyed by bit ID."""
+    """Build declared dependency edges keyed by bit ID.
+
+    Args:
+        project: Project whose bits declare reads/writes/emits.
+
+    Returns:
+        Mapping of bit id to declared dependency lists.
+    """
     return {
         bit.id: {
             "reads": list(bit.reads),
@@ -79,7 +109,19 @@ def compile_project(
     options: CompileOptions | None = None,
     bit_registry: BitTypeRegistry | None = None,
 ) -> CompiledProject:
-    """Resolve manifests, validate bits, and produce a compiled project."""
+    """Resolve manifests, validate bits, and produce a compiled project.
+
+    Args:
+        project: Project to compile.
+        options: Optional compile strictness and package-dir settings.
+        bit_registry: Optional bit registry; defaults to built-ins.
+
+    Returns:
+        Schema-shaped compiled project artifact.
+
+    Raises:
+        CompileError: When one or more error diagnostics are present.
+    """
     options = options or CompileOptions()
     registry = bit_registry or builtin_registry()
     diagnostics: list[Diagnostic] = []
@@ -102,6 +144,7 @@ def compile_project(
                 )
             )
             continue
+
         plugin_versions[bit.type] = manifest.version
         try:
             config_schema = dict(manifest.config_schema)
@@ -116,6 +159,7 @@ def compile_project(
             diagnostics.append(
                 Diagnostic("error", E_CONFIG, error.message, f"{path}/config")
             )
+
         if options.strict_undeclared_access:
             for key in [*bit.reads, *bit.writes]:
                 if key not in variables:
@@ -184,6 +228,7 @@ def compile_project(
                     f"Variable is never read or written: {variable.key}",
                 )
             )
+
     if project.documents:
         if options.allow_unresolved_documents:
             diagnostics.append(
@@ -201,6 +246,7 @@ def compile_project(
                     package_dir=options.package_dir,
                 )
             )
+
     if any(item.severity == "error" for item in diagnostics):
         raise CompileError(diagnostics)
 

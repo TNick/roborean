@@ -11,12 +11,22 @@ class ReplaceNamedValueHandler:
     """Copy a workspace value into a named document slot."""
 
     def execute(self, context: BitContext) -> BitOutput:
-        """Build one document operation."""
+        """Build one document operation.
+
+        Args:
+            context: Bit inputs including document id, slot name, and value.
+
+        Returns:
+            Empty workspace patch and one replace_named_value operation.
+        """
         config = context.bit.config
+
+        # Prefer a live workspace key when configured; else use a literal.
         if "fromKey" in config:
             value = get_value(context.workspace, str(config["fromKey"]))
         else:
             value = TypeAdapter(WorkspaceValue).validate_python(config["value"])
+
         op = DocumentOperation.model_validate(
             {
                 "documentId": config["documentId"],

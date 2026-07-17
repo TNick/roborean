@@ -15,5 +15,7 @@
 ### Changed
 
 - Export `Redacted` workspace value from the public package API.
+- Align schema models, schema loader, and migration helper docstrings
+  with repository Python style guidelines.
 
 ### Fixed

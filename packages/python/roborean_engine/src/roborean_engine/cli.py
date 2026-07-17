@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from roborean_spec import RunRequest, RunTrigger
+from roborean_spec import Project, RunRequest, RunTrigger
 from roborean_storage_base import ConflictError, NotFoundError
 from roborean_storage_dict import load_project_dir
 
@@ -17,7 +17,12 @@ from .store import init_store, parse_store
 
 
 def _write(data: dict | list, output: Path | None) -> None:
-    """Write JSON to a file or standard output."""
+    """Write JSON to a file or standard output.
+
+    Args:
+        data: JSON-serializable payload to write.
+        output: File path to write to, or ``None`` to print to stdout.
+    """
     text = json.dumps(data, indent=2, ensure_ascii=False)
     if output:
         output.write_text(text + "\n", encoding="utf-8")
@@ -25,27 +30,57 @@ def _write(data: dict | list, output: Path | None) -> None:
         print(text)
 
 
-def _load_project(path: Path):
-    """Load a project from a JSON file or package directory."""
+def _load_project(path: Path) -> Project:
+    """Load a project from a JSON file or package directory.
+
+    Args:
+        path: Path to a project JSON file or a package directory.
+
+    Returns:
+        The loaded project definition.
+    """
     if path.is_dir():
         return load_project_dir(path)
     return load_project_path(path)
 
 
 def _package_dir(path: Path) -> Path | None:
-    """Return a package directory when ``path`` is a directory."""
+    """Return a package directory when ``path`` is a directory.
+
+    Args:
+        path: Candidate project path.
+
+    Returns:
+        ``path`` when it is a directory, otherwise ``None``.
+    """
     return path if path.is_dir() else None
 
 
 def cmd_validate(path: Path) -> int:
-    """Validate one project JSON file or package directory."""
+    """Validate one project JSON file or package directory.
+
+    Args:
+        path: Path to a project JSON file or a package directory.
+
+    Returns:
+        Process exit status; ``0`` on success.
+    """
     _load_project(path)
     print("valid")
     return 0
 
 
 def cmd_compile(path: Path, output: Path | None) -> int:
-    """Compile a project and write its portable artifact."""
+    """Compile a project and write its portable artifact.
+
+    Args:
+        path: Path to a project JSON file or a package directory.
+        output: File path to write the compiled artifact to, or ``None``
+            to print to stdout.
+
+    Returns:
+        Process exit status; ``0`` on success.
+    """
     project = _load_project(path)
     compiled = compile_project(
         project,
@@ -62,9 +97,25 @@ def cmd_run(
     idempotency_key: str | None,
     store: str | None,
 ) -> int:
-    """Compile and execute a project, optionally through a durable store."""
+    """Compile and execute a project, optionally through a durable store.
+
+    Args:
+        path: Path to a project JSON file or a package directory.
+        output: File path to write the run result to, or ``None`` to
+            print to stdout.
+        idempotency_key: Idempotency key for durable execution; required
+            together with ``store`` to persist the run.
+        store: Store specification for durable execution, or ``None``
+            for an in-memory, non-persisted run.
+
+    Returns:
+        Process exit status; ``0`` on success, ``1`` on failure.
+    """
     project = _load_project(path)
     package_dir = _package_dir(path)
+
+    # Without a store and idempotency key, run in-memory without
+    # persisting anything.
     if store is None or idempotency_key is None:
         compiled = compile_project(
             project,
@@ -78,6 +129,8 @@ def cmd_run(
         _write(result.model_dump(mode="json", by_alias=True), output)
         return 0
 
+    # Otherwise persist the project and execute a durable, idempotent
+    # run through the run service.
     projects, runs, artifacts = parse_store(store)
     projects.save(project, revision="1")
     service = RunService(projects=projects, runs=runs, artifacts=artifacts)
@@ -94,7 +147,18 @@ def cmd_run(
 
 
 def cmd_explain_bit(path: Path, bit_id: str) -> int:
-    """Print one compiled bit's activation and dependency information."""
+    """Print one compiled bit's activation and dependency information.
+
+    Args:
+        path: Path to a project JSON file or a package directory.
+        bit_id: Identifier of the bit to explain.
+
+    Returns:
+        Process exit status; ``0`` on success.
+
+    Raises:
+        ValueError: When no bit with ``bit_id`` exists in the project.
+    """
     project = _load_project(path)
     compiled = compile_project(
         project,
@@ -117,14 +181,29 @@ def cmd_explain_bit(path: Path, bit_id: str) -> int:
 
 
 def cmd_store_init(store: str) -> int:
-    """Initialize a durable store."""
+    """Initialize a durable store.
+
+    Args:
+        store: Store specification to initialize.
+
+    Returns:
+        Process exit status; ``0`` on success.
+    """
     init_store(store)
     print(f"initialized {store}")
     return 0
 
 
 def cmd_runs_list(project_id: str, store: str) -> int:
-    """List durable runs for a project."""
+    """List durable runs for a project.
+
+    Args:
+        project_id: Identifier of the project whose runs to list.
+        store: Store specification to read runs from.
+
+    Returns:
+        Process exit status; ``0`` on success.
+    """
     projects, runs, artifacts = parse_store(store)
     service = RunService(projects=projects, runs=runs, artifacts=artifacts)
     records = service.list_for_project(project_id)
@@ -144,7 +223,15 @@ def cmd_runs_list(project_id: str, store: str) -> int:
 
 
 def cmd_runs_show(run_id: str, store: str) -> int:
-    """Show one durable run record."""
+    """Show one durable run record.
+
+    Args:
+        run_id: Identifier of the run to show.
+        store: Store specification to read the run from.
+
+    Returns:
+        Process exit status; ``0`` on success.
+    """
     projects, runs, artifacts = parse_store(store)
     service = RunService(projects=projects, runs=runs, artifacts=artifacts)
     record = service.get(run_id)
@@ -153,7 +240,16 @@ def cmd_runs_show(run_id: str, store: str) -> int:
 
 
 def cmd_runs_retry(run_id: str, store: str, *, force: bool) -> int:
-    """Retry a prior durable run when policy allows."""
+    """Retry a prior durable run when policy allows.
+
+    Args:
+        run_id: Identifier of the run to retry.
+        store: Store specification to read from and write to.
+        force: When ``True``, bypass the retry policy check.
+
+    Returns:
+        Process exit status; ``0`` on success, ``1`` on failure.
+    """
     projects, runs, artifacts = parse_store(store)
     service = RunService(projects=projects, runs=runs, artifacts=artifacts)
     record = service.retry(run_id, force=force)
@@ -162,7 +258,18 @@ def cmd_runs_retry(run_id: str, store: str, *, force: bool) -> int:
 
 
 def cmd_render(path: Path, out: Path) -> int:
-    """Render document artifacts for a project package directory."""
+    """Render document artifacts for a project package directory.
+
+    Args:
+        path: Path to a project package directory.
+        out: Directory to write rendered artifacts and results to.
+
+    Returns:
+        Process exit status; ``0`` on success, ``1`` on failure.
+
+    Raises:
+        ValueError: When ``path`` is not a package directory.
+    """
     if not path.is_dir():
         raise ValueError("render requires a project package directory")
     project = load_project_dir(path)
@@ -187,7 +294,20 @@ def cmd_render(path: Path, out: Path) -> int:
 
 
 def cmd_preview(path: Path, document_id: str, fmt: str) -> int:
-    """Print a document preview for a project package."""
+    """Print a document preview for a project package.
+
+    Args:
+        path: Path to a project package directory.
+        document_id: Identifier of the document to preview.
+        fmt: Output format: ``"html"``, ``"text"``, or ``"json"``.
+
+    Returns:
+        Process exit status; ``0`` on success, ``1`` on failure.
+
+    Raises:
+        ValueError: When ``path`` is not a package directory, or when
+            no preview exists for ``document_id``.
+    """
     if not path.is_dir():
         raise ValueError("preview requires a project package directory")
     project = load_project_dir(path)
@@ -209,7 +329,11 @@ def cmd_preview(path: Path, document_id: str, fmt: str) -> int:
 
 
 def cmd_drivers_list() -> int:
-    """List installed document drivers."""
+    """List installed document drivers.
+
+    Returns:
+        Process exit status; ``0`` on success.
+    """
     registry = default_driver_registry()
     rows = []
     for driver_id, manifest in registry.manifests().items():
@@ -227,7 +351,13 @@ def cmd_drivers_list() -> int:
 
 
 def main() -> int:
-    """Parse CLI arguments and return a process status."""
+    """Parse CLI arguments and return a process status.
+
+    Returns:
+        Process exit status returned by the dispatched subcommand, or
+        ``1`` when a known error is raised.
+    """
+    # Build the top-level parser and its subcommands.
     parser = argparse.ArgumentParser(prog="roborean")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -284,6 +414,8 @@ def main() -> int:
     drivers_sub = drivers.add_subparsers(dest="drivers_command", required=True)
     drivers_sub.add_parser("list")
 
+    # Dispatch to the handler for the parsed subcommand, converting
+    # known domain errors into a printed message and a failure status.
     args = parser.parse_args()
     try:
         if args.command == "validate":

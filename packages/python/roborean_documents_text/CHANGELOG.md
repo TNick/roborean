@@ -8,6 +8,9 @@
 
 ### Changed
 
+- Align text driver docstrings, typed attributes, and block comments
+  with repository Python style guidelines.
+
 ### Fixed
 
 

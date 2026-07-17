@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Default local API port is `8765` (`make api` / `roborean-api` / web
+  `VITE_API_BASE_URL` fallback) to avoid clashing with Docker stacks on
+  `8000`.
+
 ## [0.1.3] - 2026-07-17
 
 ## [0.1.2] - 2026-07-17

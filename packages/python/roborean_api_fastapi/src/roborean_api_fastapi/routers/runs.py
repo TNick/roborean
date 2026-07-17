@@ -23,13 +23,29 @@ def create_run(
     _principal: Principal = Depends(get_principal),
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> RunDetail:
-    """Execute a durable run."""
+    """Execute a durable run.
+
+    Args:
+        project_id: Project that owns the new run.
+        body: Run create request with workspace overrides.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+        idempotency_key: Required ``Idempotency-Key`` header value.
+
+    Returns:
+        Client-facing detail for the created or reused run.
+
+    Raises:
+        ApiError: When the idempotency header is missing.
+    """
+    # Durable runs require a client-supplied idempotency key.
     if not idempotency_key:
         raise ApiError(
             status_code=400,
             code="E_IDEMPOTENCY",
             message="Idempotency-Key header is required",
         )
+
     return run_service.create_run(
         state.run_service,
         project_id,
@@ -47,7 +63,16 @@ def list_runs(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> list[RunSummary]:
-    """List runs for a project."""
+    """List runs for a project.
+
+    Args:
+        project_id: Project whose runs should be listed.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Summary rows for recent runs of the project.
+    """
     return run_service.list_runs(state.run_service, project_id)
 
 
@@ -57,5 +82,14 @@ def get_run(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> RunDetail:
-    """Fetch one run."""
+    """Fetch one run.
+
+    Args:
+        run_id: Identifier of the run to load.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Client-facing run detail with redacted results.
+    """
     return run_service.get_run(state.run_service, run_id)

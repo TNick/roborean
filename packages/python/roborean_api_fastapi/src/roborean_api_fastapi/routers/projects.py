@@ -21,7 +21,15 @@ def list_projects(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> list[ProjectSummary]:
-    """List project summaries."""
+    """List project summaries.
+
+    Args:
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Summary rows for each stored project.
+    """
     return project_service.list_projects(state.projects)
 
 
@@ -33,7 +41,16 @@ def create_project(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> ProjectDetail:
-    """Create a stored project."""
+    """Create a stored project.
+
+    Args:
+        body: Create request containing the project document.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Redacted project detail for the created project.
+    """
     return project_service.create_project(state.projects, body)
 
 
@@ -43,7 +60,16 @@ def get_project(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> ProjectDetail:
-    """Fetch one project."""
+    """Fetch one project.
+
+    Args:
+        project_id: Identifier of the project to load.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Redacted project detail for the requested project.
+    """
     return project_service.get_project(state.projects, project_id)
 
 
@@ -54,7 +80,20 @@ def update_project(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> ProjectDetail:
-    """Replace a project."""
+    """Replace a project.
+
+    Args:
+        project_id: Identifier from the URL path.
+        body: Update request containing the replacement project.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Redacted project detail for the updated project.
+
+    Raises:
+        ApiError: When the body project id does not match the URL.
+    """
     try:
         return project_service.update_project(state.projects, project_id, body)
     except ValueError as error:
@@ -71,6 +110,15 @@ def delete_project(
     state: AppState = Depends(get_state),
     _principal: Principal = Depends(get_principal),
 ) -> Response:
-    """Delete a project."""
+    """Delete a project.
+
+    Args:
+        project_id: Identifier of the project to delete.
+        state: Shared repositories and run service.
+        _principal: Resolved caller identity (auth stub).
+
+    Returns:
+        Empty response with HTTP 204 status.
+    """
     project_service.delete_project(state.projects, project_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

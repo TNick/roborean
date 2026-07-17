@@ -10,7 +10,14 @@ SCHEMA_VERSION = 1
 
 
 def current_version(engine: Engine) -> int:
-    """Return the installed schema version, or 0 when unset."""
+    """Return the installed schema version, or 0 when unset.
+
+    Args:
+        engine: SQLAlchemy engine pointing at the storage database.
+
+    Returns:
+        Stored schema version, or ``0`` when no meta row exists.
+    """
     create_all(engine)
     with Session(engine) as session:
         row = session.scalar(select(SchemaMetaRow).limit(1))
@@ -18,12 +25,19 @@ def current_version(engine: Engine) -> int:
 
 
 def upgrade(engine: Engine) -> None:
-    """Create tables and stamp the schema version."""
+    """Create tables and stamp the schema version.
+
+    Args:
+        engine: SQLAlchemy engine pointing at the storage database.
+    """
     create_all(engine)
     with Session(engine) as session:
         row = session.scalar(select(SchemaMetaRow).limit(1))
+
+        # Insert or bump the single schema_meta version row.
         if row is None:
             session.add(SchemaMetaRow(id=1, version=SCHEMA_VERSION))
         else:
             row.version = SCHEMA_VERSION
+
         session.commit()

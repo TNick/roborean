@@ -44,7 +44,7 @@ init-d: init
 	$(PYTHON) -m pre_commit install
 
 api:
-	$(PYTHON) -m uvicorn roborean_api_app.main:build --factory --reload --port 8000
+	$(PYTHON) -m uvicorn roborean_api_app.main:build --factory --reload --port 8765
 
 web:
 	pnpm --filter web dev

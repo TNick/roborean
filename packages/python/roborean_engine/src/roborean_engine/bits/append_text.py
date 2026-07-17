@@ -9,9 +9,18 @@ class AppendTextHandler:
     """Append text to a document."""
 
     def execute(self, context: BitContext) -> BitOutput:
-        """Build one document operation."""
+        """Build one document operation.
+
+        Args:
+            context: Bit inputs including config for document id and text.
+
+        Returns:
+            Empty workspace patch and one document operation.
+        """
         config = context.bit.config
         op_name = str(config.get("op", "plain.append_text"))
+
+        # Choose plain or flow paragraph payload from config.
         if op_name == "flow.insert_paragraph":
             payload = {
                 "documentId": config["documentId"],
@@ -24,6 +33,7 @@ class AppendTextHandler:
                 "op": "plain.append_text",
                 "text": str(config["text"]),
             }
+
         op = DocumentOperation.model_validate(payload)
         return BitOutput(
             WorkspacePatch(ops=[]),

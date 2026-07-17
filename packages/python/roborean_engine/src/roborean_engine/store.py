@@ -17,7 +17,17 @@ from roborean_storage_dict import (
 def parse_store(
     spec: str,
 ) -> tuple[ProjectRepository, RunRepository, ArtifactStore]:
-    """Parse ``dict:<path>`` or ``sql:<url>`` store specifications."""
+    """Parse ``dict:<path>`` or ``sql:<url>`` store specifications.
+
+    Args:
+        spec: Store specification string from the CLI.
+
+    Returns:
+        Tuple of project, run, and artifact storage ports.
+
+    Raises:
+        ValueError: When the store specification is unrecognized.
+    """
     if spec.startswith("dict:"):
         root = Path(spec.removeprefix("dict:")).expanduser().resolve()
         root.mkdir(parents=True, exist_ok=True)
@@ -26,6 +36,7 @@ def parse_store(
             DictRunRepository(root),
             DictArtifactStore(root),
         )
+
     if spec.startswith("sql:"):
         from roborean_storage_sqlalchemy import (
             SqlAlchemyProjectRepository,
@@ -39,6 +50,7 @@ def parse_store(
         engine = make_engine(url)
         upgrade(engine)
         factory = make_session_factory(engine)
+
         # SQL adapter has no separate blob store yet; reuse dict under cwd.
         artifacts = DictArtifactStore(Path(".roborean-sql-artifacts"))
         return (
@@ -46,11 +58,16 @@ def parse_store(
             SqlAlchemyRunRepository(factory),
             artifacts,
         )
+
     raise ValueError(
         f"Unknown store spec {spec!r}; use dict:<path> or sql:<url>"
     )
 
 
 def init_store(spec: str) -> None:
-    """Initialize an empty store."""
+    """Initialize an empty store.
+
+    Args:
+        spec: Store specification string from the CLI.
+    """
     parse_store(spec)

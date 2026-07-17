@@ -13,7 +13,15 @@ def typecheck_rule(
     rule: RuleAst,
     variables: Mapping[str, Variable],
 ) -> None:
-    """Reject missing and secret references in an activation expression."""
+    """Reject missing and secret references in an activation expression.
+
+    Args:
+        rule: Rule AST node to typecheck.
+        variables: Declared project variables keyed by variable key.
+
+    Raises:
+        RuleTypeError: When a var node references a missing or secret key.
+    """
     # Validate direct variable references before descending into nested ASTs.
     if rule.op == "var":
         key = rule.args[0]

@@ -51,13 +51,27 @@ __version__ = "0.3.0"
 
 
 def project_from_dict(data: dict[str, Any]) -> Project:
-    """Validate and construct a project model from JSON-compatible data."""
+    """Validate and construct a project model from JSON-compatible data.
+
+    Args:
+        data: Raw project JSON object.
+
+    Returns:
+        Validated ``Project`` model instance.
+    """
     validate_instance("project", data)
     return Project.model_validate(data)
 
 
 def project_to_dict(project: Project) -> dict[str, Any]:
-    """Return a JSON-compatible, schema-shaped project dictionary."""
+    """Return a JSON-compatible, schema-shaped project dictionary.
+
+    Args:
+        project: Project model to serialize.
+
+    Returns:
+        CamelCase JSON-compatible mapping with null optionals omitted.
+    """
     return project.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 

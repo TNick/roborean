@@ -12,7 +12,19 @@ class RuleEvalError(ValueError):
 
 
 def _value(rule: RuleAst, workspace: WorkspaceSnapshot, strict: bool) -> Any:
-    """Evaluate one rule node to a primitive value."""
+    """Evaluate one rule node to a primitive value.
+
+    Args:
+        rule: Rule AST node to evaluate.
+        workspace: Workspace snapshot providing variable values.
+        strict: When true, missing variables raise instead of yielding None.
+
+    Returns:
+        Primitive value or boolean result for the node.
+
+    Raises:
+        RuleEvalError: When evaluation cannot produce a safe value.
+    """
     # Literal nodes carry their JSON primitive directly.
     if rule.op == "const":
         return rule.args[0]
@@ -74,5 +86,17 @@ def evaluate_rule(
     *,
     strict: bool = True,
 ) -> bool:
-    """Evaluate a rule expression to a boolean."""
+    """Evaluate a rule expression to a boolean.
+
+    Args:
+        rule: Root rule AST to evaluate.
+        workspace: Workspace snapshot providing variable values.
+        strict: When true, missing variables raise ``RuleEvalError``.
+
+    Returns:
+        Boolean result of the rule expression.
+
+    Raises:
+        RuleEvalError: When evaluation cannot produce a safe value.
+    """
     return bool(_value(rule, workspace, strict))

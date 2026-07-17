@@ -11,6 +11,7 @@ from roborean_documents_base.template_store import DocumentTemplateStore
 from roborean_spec import (
     ArtifactRecord,
     BitResult,
+    CompiledProject,
     Project,
     RunResults,
     WorkspacePatch,
@@ -35,7 +36,23 @@ from .workspace import WorkspaceSnapshot, initial_snapshot, workspace_hash
 
 @dataclass(frozen=True)
 class RunOptions:
-    """Controls an individual project run."""
+    """Controls an individual project run.
+
+    Attributes:
+        run_id: Identifier to stamp on results; a random one is used
+            when unset.
+        dry_run: Reserved flag for dry-run execution.
+        stop_on_bit_error: When ``True``, stop the run at the first
+            failed bit regardless of its error policy.
+        workspace_overrides: Workspace values to apply on top of the
+            project's initial snapshot before execution.
+        strict_workspace_access: Reserved flag for strict workspace
+            access enforcement.
+        package_dir: On-disk package directory used to resolve document
+            templates, when the project defines documents.
+        artifact_root: Directory to write finalized document artifacts
+            to, when set.
+    """
 
     run_id: str | None = None
     dry_run: bool = False
@@ -48,7 +65,16 @@ class RunOptions:
 
 @dataclass(frozen=True)
 class RunOutcome:
-    """Pure execution results plus snapshots for durable diffs."""
+    """Pure execution results plus snapshots for durable diffs.
+
+    Attributes:
+        results: Portable run results (status, bit results, artifacts).
+        input_workspace: Workspace snapshot before execution.
+        final_workspace: Workspace snapshot after execution.
+        artifact_payloads: Generated document bytes keyed by document
+            ID.
+        previews: Document previews keyed by document ID.
+    """
 
     results: RunResults
     input_workspace: WorkspaceSnapshot
@@ -61,7 +87,16 @@ def _apply_overrides(
     snapshot: WorkspaceSnapshot,
     overrides: dict[str, WorkspaceValue],
 ) -> WorkspaceSnapshot:
-    """Return a new snapshot with non-destructive overrides applied."""
+    """Return a new snapshot with non-destructive overrides applied.
+
+    Args:
+        snapshot: Workspace snapshot to apply overrides on top of.
+        overrides: Workspace values to merge into the snapshot.
+
+    Returns:
+        The original snapshot when there are no overrides, otherwise a
+        new snapshot with the overrides merged in.
+    """
     if not overrides:
         return snapshot
     values = dict(snapshot.values)
@@ -73,30 +108,54 @@ def _apply_overrides(
 
 
 def run_project_detailed(
-    compiled,
+    compiled: CompiledProject,
     project: Project,
     *,
     registry: BitTypeRegistry | None = None,
     options: RunOptions | None = None,
 ) -> RunOutcome:
-    """Run compiled bits and return results with workspace snapshots."""
+    """Run compiled bits and return results with workspace snapshots.
+
+    Args:
+        compiled: Compiled project produced by ``compile_project``.
+        project: Project definition being executed.
+        registry: Bit type registry; falls back to the builtin registry
+            when unset.
+        options: Run options controlling overrides, stop behavior, and
+            document/artifact handling.
+
+    Returns:
+        The run outcome, including results, workspace snapshots,
+        artifact payloads, and document previews.
+    """
+    # Resolve defaults for options and the bit registry.
     options = options or RunOptions()
     registry = registry or builtin_registry()
+
+    # Capture the run start time and build the initial workspace
+    # snapshot, applying any requested overrides.
     started = datetime.now(UTC)
     snapshot = _apply_overrides(
         initial_snapshot(project), options.workspace_overrides
     )
     input_snapshot = snapshot
     input_hash = workspace_hash(snapshot)
+
+    # Track const variable keys so writes to them can be rejected.
     const_keys = {
         variable.key for variable in project.variables if variable.const
     }
+
+    # Initialize per-run accumulators for bit results, status, and
+    # document/artifact state.
     bit_results: list[BitResult] = []
     status = "success"
     sessions: DocumentSessionManager | None = None
     artifact_payloads: dict[str, bytes] = {}
     artifacts: list[ArtifactRecord] = []
 
+    # Open document sessions when the project defines documents and a
+    # package directory is available to resolve templates.
     if project.documents and options.package_dir is not None:
         store = DocumentTemplateStore(options.package_dir, project)
         sessions = DocumentSessionManager(
@@ -107,6 +166,7 @@ def run_project_detailed(
 
     # Execute ordered bits; stop when the error policy requires it.
     for bit in project.bits:
+        # Track per-bit timing, patch, and diagnostics state.
         began = time.perf_counter()
         patch = WorkspacePatch(ops=[])
         document_ops: list = []
@@ -114,6 +174,7 @@ def run_project_detailed(
         active = True
         reason: bool | str = "always"
         try:
+            # Evaluate activation and skip inactive bits.
             rule = compiled.activation_expressions[bit.id]
             if bit.when is not True:
                 reason = evaluate_rule(rule, snapshot)
@@ -134,6 +195,8 @@ def run_project_detailed(
                     )
                 )
                 continue
+
+            # Execute the bit handler and apply its workspace patch.
             _, handler = registry.get(bit.type)
             output = handler.execute(BitContext(bit, snapshot, compiled))
             snapshot, patch = apply_patch(
@@ -143,11 +206,16 @@ def run_project_detailed(
                 const_keys=const_keys,
                 bit_id=bit.id,
             )
+
+            # Apply document operations and collect diagnostics emitted
+            # by the handler.
             document_ops = list(output.document_ops)
             if sessions is not None:
                 for op in document_ops:
                     sessions.apply(op)
             diagnostics.extend(output.diagnostics)
+
+            # Turn rejected patch operations into diagnostics.
             for operation in patch.ops:
                 if operation.op == "reject":
                     code = (
@@ -191,6 +259,7 @@ def run_project_detailed(
             if options.stop_on_bit_error or bit.on_error.value == "abort":
                 break
 
+    # Finalize documents and collect previews/payloads on success.
     previews: dict = {}
     if sessions is not None and status == "success":
         artifacts = sessions.finalize_all()
@@ -232,13 +301,26 @@ def run_project_detailed(
 
 
 def run_project(
-    compiled,
+    compiled: CompiledProject,
     project: Project,
     *,
     registry: BitTypeRegistry | None = None,
     options: RunOptions | None = None,
 ) -> RunResults:
-    """Run compiled bits in source order against a copy-on-write workspace."""
+    """Run compiled bits in source order against a copy-on-write workspace.
+
+    Args:
+        compiled: Compiled project produced by ``compile_project``.
+        project: Project definition being executed.
+        registry: Bit type registry; falls back to the builtin registry
+            when unset.
+        options: Run options controlling overrides, stop behavior, and
+            document/artifact handling.
+
+    Returns:
+        The portable run results, without workspace snapshots or
+        artifact payloads.
+    """
     return run_project_detailed(
         compiled, project, registry=registry, options=options
     ).results
