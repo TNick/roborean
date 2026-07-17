@@ -11,8 +11,8 @@ license = "MIT"
 readme = "README.md"
 dependencies = [
   "PyYAML>=6.0",
-  "roborean-spec>=0.2.0",
-  "roborean-storage-base>=0.2.0",
+  "roborean-spec>=0.1.1",
+  "roborean-storage-base>=0.1.1",
 ]
 
 [project.optional-dependencies]

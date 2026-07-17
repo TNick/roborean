@@ -9,8 +9,8 @@ description = "Raster image document driver for Roborean"
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
-  "roborean-documents-base>=0.3.0",
-  "roborean-spec>=0.3.0",
+  "roborean-documents-base>=0.1.1",
+  "roborean-spec>=0.1.1",
   "Pillow>=10.0",
 ]
 

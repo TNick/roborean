@@ -9,8 +9,8 @@ description = "DOCX document driver for Roborean"
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
-  "roborean-documents-base>=0.3.0",
-  "roborean-spec>=0.3.0",
+  "roborean-documents-base>=0.1.1",
+  "roborean-spec>=0.1.1",
   "python-docx>=1.1",
   "docxtpl>=0.16",
 ]

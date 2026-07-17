@@ -9,8 +9,8 @@ description = "XLSX document driver for Roborean"
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
-  "roborean-documents-base>=0.3.0",
-  "roborean-spec>=0.3.0",
+  "roborean-documents-base>=0.1.1",
+  "roborean-spec>=0.1.1",
   "openpyxl>=3.1",
   "defusedxml>=0.7",
 ]

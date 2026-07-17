@@ -10,18 +10,18 @@ requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
   "jsonschema>=4.23",
-  "roborean-spec>=0.3.0",
-  "roborean-storage-base>=0.2.0",
-  "roborean-storage-dict>=0.2.0",
-  "roborean-storage-sqlalchemy>=0.2.0",
-  "roborean-plugins-base>=0.2.0",
-  "roborean-documents-base>=0.3.0",
-  "roborean-documents-text>=0.3.0",
-  "roborean-documents-markdown>=0.3.0",
-  "roborean-documents-xlsx>=0.3.0",
-  "roborean-documents-docx>=0.3.0",
-  "roborean-documents-image>=0.3.0",
-  "roborean-documents-dxf>=0.3.0",
+  "roborean-spec>=0.1.1",
+  "roborean-storage-base>=0.1.1",
+  "roborean-storage-dict>=0.1.1",
+  "roborean-storage-sqlalchemy>=0.1.1",
+  "roborean-plugins-base>=0.1.1",
+  "roborean-documents-base>=0.1.1",
+  "roborean-documents-text>=0.1.1",
+  "roborean-documents-markdown>=0.1.1",
+  "roborean-documents-xlsx>=0.1.1",
+  "roborean-documents-docx>=0.1.1",
+  "roborean-documents-image>=0.1.1",
+  "roborean-documents-dxf>=0.1.1",
 ]
 
 [project.optional-dependencies]

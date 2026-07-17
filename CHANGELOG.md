@@ -12,6 +12,9 @@
 
 - Stop tracking TypeScript `tsconfig.tsbuildinfo` files so CI `tsc -b`
   rebuilds `dist/` instead of skipping emit when outputs are missing.
+- Align inter-package Python dependency pins with lockstep `0.1.1` so
+  editable CI installs no longer require unpublished `>=0.2`/`>=0.3`/
+  `>=0.4` releases from PyPI.
 
 ## [0.1.1] - 2026-07-17
 
