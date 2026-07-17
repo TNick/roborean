@@ -1,6 +1,7 @@
-import { createHash, randomUUID } from "node:crypto";
 import { migrateProject, validate, type Bit, type BitTypeManifest, type Project, type RuleAst, type WorkspacePatch, type WorkspaceSnapshot, type WorkspaceValue } from "@roborean/spec";
+import { sha256Hex } from "./crypto_iso.js";
 
+export { sha256Hex } from "./crypto_iso.js";
 export const ENGINE_VERSION = "0.3.0";
 export const RULE_PROFILE_VERSION = "1.0.0";
 export class RuleEvalError extends Error {}
@@ -15,7 +16,6 @@ export function stableStringify(value: unknown): string {
   const object = value as Record<string, unknown>;
   return `{${Object.keys(object).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(object[key])}`).join(",")}}`;
 }
-export function sha256Hex(value: string): string { return createHash("sha256").update(value).digest("hex"); }
 export function workspaceHash(snapshot: WorkspaceSnapshot): string { return sha256Hex(stableStringify(snapshot.values)); }
 export function projectDigest(project: Project): string { return sha256Hex(stableStringify(project)); }
 

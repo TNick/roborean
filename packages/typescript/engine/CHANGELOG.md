@@ -16,3 +16,8 @@
 - Package and `ENGINE_VERSION` bumped to `0.3.0`.
 
 ### Fixed
+
+- Replace `node:crypto` with browser-safe SHA-256 / UUID helpers so Vite
+  client bundles no longer crash on `createHash`.
+- Stop re-exporting Node-only `runArtifacts` helpers from the package
+  root entry (they pulled `node:fs` into browser graphs).

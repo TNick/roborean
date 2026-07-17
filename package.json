@@ -5,7 +5,7 @@
   "scripts": {
     "test": "pnpm run build && pnpm -r test",
     "lint": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types",
-    "build": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types"
+    "build": "node packages/typescript/spec/scripts/embed-schemas.mjs && tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

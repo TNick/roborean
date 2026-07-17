@@ -13,3 +13,7 @@
 - Package version bumped to `0.3.0`.
 
 ### Fixed
+
+- Validate against embedded canonical schemas (no `node:fs`), so browser
+  bundles can import `@roborean/spec` without Vite externalizing filesystem
+  APIs.

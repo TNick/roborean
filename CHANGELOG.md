@@ -21,6 +21,15 @@
   of `e2e-ai verify`'s per-test restarts.
 - Platform E2E builds `@roborean/*` packages before Playwright so Vite and
   Node can resolve `exports` entry points under `dist/`.
+- `@roborean/engine` no longer imports `node:crypto`, so the web app can
+  load dry-run / compile helpers in the browser.
+- `@roborean/spec` embeds canonical JSON Schemas instead of reading them
+  with `node:fs`, fixing blank Vite pages in platform E2E.
+- API project redaction omits null optional fields so client dry-run
+  validation no longer fails with `must be string` on `description` /
+  `label`.
+- Vite web app dedupes React / MUI and allows monorepo `fs` access for
+  workspace package source aliases.
 
 ## [0.1.1] - 2026-07-17
 

@@ -33,16 +33,18 @@ def redact_project_for_client(project: Project) -> dict[str, Any]:
     """Return a JSON-serializable project safe for browsers."""
     if isinstance(project, dict):
         project = Project.model_validate(project)
-    data = project.model_dump(mode="json", by_alias=True)
+
+    # Omit null optional fields so Draft 2020-12 schemas stay valid.
+    data = project.model_dump(mode="json", by_alias=True, exclude_none=True)
     variables = []
     for variable in project.workspace.get("variables", []):
         if isinstance(variable, dict):
             variable = Variable.model_validate(variable)
-        item = variable.model_dump(mode="json", by_alias=True)
+        item = variable.model_dump(mode="json", by_alias=True, exclude_none=True)
         item["defaultValue"] = redact_workspace_value(
             variable.default_value,
             exposure=variable.exposure,
-        ).model_dump(mode="json", by_alias=True)
+        ).model_dump(mode="json", by_alias=True, exclude_none=True)
         variables.append(item)
     data["workspace"]["variables"] = variables
     return data
@@ -74,7 +76,7 @@ def _redact_patch_ops(payload: dict[str, Any]) -> dict[str, Any]:
 
 def redact_run_results_for_client(results: RunResults) -> dict[str, Any]:
     """Return run results without resolved secret literals."""
-    payload = results.model_dump(mode="json", by_alias=True)
+    payload = results.model_dump(mode="json", by_alias=True, exclude_none=True)
     return _redact_patch_ops(payload)
 
 

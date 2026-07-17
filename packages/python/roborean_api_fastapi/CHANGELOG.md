@@ -15,3 +15,5 @@
 
 - Lower inter-package dependency pins to `>=0.1.1` to match lockstep
   release versions.
+- Omit null optional fields when redacting projects for clients so
+  browser compile/validate matches JSON Schema string optionals.

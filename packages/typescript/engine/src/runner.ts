@@ -1,6 +1,6 @@
-import { randomUUID } from "node:crypto";
 import { type Project, type WorkspacePatch } from "@roborean/spec";
 import { applyPatch, ENGINE_VERSION, evaluateRule, executeBit, initialSnapshot, RULE_PROFILE_VERSION, workspaceHash, type Diagnostic } from "./core.js";
+import { newUuid } from "./crypto_iso.js";
 import type { CompiledProject } from "./compiler.js";
 
 export interface RunOptions { runId?: string; dryRun?: boolean; stopOnBitError?: boolean }
@@ -39,5 +39,5 @@ export function runProject(compiled: CompiledProject, project: Project, options:
       status = "failed"; if (bit.onError === "abort" || options.stopOnBitError !== false) break;
     }
   }
-  return { runId: options.runId ?? randomUUID(), projectId: project.id, projectDigest: compiled.digest, startedAt, finishedAt: new Date().toISOString(), status, inputWorkspaceHash, finalWorkspaceHash: workspaceHash(workspace), bitResults, artifacts: [], engineVersion: ENGINE_VERSION, ruleProfileVersion: RULE_PROFILE_VERSION };
+  return { runId: options.runId ?? newUuid(), projectId: project.id, projectDigest: compiled.digest, startedAt, finishedAt: new Date().toISOString(), status, inputWorkspaceHash, finalWorkspaceHash: workspaceHash(workspace), bitResults, artifacts: [], engineVersion: ENGINE_VERSION, ruleProfileVersion: RULE_PROFILE_VERSION };
 }
