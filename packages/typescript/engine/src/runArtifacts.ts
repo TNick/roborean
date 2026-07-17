@@ -7,11 +7,7 @@ export function loadRunResults(path: string): RunResults {
 }
 
 export type RunStatus =
-  | "queued"
-  | "running"
-  | "succeeded"
-  | "failed"
-  | "cancelled";
+  "queued" | "running" | "succeeded" | "failed" | "cancelled";
 
 export interface RunRecordSummary {
   runId: string;

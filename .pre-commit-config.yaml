@@ -47,7 +47,7 @@ repos:
         language: node
         types_or: [javascript, jsx, ts, tsx]
         files: ^(packages/typescript|apps/web)/
-        additional_dependencies: ["prettier@3.5.3"]
+        additional_dependencies: ["prettier@3.9.5"]
         exclude: |
           (?x)^(
             packages/typescript/.*/dist/|

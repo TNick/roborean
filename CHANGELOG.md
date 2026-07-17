@@ -10,6 +10,11 @@
 
 ### Changed
 
+- Pin Prettier to `3.9.5` in both root `package.json` and the pre-commit
+  hook so `make lint` / CI and `make pre-commit` apply the same formatting.
+- `make pre-commit` runs hooks twice so autofix rewrites do not leave the
+  target failing after the first pass.
+
 - GitHub Actions use Node 24-based majors (`actions/checkout@v5`,
   `actions/setup-node@v6`, `actions/setup-python@v6`,
   `pnpm/action-setup@v6`).

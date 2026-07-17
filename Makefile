@@ -98,7 +98,10 @@ delint:
 	pnpm run format
 
 # Run every pre-commit hook on the tree (formatters fix; flake8 checks).
+# Autofix hooks exit 1 when they rewrite files; run twice so a clean tree
+# ends with exit 0 after the first pass applies fixes.
 pre-commit:
+	-$(PYTHON) -m pre_commit run --all-files
 	$(PYTHON) -m pre_commit run --all-files
 
 conformance:
