@@ -40,9 +40,7 @@ class RunOptions:
     run_id: str | None = None
     dry_run: bool = False
     stop_on_bit_error: bool = True
-    workspace_overrides: dict[str, WorkspaceValue] = field(
-        default_factory=dict
-    )
+    workspace_overrides: dict[str, WorkspaceValue] = field(default_factory=dict)
     strict_workspace_access: bool = True
     package_dir: Path | None = None
     artifact_root: Path | None = None

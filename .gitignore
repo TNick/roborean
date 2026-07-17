@@ -19,6 +19,8 @@ node_modules/
 .vscode/*.local
 playground/
 .e2e-ai/
+**/test-results/
+**/playwright-report/
 research/
 .roborean/
 .roborean-sql-artifacts/

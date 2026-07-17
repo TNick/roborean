@@ -34,7 +34,9 @@ def _coerce_project(value: Project | dict) -> Project:
     return Project.model_validate(value)
 
 
-def create_project(repo: ProjectRepository, body: ProjectCreate) -> ProjectDetail:
+def create_project(
+    repo: ProjectRepository, body: ProjectCreate
+) -> ProjectDetail:
     """Validate and store a new project."""
     project = _coerce_project(body.project)
     repo.save(project, revision="1")

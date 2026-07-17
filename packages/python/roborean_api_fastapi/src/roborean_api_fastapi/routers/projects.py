@@ -25,7 +25,9 @@ def list_projects(
     return project_service.list_projects(state.projects)
 
 
-@router.post("", response_model=ProjectDetail, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", response_model=ProjectDetail, status_code=status.HTTP_201_CREATED
+)
 def create_project(
     body: ProjectCreate,
     state: AppState = Depends(get_state),

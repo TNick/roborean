@@ -3,7 +3,6 @@
 from typing import Any
 
 from pydantic import Field
-
 from roborean_spec import Project
 
 from .common import ApiModel

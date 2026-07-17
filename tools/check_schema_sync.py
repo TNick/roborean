@@ -1,7 +1,6 @@
 """Verify canonical JSON Schema files carry stable identifiers."""
 
 import json
-import sys
 from pathlib import Path
 
 

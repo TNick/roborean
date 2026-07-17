@@ -15,7 +15,7 @@ from roborean_spec import (
     project_to_dict,
 )
 
-from .models import ProjectRow, ProjectRevisionRow, RunRow
+from .models import ProjectRevisionRow, ProjectRow, RunRow
 
 
 def _parse_dt(value: str | None) -> datetime | None:

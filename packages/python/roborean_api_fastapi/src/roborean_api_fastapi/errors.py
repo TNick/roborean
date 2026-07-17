@@ -43,14 +43,22 @@ def install_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(NotFoundError)
-    async def _not_found(_request: Request, error: NotFoundError) -> JSONResponse:
+    async def _not_found(
+        _request: Request, error: NotFoundError
+    ) -> JSONResponse:
         body = ErrorBody(code="E_NOT_FOUND", message=str(error))
-        return JSONResponse(status_code=404, content=body.model_dump(by_alias=True))
+        return JSONResponse(
+            status_code=404, content=body.model_dump(by_alias=True)
+        )
 
     @app.exception_handler(ConflictError)
-    async def _conflict(_request: Request, error: ConflictError) -> JSONResponse:
+    async def _conflict(
+        _request: Request, error: ConflictError
+    ) -> JSONResponse:
         body = ErrorBody(code="E_CONFLICT", message=str(error))
-        return JSONResponse(status_code=409, content=body.model_dump(by_alias=True))
+        return JSONResponse(
+            status_code=409, content=body.model_dump(by_alias=True)
+        )
 
     @app.exception_handler(CompileError)
     async def _compile(_request: Request, error: CompileError) -> JSONResponse:
@@ -68,4 +76,6 @@ def install_exception_handlers(app: FastAPI) -> None:
             message=str(error),
             diagnostics=diagnostics,
         )
-        return JSONResponse(status_code=400, content=body.model_dump(by_alias=True))
+        return JSONResponse(
+            status_code=400, content=body.model_dump(by_alias=True)
+        )

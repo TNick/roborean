@@ -194,9 +194,7 @@ class RunService:
             for item in outcome.results.artifacts:
                 if isinstance(item, dict):
                     if item.get("documentId") == document_id:
-                        media_type = str(
-                            item.get("mediaType", media_type)
-                        )
+                        media_type = str(item.get("mediaType", media_type))
                         break
             key = f"{run_id}/{document_id}"
             self.artifacts.put_bytes(key, payload, content_type=media_type)

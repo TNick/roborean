@@ -21,7 +21,11 @@ def download_artifact(
     record = state.run_service.get(run_id)
     media_type = "application/octet-stream"
     for item in record.results.artifacts if record.results else []:
-        doc_id = item.get("documentId") if isinstance(item, dict) else item.document_id
+        doc_id = (
+            item.get("documentId")
+            if isinstance(item, dict)
+            else item.document_id
+        )
         if doc_id == artifact_id:
             media_type = (
                 item.get("mediaType")

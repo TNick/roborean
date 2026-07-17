@@ -62,16 +62,16 @@ parity-dryrun:
 	$(PYTHON) tools/compare_dryrun_parity.py
 
 e2e:
-	$(PYTHON) -m e2e_ai verify
+	$(PYTHON) -m e2e_ai verify --no-start-runtime
 
 e2e-discover:
 	$(PYTHON) -m e2e_ai discover
 
 e2e-run:
-	$(PYTHON) -m e2e_ai run --all
+	$(PYTHON) -m e2e_ai run --all --no-start-runtime
 
 e2e-repair:
-	$(PYTHON) -m e2e_ai repair
+	$(PYTHON) -m e2e_ai repair --no-start-runtime
 
 e2e-doctor:
 	$(PYTHON) -m e2e_ai doctor

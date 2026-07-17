@@ -16,9 +16,7 @@ class ReplaceNamedValueHandler:
         if "fromKey" in config:
             value = get_value(context.workspace, str(config["fromKey"]))
         else:
-            value = TypeAdapter(WorkspaceValue).validate_python(
-                config["value"]
-            )
+            value = TypeAdapter(WorkspaceValue).validate_python(config["value"])
         op = DocumentOperation.model_validate(
             {
                 "documentId": config["documentId"],

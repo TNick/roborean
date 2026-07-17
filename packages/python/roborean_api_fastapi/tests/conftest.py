@@ -3,11 +3,10 @@
 from pathlib import Path
 
 import pytest
-from starlette.testclient import TestClient
-
 from roborean_api_fastapi.app import create_app
 from roborean_api_fastapi.deps import reset_state
 from roborean_api_fastapi.settings import Settings
+from starlette.testclient import TestClient
 
 
 @pytest.fixture(autouse=True)

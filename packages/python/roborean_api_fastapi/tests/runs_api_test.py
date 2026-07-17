@@ -3,9 +3,7 @@
 from starlette.testclient import TestClient
 
 
-def test_create_run(
-    api_client: TestClient, set_and_copy_body: dict
-) -> None:
+def test_create_run(api_client: TestClient, set_and_copy_body: dict) -> None:
     """POST run persists results."""
     api_client.post("/v1/projects", json=set_and_copy_body)
     project_id = set_and_copy_body["project"]["id"]

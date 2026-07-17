@@ -167,9 +167,9 @@ class DocumentDefinition(Model):
     )
     driver: str
     output_target: str | None = Field(default=None, alias="outputTarget")
-    ir_family: (
-        Literal["flow", "sheet", "drawing", "raster", "plain"] | None
-    ) = Field(default=None, alias="irFamily")
+    ir_family: Literal["flow", "sheet", "drawing", "raster", "plain"] | None = (
+        Field(default=None, alias="irFamily")
+    )
     settings: dict[str, Any] = Field(default_factory=dict)
     preview: DocumentPreviewSettings | None = None
 

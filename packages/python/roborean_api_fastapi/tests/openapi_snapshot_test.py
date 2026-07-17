@@ -12,7 +12,12 @@ def test_openapi_matches_committed() -> None:
     schema = app.openapi()
     root = Path(__file__).resolve().parents[3]
     committed = (
-        root / "packages" / "typescript" / "api-types" / "openapi" / "openapi.json"
+        root
+        / "packages"
+        / "typescript"
+        / "api-types"
+        / "openapi"
+        / "openapi.json"
     )
     if not committed.is_file():
         return

@@ -3,6 +3,9 @@
 from pathlib import Path
 
 import pytest
+from roborean_engine import RunService, load_project_path
+from roborean_engine.compiler import compile_project
+from roborean_engine.retry import decide_retry
 from roborean_spec import (
     RunRequest,
     RunStatus,
@@ -15,10 +18,6 @@ from roborean_storage_dict import (
     DictProjectRepository,
     DictRunRepository,
 )
-
-from roborean_engine import RunService, load_project_path
-from roborean_engine.compiler import compile_project
-from roborean_engine.retry import decide_retry
 
 
 @pytest.fixture

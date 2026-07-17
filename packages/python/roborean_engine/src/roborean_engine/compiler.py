@@ -129,10 +129,7 @@ def compile_project(
                     )
             if bit.type == "roborean.set_variable":
                 config_key = bit.config.get("key")
-                if (
-                    isinstance(config_key, str)
-                    and config_key not in bit.writes
-                ):
+                if isinstance(config_key, str) and config_key not in bit.writes:
                     diagnostics.append(
                         Diagnostic(
                             "error",

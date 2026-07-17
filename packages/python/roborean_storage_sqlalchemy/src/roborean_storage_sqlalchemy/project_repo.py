@@ -3,11 +3,10 @@
 import json
 from datetime import UTC, datetime
 
-from sqlalchemy import select
-from sqlalchemy.orm import sessionmaker
-
 from roborean_spec import Project, project_from_dict
 from roborean_storage_base import NotFoundError
+from sqlalchemy import select
+from sqlalchemy.orm import sessionmaker
 
 from .mappers import project_to_row, revision_to_row, row_to_project
 from .models import ProjectRevisionRow, ProjectRow

@@ -1,8 +1,6 @@
 """Compare browser dry-run vs server run for conformance fixtures."""
 
 import json
-import subprocess
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -37,9 +35,9 @@ def main() -> int:
         compiled = compile_project(project)
         actual = run_project(compiled, project, options=None)
         expected = json.loads(expected_path.read_text(encoding="utf-8"))
-        if normalize(actual.model_dump(mode="json", by_alias=True)) != normalize(
-            expected
-        ):
+        if normalize(
+            actual.model_dump(mode="json", by_alias=True)
+        ) != normalize(expected):
             failures.append(fixture.name)
     if failures:
         print("Parity failures:", ", ".join(failures))

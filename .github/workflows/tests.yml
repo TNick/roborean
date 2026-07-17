@@ -106,5 +106,7 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter web exec playwright install --with-deps chromium
 
+      # One Playwright process (shared webServer). Avoid e2e-ai's per-test
+      # loop here so CI does not restart API/Vite three times.
       - name: E2E verify
-        run: make e2e
+        run: pnpm --filter web exec playwright test

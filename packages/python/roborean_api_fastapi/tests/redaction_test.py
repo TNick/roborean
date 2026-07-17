@@ -3,9 +3,8 @@
 import json
 from pathlib import Path
 
-from starlette.testclient import TestClient
-
 from roborean_api_fastapi.redaction import assert_no_backend_only_literals
+from starlette.testclient import TestClient
 
 
 def test_backend_only_redacted(api_client: TestClient) -> None:

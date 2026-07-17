@@ -57,8 +57,14 @@ def _redact_patch_ops(payload: dict[str, Any]) -> dict[str, Any]:
         for op in patch.get("ops", []):
             if op.get("op") == "set" and "value" in op:
                 value = op["value"]
-                if isinstance(value, dict) and value.get("kind") == "secret_ref":
-                    op = {**op, "value": {"kind": "redacted", "reason": "secret"}}
+                if (
+                    isinstance(value, dict)
+                    and value.get("kind") == "secret_ref"
+                ):
+                    op = {
+                        **op,
+                        "value": {"kind": "redacted", "reason": "secret"},
+                    }
             ops.append(op)
         item = {**item, "workspacePatch": {**patch, "ops": ops}}
         bit_results.append(item)

@@ -2,12 +2,11 @@
 
 import logging
 
+from roborean_spec import RunRecord
+from roborean_storage_base import ConflictError, NotFoundError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError as SAIntegrityError
 from sqlalchemy.orm import sessionmaker
-
-from roborean_spec import RunRecord
-from roborean_storage_base import ConflictError, NotFoundError
 
 from .mappers import row_to_run, run_to_row
 from .models import RunRow
@@ -68,9 +67,7 @@ class SqlAlchemyRunRepository:
                     record.run_id,
                     exc_info=True,
                 )
-                raise ConflictError(
-                    "idempotency key already exists"
-                ) from error
+                raise ConflictError("idempotency key already exists") from error
 
     def update(self, record: RunRecord) -> None:
         """Replace an existing run row."""

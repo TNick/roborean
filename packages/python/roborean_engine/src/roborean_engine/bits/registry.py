@@ -103,9 +103,7 @@ def builtin_registry() -> BitTypeRegistry:
         _manifest("replace_named_value.json"), ReplaceNamedValueHandler()
     )
     registry.register(_manifest("append_text.json"), AppendTextHandler())
-    registry.register(
-        _manifest("sheet_set_cells.json"), SheetSetCellsHandler()
-    )
+    registry.register(_manifest("sheet_set_cells.json"), SheetSetCellsHandler())
     registry.register(
         _manifest("flow_append_paragraph.json"),
         FlowAppendParagraphHandler(),

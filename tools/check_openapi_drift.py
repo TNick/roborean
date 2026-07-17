@@ -17,7 +17,9 @@ def main() -> int:
         print("Missing committed openapi.json; run make openapi")
         return 1
     expected = COMMITTED.read_text(encoding="utf-8")
-    subprocess.check_call([sys.executable, str(ROOT / "tools" / "export_openapi.py")])
+    subprocess.check_call(
+        [sys.executable, str(ROOT / "tools" / "export_openapi.py")]
+    )
     actual = COMMITTED.read_text(encoding="utf-8")
     if json.loads(actual) != json.loads(expected):
         print("OpenAPI drift detected")

@@ -25,8 +25,6 @@ def test_compile_project(
     """Compile endpoint returns compiled payload."""
     api_client.post("/v1/projects", json=minimal_project_body)
     project_id = minimal_project_body["project"]["id"]
-    response = api_client.post(
-        f"/v1/projects/{project_id}/compile", json={}
-    )
+    response = api_client.post(f"/v1/projects/{project_id}/compile", json={})
     assert response.status_code == 200
     assert "compiled" in response.json()

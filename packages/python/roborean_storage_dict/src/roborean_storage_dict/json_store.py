@@ -148,9 +148,7 @@ class DictRunRepository:
             raise ConflictError("idempotency key already exists")
         self._write_record(record)
         _write_json(
-            self._idempotency_path(
-                record.project_id, record.idempotency_key
-            ),
+            self._idempotency_path(record.project_id, record.idempotency_key),
             {
                 "runId": record.run_id,
                 "createdAt": record.created_at,
