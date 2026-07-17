@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/bit-type-manifest.schema.json",
+  "title": "BitTypeManifest",
+  "type": "object",
+  "required": [
+    "typeId",
+    "version",
+    "configSchema",
+    "effectClass",
+    "capabilities",
+    "browserSafe"
+  ],
+  "properties": {
+    "typeId": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "configSchema": {"type": "object"},
+    "effectClass": {
+      "enum": [
+        "pure",
+        "workspace",
+        "document",
+        "filesystem",
+        "network",
+        "external-process",
+        "transactional-external"
+      ]
+    },
+    "capabilities": {"type": "array", "items": {"type": "string"}},
+    "readsFromConfig": {"type": "boolean"},
+    "browserSafe": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

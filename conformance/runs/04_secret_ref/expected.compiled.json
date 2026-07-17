@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "example.secret-ref",
+  "projectName": "Secret reference",
+  "compiledAt": "2026-07-17T08:46:06.214048+00:00",
+  "engineVersion": "0.1.0",
+  "ruleProfileVersion": "1.0.0",
+  "digest": "ccf31d3eb97e3b48ecbc55442c480029f44627328f589450c9fb975b959e7b91",
+  "variables": [
+    {
+      "key": "registry.api_token",
+      "schema": {
+        "type": "string"
+      },
+      "defaultValue": {
+        "kind": "secret_ref",
+        "ref": "sec:project-default:registry-api-token",
+        "displayHint": "Configured registry token"
+      },
+      "const": false,
+      "exposure": "backendOnly",
+      "description": null
+    },
+    {
+      "key": "registry.api_token_copy",
+      "schema": {
+        "type": "string"
+      },
+      "defaultValue": {
+        "kind": "secret_ref",
+        "ref": "sec:project-default:empty-token",
+        "displayHint": null
+      },
+      "const": false,
+      "exposure": "backendOnly",
+      "description": null
+    }
+  ],
+  "bits": [
+    {
+      "id": "copy_secret_reference",
+      "type": "roborean.copy_variable",
+      "label": null,
+      "when": true,
+      "config": {
+        "from": "registry.api_token",
+        "to": "registry.api_token_copy"
+      },
+      "reads": [
+        "registry.api_token"
+      ],
+      "writes": [
+        "registry.api_token_copy"
+      ],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": [
+        "workspace.read",
+        "workspace.write"
+      ]
+    }
+  ],
+  "activationExpressions": {
+    "copy_secret_reference": {
+      "op": "const",
+      "args": [
+        true
+      ]
+    }
+  },
+  "dependencyMap": {
+    "copy_secret_reference": {
+      "reads": [
+        "registry.api_token"
+      ],
+      "writes": [
+        "registry.api_token_copy"
+      ],
+      "emits": []
+    }
+  },
+  "documents": [],
+  "templates": [],
+  "pluginVersions": {
+    "roborean.copy_variable": "1.0.0"
+  },
+  "diagnostics": []
+}

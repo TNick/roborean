@@ -1,0 +1,63 @@
+{
+  "runId": "82785cfd-d521-40dc-af00-b9c26a980b83",
+  "projectId": "example.set-and-copy",
+  "projectDigest": "dcfe70c935f10788e3bd8af6cca868555b105c56c77659db0353c5f36c9abb02",
+  "startedAt": "2026-07-17T08:46:06.187896+00:00",
+  "finishedAt": "2026-07-17T08:46:06.188891+00:00",
+  "status": "success",
+  "inputWorkspaceHash": "7ac8cb0ae4937af2f4de19105359e4590b1cf3a99b951b3162fcc4be81ee8d79",
+  "finalWorkspaceHash": "9dda58cc764c93621f00a735bbc2eda33a878d25f26087a905e9042b16846016",
+  "bitResults": [
+    {
+      "bitId": "set_title",
+      "type": "roborean.set_variable",
+      "active": true,
+      "activationReason": "always",
+      "status": "success",
+      "durationMs": 0.8985999957076274,
+      "workspacePatch": {
+        "ops": [
+          {
+            "op": "set",
+            "key": "title",
+            "value": {
+              "kind": "public_literal",
+              "dataType": "string",
+              "value": "World"
+            }
+          }
+        ]
+      },
+      "documentOps": [],
+      "diagnostics": [],
+      "pluginVersion": "1.0.0"
+    },
+    {
+      "bitId": "copy_title",
+      "type": "roborean.copy_variable",
+      "active": true,
+      "activationReason": "always",
+      "status": "success",
+      "durationMs": 0.03259999357396737,
+      "workspacePatch": {
+        "ops": [
+          {
+            "op": "set",
+            "key": "title_copy",
+            "value": {
+              "kind": "public_literal",
+              "dataType": "string",
+              "value": "World"
+            }
+          }
+        ]
+      },
+      "documentOps": [],
+      "diagnostics": [],
+      "pluginVersion": "1.0.0"
+    }
+  ],
+  "artifacts": [],
+  "engineVersion": "0.1.0",
+  "ruleProfileVersion": "1.0.0"
+}

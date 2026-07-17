@@ -1,0 +1,39 @@
+{
+  "runId": "81d9453f-4f71-4fe6-beda-63fd3b2ab02e",
+  "projectId": "example.secret-ref",
+  "projectDigest": "ccf31d3eb97e3b48ecbc55442c480029f44627328f589450c9fb975b959e7b91",
+  "startedAt": "2026-07-17T08:46:06.215044+00:00",
+  "finishedAt": "2026-07-17T08:46:06.215044+00:00",
+  "status": "success",
+  "inputWorkspaceHash": "78cf620ccacb64cb15590bbb78232a81dbdedb40d36e3263d5af255a3e6db36f",
+  "finalWorkspaceHash": "0c7cbd8e2d33fff1f81ae9554a0d183431d9c5779f4eb462c1f620bf79a18145",
+  "bitResults": [
+    {
+      "bitId": "copy_secret_reference",
+      "type": "roborean.copy_variable",
+      "active": true,
+      "activationReason": "always",
+      "status": "success",
+      "durationMs": 0.1066999975591898,
+      "workspacePatch": {
+        "ops": [
+          {
+            "op": "set",
+            "key": "registry.api_token_copy",
+            "value": {
+              "kind": "secret_ref",
+              "ref": "sec:project-default:registry-api-token",
+              "displayHint": "Configured registry token"
+            }
+          }
+        ]
+      },
+      "documentOps": [],
+      "diagnostics": [],
+      "pluginVersion": "1.0.0"
+    }
+  ],
+  "artifacts": [],
+  "engineVersion": "0.1.0",
+  "ruleProfileVersion": "1.0.0"
+}

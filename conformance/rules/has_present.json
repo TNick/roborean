@@ -1,0 +1,18 @@
+{
+  "id": "has_present",
+  "workspace": {
+    "values": {
+      "title": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "Hello"
+      }
+    },
+    "provenance": {}
+  },
+  "rule": {
+    "op": "has",
+    "args": ["title"]
+  },
+  "expected": true
+}

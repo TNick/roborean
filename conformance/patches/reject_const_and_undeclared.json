@@ -1,0 +1,61 @@
+{
+  "id": "reject_const_and_undeclared",
+  "initialWorkspace": {
+    "values": {
+      "title": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "Hello"
+      }
+    },
+    "provenance": {}
+  },
+  "patch": {
+    "ops": [
+      {
+        "op": "set",
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      {
+        "op": "set",
+        "key": "undeclared",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "No"
+        }
+      }
+    ]
+  },
+  "allowedWrites": ["title"],
+  "constKeys": ["title"],
+  "expectedWorkspace": {
+    "values": {
+      "title": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "Hello"
+      }
+    },
+    "provenance": {}
+  },
+  "expectedAppliedPatch": {
+    "ops": [
+      {
+        "op": "reject",
+        "key": "title",
+        "reason": "const"
+      },
+      {
+        "op": "reject",
+        "key": "undeclared",
+        "reason": "undeclared_write"
+      }
+    ]
+  }
+}

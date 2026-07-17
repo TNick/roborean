@@ -1,0 +1,52 @@
+{
+  "id": "ne_lt_le_ge",
+  "workspace": {
+    "values": {
+      "count": {
+        "kind": "public_literal",
+        "dataType": "number",
+        "value": 2
+      },
+      "mode": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "draft"
+      }
+    },
+    "provenance": {}
+  },
+  "rule": {
+    "op": "and",
+    "args": [
+      {
+        "op": "ne",
+        "args": [
+          { "op": "var", "args": ["mode"] },
+          { "op": "const", "args": ["final"] }
+        ]
+      },
+      {
+        "op": "lt",
+        "args": [
+          { "op": "var", "args": ["count"] },
+          { "op": "const", "args": [3] }
+        ]
+      },
+      {
+        "op": "le",
+        "args": [
+          { "op": "var", "args": ["count"] },
+          { "op": "const", "args": [2] }
+        ]
+      },
+      {
+        "op": "ge",
+        "args": [
+          { "op": "var", "args": ["count"] },
+          { "op": "const", "args": [2] }
+        ]
+      }
+    ]
+  },
+  "expected": true
+}

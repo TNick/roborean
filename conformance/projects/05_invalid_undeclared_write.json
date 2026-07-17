@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "example.invalid-undeclared-write",
+  "name": "Invalid undeclared write",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "title",
+        "schema": { "type": "string" },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Hello"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "undeclared_write",
+      "type": "roborean.set_variable",
+      "when": true,
+      "config": {
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      "reads": [],
+      "writes": [],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.write"]
+    }
+  ],
+  "documents": [],
+  "templates": [],
+  "metadata": {}
+}

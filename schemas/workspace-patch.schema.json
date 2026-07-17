@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/workspace-patch.schema.json",
+  "title": "WorkspacePatch",
+  "type": "object",
+  "required": ["ops"],
+  "properties": {
+    "ops": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["op", "key", "value"],
+            "properties": {
+              "op": {"const": "set"},
+              "key": {"type": "string", "minLength": 1},
+              "value": {"$ref": "workspace-value.schema.json"}
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": ["op", "key"],
+            "properties": {
+              "op": {"const": "unset"},
+              "key": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": ["op", "key", "reason"],
+            "properties": {
+              "op": {"const": "reject"},
+              "key": {"type": "string", "minLength": 1},
+              "reason": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

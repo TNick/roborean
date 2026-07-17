@@ -1,0 +1,33 @@
+{
+  "id": "or_simple",
+  "workspace": {
+    "values": {
+      "project.mode": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "draft"
+      }
+    },
+    "provenance": {}
+  },
+  "rule": {
+    "op": "or",
+    "args": [
+      {
+        "op": "eq",
+        "args": [
+          { "op": "var", "args": ["project.mode"] },
+          { "op": "const", "args": ["final"] }
+        ]
+      },
+      {
+        "op": "eq",
+        "args": [
+          { "op": "var", "args": ["project.mode"] },
+          { "op": "const", "args": ["draft"] }
+        ]
+      }
+    ]
+  },
+  "expected": true
+}

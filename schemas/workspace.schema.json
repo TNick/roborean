@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/workspace.schema.json",
+  "title": "WorkspaceDefinition",
+  "type": "object",
+  "required": ["variables"],
+  "properties": {
+    "variables": {
+      "type": "array",
+      "items": {"$ref": "variable.schema.json"}
+    }
+  },
+  "additionalProperties": false
+}

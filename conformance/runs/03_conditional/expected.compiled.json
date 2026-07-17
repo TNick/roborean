@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "example.conditional",
+  "projectName": "Conditional",
+  "compiledAt": "2026-07-17T08:46:06.201002+00:00",
+  "engineVersion": "0.1.0",
+  "ruleProfileVersion": "1.0.0",
+  "digest": "58e9b573d5360c1e700195487e5813d270989a39a911635f6f63b5fc87987dad",
+  "variables": [
+    {
+      "key": "parcel.area",
+      "schema": {
+        "type": "number"
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "number",
+        "value": 10
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": null
+    },
+    {
+      "key": "flag",
+      "schema": {
+        "type": "boolean"
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "boolean",
+        "value": false
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": null
+    }
+  ],
+  "bits": [
+    {
+      "id": "set_flag_when_area_present",
+      "type": "roborean.set_variable",
+      "label": null,
+      "when": {
+        "op": "gt",
+        "args": [
+          {
+            "op": "var",
+            "args": [
+              "parcel.area"
+            ]
+          },
+          {
+            "op": "const",
+            "args": [
+              0
+            ]
+          }
+        ]
+      },
+      "config": {
+        "key": "flag",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "boolean",
+          "value": true
+        }
+      },
+      "reads": [
+        "parcel.area"
+      ],
+      "writes": [
+        "flag"
+      ],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": [
+        "workspace.read",
+        "workspace.write"
+      ]
+    }
+  ],
+  "activationExpressions": {
+    "set_flag_when_area_present": {
+      "op": "gt",
+      "args": [
+        {
+          "op": "var",
+          "args": [
+            "parcel.area"
+          ]
+        },
+        {
+          "op": "const",
+          "args": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  "dependencyMap": {
+    "set_flag_when_area_present": {
+      "reads": [
+        "parcel.area"
+      ],
+      "writes": [
+        "flag"
+      ],
+      "emits": []
+    }
+  },
+  "documents": [],
+  "templates": [],
+  "pluginVersions": {
+    "roborean.set_variable": "1.0.0"
+  },
+  "diagnostics": []
+}

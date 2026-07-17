@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/workspace-value.schema.json",
+  "title": "WorkspaceValue",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["kind", "dataType", "value"],
+      "properties": {
+        "kind": {"const": "public_literal"},
+        "dataType": {"enum": ["string", "number", "boolean", "date"]},
+        "value": {}
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["kind", "ref"],
+      "properties": {
+        "kind": {"const": "secret_ref"},
+        "ref": {"type": "string", "pattern": "^sec:.+"},
+        "displayHint": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["kind", "token"],
+      "properties": {
+        "kind": {"const": "eq_token"},
+        "token": {"type": "string"},
+        "domain": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["kind", "shape"],
+      "properties": {
+        "kind": {"const": "shape_token"},
+        "shape": {"enum": ["email", "phone", "iban", "uuid", "code"]},
+        "length": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["kind", "bucket"],
+      "properties": {
+        "kind": {"const": "bucket"},
+        "bucket": {"type": "string"},
+        "bounds": {
+          "type": "array",
+          "prefixItems": [{"type": "number"}, {"type": "number"}],
+          "items": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["kind", "reason"],
+      "properties": {
+        "kind": {"const": "redacted"},
+        "reason": {"enum": ["secret", "policy", "consent", "unknown"]}
+      },
+      "additionalProperties": false
+    }
+  ]
+}

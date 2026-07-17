@@ -1,0 +1,13 @@
+{
+  "typeId": "roborean.copy_variable",
+  "version": "1.0.0",
+  "configSchema": {
+    "type": "object",
+    "required": ["from", "to"],
+    "properties": { "from": { "type": "string" }, "to": { "type": "string" } },
+    "additionalProperties": false
+  },
+  "effectClass": "workspace",
+  "capabilities": ["workspace.read", "workspace.write"],
+  "browserSafe": true
+}

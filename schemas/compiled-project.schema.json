@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/compiled-project.schema.json",
+  "title": "CompiledProject",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "projectName",
+    "compiledAt",
+    "engineVersion",
+    "ruleProfileVersion",
+    "digest",
+    "variables",
+    "bits",
+    "activationExpressions",
+    "dependencyMap",
+    "documents",
+    "templates",
+    "pluginVersions",
+    "diagnostics"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "projectId": {"type": "string"},
+    "projectName": {"type": "string"},
+    "compiledAt": {"type": "string", "format": "date-time"},
+    "engineVersion": {"type": "string"},
+    "ruleProfileVersion": {"type": "string"},
+    "digest": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
+    "variables": {"type": "array", "items": {"$ref": "variable.schema.json"}},
+    "bits": {"type": "array", "items": {"type": "object"}},
+    "activationExpressions": {
+      "type": "object",
+      "additionalProperties": {"$ref": "rule-ast.schema.json"}
+    },
+    "dependencyMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["reads", "writes", "emits"],
+        "properties": {
+          "reads": {"type": "array", "items": {"type": "string"}},
+          "writes": {"type": "array", "items": {"type": "string"}},
+          "emits": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {"$ref": "document-definition.schema.json"}
+    },
+    "templates": {"type": "array", "items": {"type": "object"}},
+    "pluginVersions": {"type": "object", "additionalProperties": {"type": "string"}},
+    "diagnostics": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": false
+}

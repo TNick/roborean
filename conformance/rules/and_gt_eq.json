@@ -1,0 +1,38 @@
+{
+  "id": "and_gt_eq",
+  "workspace": {
+    "values": {
+      "parcel.area": {
+        "kind": "public_literal",
+        "dataType": "number",
+        "value": 10
+      },
+      "project.mode": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "final"
+      }
+    },
+    "provenance": {}
+  },
+  "rule": {
+    "op": "and",
+    "args": [
+      {
+        "op": "gt",
+        "args": [
+          { "op": "var", "args": ["parcel.area"] },
+          { "op": "const", "args": [0] }
+        ]
+      },
+      {
+        "op": "eq",
+        "args": [
+          { "op": "var", "args": ["project.mode"] },
+          { "op": "const", "args": ["final"] }
+        ]
+      }
+    ]
+  },
+  "expected": true
+}

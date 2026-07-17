@@ -1,0 +1,15 @@
+{
+  "id": "missing_var_strict",
+  "workspace": {
+    "values": {},
+    "provenance": {}
+  },
+  "rule": {
+    "op": "eq",
+    "args": [
+      { "op": "var", "args": ["missing"] },
+      { "op": "const", "args": ["value"] }
+    ]
+  },
+  "expectedError": "RuleEvalError"
+}

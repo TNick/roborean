@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/document-definition.schema.json",
+  "title": "DocumentDefinition",
+  "type": "object",
+  "required": ["id", "type", "templateRef", "driver"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "type": {"type": "string", "minLength": 1},
+    "templateRef": {"type": "string", "minLength": 1},
+    "driver": {"type": "string", "minLength": 1},
+    "outputTarget": {"type": "string"},
+    "settings": {"type": "object", "default": {}}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "example.minimal",
+  "projectName": "Minimal",
+  "compiledAt": "2026-07-17T08:46:06.171141+00:00",
+  "engineVersion": "0.1.0",
+  "ruleProfileVersion": "1.0.0",
+  "digest": "5a4f4e28aeaed7754f158fc31e9600078f31b2770f264cd6c3f8a98af957cbe0",
+  "variables": [
+    {
+      "key": "title",
+      "schema": {
+        "type": "string"
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "Hello"
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": null
+    }
+  ],
+  "bits": [
+    {
+      "id": "b1",
+      "type": "roborean.noop",
+      "label": null,
+      "when": true,
+      "config": {},
+      "reads": [],
+      "writes": [],
+      "emits": [],
+      "effectClass": "pure",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "activationExpressions": {
+    "b1": {
+      "op": "const",
+      "args": [
+        true
+      ]
+    }
+  },
+  "dependencyMap": {
+    "b1": {
+      "reads": [],
+      "writes": [],
+      "emits": []
+    }
+  },
+  "documents": [],
+  "templates": [],
+  "pluginVersions": {
+    "roborean.noop": "1.0.0"
+  },
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "W_UNUSED_VARIABLE",
+      "message": "Variable is never read or written: title",
+      "path": null
+    }
+  ]
+}

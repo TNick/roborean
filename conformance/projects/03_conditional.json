@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "example.conditional",
+  "name": "Conditional",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "parcel.area",
+        "schema": { "type": "number" },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "number",
+          "value": 10
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "flag",
+        "schema": { "type": "boolean" },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "boolean",
+          "value": false
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "set_flag_when_area_present",
+      "type": "roborean.set_variable",
+      "when": {
+        "op": "gt",
+        "args": [
+          { "op": "var", "args": ["parcel.area"] },
+          { "op": "const", "args": [0] }
+        ]
+      },
+      "config": {
+        "key": "flag",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "boolean",
+          "value": true
+        }
+      },
+      "reads": ["parcel.area"],
+      "writes": ["flag"],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.read", "workspace.write"]
+    }
+  ],
+  "documents": [],
+  "templates": [],
+  "metadata": {}
+}

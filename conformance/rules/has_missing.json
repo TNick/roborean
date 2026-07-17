@@ -1,0 +1,12 @@
+{
+  "id": "has_missing",
+  "workspace": {
+    "values": {},
+    "provenance": {}
+  },
+  "rule": {
+    "op": "has",
+    "args": ["missing"]
+  },
+  "expected": false
+}

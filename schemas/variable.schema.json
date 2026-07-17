@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/variable.schema.json",
+  "title": "Variable",
+  "type": "object",
+  "required": ["key", "schema", "defaultValue", "exposure"],
+  "properties": {
+    "key": {"type": "string", "minLength": 1},
+    "schema": {"type": "object"},
+    "defaultValue": {"$ref": "workspace-value.schema.json"},
+    "const": {"type": "boolean", "default": false},
+    "exposure": {
+      "enum": ["backendOnly", "redactedToClient", "clientVisible"]
+    },
+    "description": {"type": "string"}
+  },
+  "additionalProperties": false
+}

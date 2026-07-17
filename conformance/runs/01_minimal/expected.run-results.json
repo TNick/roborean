@@ -1,0 +1,29 @@
+{
+  "runId": "356fe864-c6b7-4e38-8fa0-60f76d3e4956",
+  "projectId": "example.minimal",
+  "projectDigest": "5a4f4e28aeaed7754f158fc31e9600078f31b2770f264cd6c3f8a98af957cbe0",
+  "startedAt": "2026-07-17T08:46:06.172140+00:00",
+  "finishedAt": "2026-07-17T08:46:06.172140+00:00",
+  "status": "success",
+  "inputWorkspaceHash": "82d8a6993e84fdd6ffdc1a7ba65e1b2efbe2b2a4c914e512c02a6965fdaa5966",
+  "finalWorkspaceHash": "82d8a6993e84fdd6ffdc1a7ba65e1b2efbe2b2a4c914e512c02a6965fdaa5966",
+  "bitResults": [
+    {
+      "bitId": "b1",
+      "type": "roborean.noop",
+      "active": true,
+      "activationReason": "always",
+      "status": "success",
+      "durationMs": 0.027900001441594213,
+      "workspacePatch": {
+        "ops": []
+      },
+      "documentOps": [],
+      "diagnostics": [],
+      "pluginVersion": "1.0.0"
+    }
+  ],
+  "artifacts": [],
+  "engineVersion": "0.1.0",
+  "ruleProfileVersion": "1.0.0"
+}

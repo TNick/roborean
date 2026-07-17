@@ -1,0 +1,64 @@
+{
+  "id": "set_and_unset",
+  "initialWorkspace": {
+    "values": {
+      "title": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "Hello"
+      },
+      "temporary": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "remove me"
+      }
+    },
+    "provenance": {}
+  },
+  "patch": {
+    "ops": [
+      {
+        "op": "set",
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      {
+        "op": "unset",
+        "key": "temporary"
+      }
+    ]
+  },
+  "allowedWrites": ["title", "temporary"],
+  "constKeys": [],
+  "expectedWorkspace": {
+    "values": {
+      "title": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "World"
+      }
+    },
+    "provenance": {}
+  },
+  "expectedAppliedPatch": {
+    "ops": [
+      {
+        "op": "set",
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      {
+        "op": "unset",
+        "key": "temporary"
+      }
+    ]
+  }
+}

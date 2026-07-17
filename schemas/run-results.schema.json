@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/run-results.schema.json",
+  "title": "RunResults",
+  "type": "object",
+  "required": [
+    "runId",
+    "projectId",
+    "projectDigest",
+    "startedAt",
+    "finishedAt",
+    "status",
+    "inputWorkspaceHash",
+    "finalWorkspaceHash",
+    "bitResults",
+    "artifacts",
+    "engineVersion",
+    "ruleProfileVersion"
+  ],
+  "properties": {
+    "runId": {"type": "string"},
+    "projectId": {"type": "string"},
+    "projectDigest": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
+    "startedAt": {"type": "string", "format": "date-time"},
+    "finishedAt": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["success", "failed", "aborted"]},
+    "inputWorkspaceHash": {"type": "string"},
+    "finalWorkspaceHash": {"type": "string"},
+    "bitResults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "bitId",
+          "type",
+          "active",
+          "activationReason",
+          "status",
+          "durationMs",
+          "workspacePatch",
+          "documentOps",
+          "diagnostics",
+          "pluginVersion"
+        ],
+        "properties": {
+          "bitId": {"type": "string"},
+          "type": {"type": "string"},
+          "active": {"type": "boolean"},
+          "activationReason": {
+            "oneOf": [{"type": "boolean"}, {"const": "always"}]
+          },
+          "status": {"enum": ["success", "skipped", "failed", "inactive"]},
+          "durationMs": {"type": "number", "minimum": 0},
+          "workspacePatch": {"$ref": "workspace-patch.schema.json"},
+          "documentOps": {"type": "array"},
+          "diagnostics": {"type": "array", "items": {"type": "object"}},
+          "pluginVersion": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "artifacts": {"type": "array"},
+    "engineVersion": {"type": "string"},
+    "ruleProfileVersion": {"type": "string"}
+  },
+  "additionalProperties": false
+}

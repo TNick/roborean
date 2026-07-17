@@ -1,0 +1,16 @@
+{
+  "typeId": "roborean.set_variable",
+  "version": "1.0.0",
+  "configSchema": {
+    "type": "object",
+    "required": ["key", "value"],
+    "properties": {
+      "key": {"type": "string", "minLength": 1},
+      "value": {"$ref": "workspace-value.schema.json"}
+    },
+    "additionalProperties": false
+  },
+  "effectClass": "workspace",
+  "capabilities": ["workspace.write"],
+  "browserSafe": true
+}

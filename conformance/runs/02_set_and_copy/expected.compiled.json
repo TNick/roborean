@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "example.set-and-copy",
+  "projectName": "Set and copy",
+  "compiledAt": "2026-07-17T08:46:06.185760+00:00",
+  "engineVersion": "0.1.0",
+  "ruleProfileVersion": "1.0.0",
+  "digest": "dcfe70c935f10788e3bd8af6cca868555b105c56c77659db0353c5f36c9abb02",
+  "variables": [
+    {
+      "key": "title",
+      "schema": {
+        "type": "string"
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "Hello"
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": null
+    },
+    {
+      "key": "title_copy",
+      "schema": {
+        "type": "string"
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": ""
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": null
+    }
+  ],
+  "bits": [
+    {
+      "id": "set_title",
+      "type": "roborean.set_variable",
+      "label": null,
+      "when": true,
+      "config": {
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      "reads": [],
+      "writes": [
+        "title"
+      ],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": [
+        "workspace.write"
+      ]
+    },
+    {
+      "id": "copy_title",
+      "type": "roborean.copy_variable",
+      "label": null,
+      "when": true,
+      "config": {
+        "from": "title",
+        "to": "title_copy"
+      },
+      "reads": [
+        "title"
+      ],
+      "writes": [
+        "title_copy"
+      ],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": [
+        "workspace.read",
+        "workspace.write"
+      ]
+    }
+  ],
+  "activationExpressions": {
+    "set_title": {
+      "op": "const",
+      "args": [
+        true
+      ]
+    },
+    "copy_title": {
+      "op": "const",
+      "args": [
+        true
+      ]
+    }
+  },
+  "dependencyMap": {
+    "set_title": {
+      "reads": [],
+      "writes": [
+        "title"
+      ],
+      "emits": []
+    },
+    "copy_title": {
+      "reads": [
+        "title"
+      ],
+      "writes": [
+        "title_copy"
+      ],
+      "emits": []
+    }
+  },
+  "documents": [],
+  "templates": [],
+  "pluginVersions": {
+    "roborean.set_variable": "1.0.0",
+    "roborean.copy_variable": "1.0.0"
+  },
+  "diagnostics": []
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/bit.schema.json",
+  "title": "Bit",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "when",
+    "config",
+    "reads",
+    "writes",
+    "emits",
+    "effectClass",
+    "onError",
+    "capabilities"
+  ],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "type": {"type": "string", "minLength": 1},
+    "label": {"type": "string"},
+    "when": {
+      "oneOf": [{"const": true}, {"$ref": "rule-ast.schema.json"}]
+    },
+    "config": {"type": "object"},
+    "reads": {"type": "array", "items": {"type": "string"}},
+    "writes": {"type": "array", "items": {"type": "string"}},
+    "emits": {"type": "array", "items": {"type": "string"}},
+    "effectClass": {
+      "enum": [
+        "pure",
+        "workspace",
+        "document",
+        "filesystem",
+        "network",
+        "external-process",
+        "transactional-external"
+      ]
+    },
+    "onError": {"enum": ["abort", "skip", "continue"]},
+    "capabilities": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

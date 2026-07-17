@@ -1,0 +1,194 @@
+# AGENTS
+
+Instructions for humans and coding agents working in this repository.
+
+## Changelog
+
+Before finishing a task that changed **production code** (application or
+library source—not tests), update the nearest `CHANGELOG.md`:
+
+1. From edited paths, walk up parents and use the nearest `CHANGELOG.md`.
+   In this monorepo that is usually the package folder (e.g.
+   `packages/python/roborean_spec/CHANGELOG.md`), not only the repo root.
+2. If missing at the package, create one with `# Changelog`,
+   `## [Unreleased]`, and empty `### Added`, `### Changed`, `### Fixed`
+   sections—match sibling packages.
+3. Under `## [Unreleased]`, add `- ` bullets in the right section.
+   Write user-facing summaries, not file lists.
+4. Follow Keep a Changelog style already used in the repo.
+
+Do **not** update the changelog when:
+
+- The task was read-only.
+- Work is planning only (including edits under `research/` or
+  `.cursor/plans/`).
+- Edits are tests only.
+- The user asked not to touch the changelog.
+
+Root [`CHANGELOG.md`](CHANGELOG.md) tracks repo-wide / cross-package notes.
+Every publishable package should keep its own `CHANGELOG.md`.
+
+## Source of truth
+
+1. **`schemas/`** — canonical JSON Schema Draft 2020-12 for projects,
+   variables, bits, rules, patches, runs, documents, secrets. Python
+   (Pydantic) and TypeScript (Ajv + Zod) must stay tied to these files.
+   Prefer extending schemas + migrations over inventing parallel models.
+2. **`research/`** — architectural decisions and phase plans. Prefer the
+   numbered phase docs over improvising structure:
+   - `11. Phase 1.md` — foundation / dual-runtime core
+   - `12. Phase 2.md` — durable runs + storage
+   - `13. Phase 3.md` — documents
+   - `14. Phase 4.md` — FastAPI + React platform
+3. **`conformance/`** — golden fixtures. Python ↔ TypeScript parity
+   failures are release blockers for semantic packages.
+
+The website is a delivery surface. Do not put core semantics only in
+`apps/web` or `roborean-api-fastapi`.
+
+## Repository layout (target)
+
+```text
+schemas/                 # canonical JSON Schema
+conformance/             # golden projects, rules, runs, documents
+packages/python/         # roborean_* publishable packages
+packages/typescript/     # @roborean/* publishable packages
+apps/                    # thin deployables (web, api, cli-diagnostics)
+tools/                   # schema sync, conformance, OpenAPI drift
+research/                # design docs (not runtime code)
+```
+
+Python toolchains: **uv** workspaces. TypeScript: **pnpm** workspaces.
+Use the root `Makefile` targets (`init`, `init-d`, `test`, `lint`,
+`delint`, `conformance`, later `openapi-check` / `e2e`) instead of ad-hoc
+one-off install paths when they exist.
+
+## Environment
+
+Always activate the project virtualenv before running Python commands.
+Prefer `venv`, `venv-qt5`, or `venv-qt6` if present; otherwise use the uv
+environment the Makefile/`uv sync` creates. Do not install packages into
+the global interpreter.
+
+## Coding standards
+
+### Indentation and formatting
+
+| Language | Indent | Format / lint |
+|----------|--------|----------------|
+| Python | 4 spaces | Black (line length 80), isort (`profile=black`), Flake8 (Google docstrings); optional mypy in dev extras |
+| TypeScript / TSX | 2 spaces | ESLint + Prettier; `tsc` clean for packages |
+| JSON Schema / JSON fixtures | 2 spaces | Stable key order in golden files when practical |
+
+Markdown: one level-one header per file; blank line after titles; wrap at
+80 characters; fenced code blocks with a language tag.
+
+### Python style
+
+- Type hints on new/changed public APIs.
+- Google-style docstrings: first paragraph on the same line as the opening
+  `"""`; document class attributes under `Attributes`; document
+  `@property` members on the class docstring.
+- Split code into short blocks; each block preceded by a blank line and a
+  short comment describing what it does. Avoid trailing inline comments.
+- Naming: packages/modules `snake_case`, classes `PascalCase`,
+  functions/vars `snake_case`, constants `UPPER_SNAKE_CASE`.
+- Logging: `logger = logging.getLogger(__name__)`. Never use `print` for
+  diagnostics. Prefer `"fmt %s", value` over f-strings in log calls.
+  Very verbose traces: `logger.log(1, ...)`. Be conservative at INFO.
+- Never use `try: ... except Exception: pass`. In handlers use
+  `logger.debug(...)` or `logger.log(1, ..., exc_info=True)` with a short
+  explanation.
+- Keep `TYPE_CHECKING` imports even if the type checker complains locally.
+- Domain models are Pydantic (or schema-backed), not SQLAlchemy ORM
+  entities. ORM stays in storage adapters and maps to/from domain models.
+- YAML: `yaml.safe_load` only for untrusted content.
+
+### TypeScript / React style
+
+- Prefer explicit workspace packages (`@roborean/*`) over dumping logic
+  into `apps/web`.
+- Browser path: validate, compile, dry-run, diagnostics via
+  `@roborean/engine` / `@roborean/validation` without requiring the API.
+- Final binary document generation (docx/xlsx/dxf/… bytes) is backend-only;
+  the client uses preview contracts (HTML / JSON / drawing IR).
+- Prefer modern React patterns already used in the repo; do not add
+  `useMemo` / `useCallback` by default unless the package already relies
+  on them or measurement requires it.
+
+### Web UI (Material UI)
+
+The product web app and editor packages use **Material UI (MUI)**:
+
+- Depend on `@mui/material`, `@mui/icons-material`, and the Emotion
+  peer stack MUI requires.
+- Theme and layout primitives belong in `@roborean/ui` (or shared theme
+  modules), not copy-pasted per page.
+- Prefer MUI components and `sx` / theme tokens over one-off CSS frameworks
+  or competing component libraries.
+- `apps/web` stays a thin shell (routing, API client wiring, page
+  composition). Editor chrome and forms live in `@roborean/editor`.
+
+## Domain rules (do not violate)
+
+1. **Patches, not hidden mutation** — bit execution returns a
+   `WorkspacePatch` (and optional document ops). Do not mutate shared
+   workspace dicts in place.
+2. **Secrets** — model `SecretRef` / workspace-value kinds and `exposure`
+   (`backendOnly` | `redactedToClient` | `clientVisible`). Never ship raw
+   secret literals to the client, logs, or AI. API responses must redact.
+3. **Declared dependencies** — bits declare `reads` / `writes` / `emits`;
+   strict compile enforces them.
+4. **Effect classes** — honor `effectClass` for retry/idempotency
+   (`pure` / `workspace` vs network / external).
+5. **Plugins** — installable packages + manifests / entry points. Do not
+   execute arbitrary project-hosted code in v1.
+6. **Documents** — bits emit document operations; they do not import
+   `python-docx` / `openpyxl` / etc. directly.
+7. **AI** (when added) — masked workspace views in, schema-valid patches
+   out; deterministic renderers own final artifacts.
+8. **Phase gates** — do not start Phase N work that Phase N docs mark out
+   of scope before earlier exit criteria are green (especially
+   `make conformance`).
+
+## Testing
+
+- Framework: pytest (+ coverage where configured). Test modules:
+  `*_test.py`. Mirror package layout under each package’s `tests/`.
+- Fixtures live in `conftest.py`, not inside test modules.
+- Group related cases in nested test classes (up to four levels).
+- Mark storage/API integration tests clearly (e.g.
+  `@pytest.mark.integration`).
+- TypeScript: Vitest (or package-local equivalent); include conformance
+  runners that compare normalized outputs to Python.
+- After adding or changing behavior, re-run the relevant package tests and
+  `make conformance` when semantics touch the dual runtime.
+- Prefer short tests with branch coverage over large brittle scenarios.
+
+## Packages (publishable)
+
+Python (illustrative): `roborean-spec`, `roborean-engine`,
+`roborean-storage-*`, `roborean-plugins-base`, `roborean-documents-*`,
+`roborean-api-fastapi`.
+
+TypeScript (illustrative): `@roborean/spec`, `@roborean/engine`,
+`@roborean/validation`, `@roborean/documents-*`, `@roborean/api-types`,
+`@roborean/ui`, `@roborean/editor`.
+
+Apps (`apps/web`, `apps/api`, CLI) are thin and not the semantic core.
+
+## Git and commits
+
+- Commits only when the user asks. Imperative mood; optionally prefix with
+  package name.
+- Do not commit secrets (`.env`, credentials, etc.).
+- Prefer commits that pass `make lint` and `make test`.
+- Agent-created commits must avoid GPG signing that prompts for a
+  passphrase (`gpg.with` / signing disabled for that commit as allowed by
+  project practice).
+
+## Experimental code
+
+Put throwaway experiments under `playground/` at the repo root. Do not
+land experiments in publishable packages without tests and changelog
+entries.

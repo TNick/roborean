@@ -1,0 +1,26 @@
+{
+  "id": "not_eq",
+  "workspace": {
+    "values": {
+      "project.mode": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "draft"
+      }
+    },
+    "provenance": {}
+  },
+  "rule": {
+    "op": "not",
+    "args": [
+      {
+        "op": "eq",
+        "args": [
+          { "op": "var", "args": ["project.mode"] },
+          { "op": "const", "args": ["final"] }
+        ]
+      }
+    ]
+  },
+  "expected": true
+}

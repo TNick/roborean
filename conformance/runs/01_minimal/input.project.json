@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "example.minimal",
+  "name": "Minimal",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "title",
+        "schema": { "type": "string" },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Hello"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "b1",
+      "type": "roborean.noop",
+      "when": true,
+      "config": {},
+      "reads": [],
+      "writes": [],
+      "emits": [],
+      "effectClass": "pure",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [],
+  "templates": [],
+  "metadata": {}
+}
