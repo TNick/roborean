@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "roborean-documents-xlsx"
-version = "0.1.9"
+version = "0.1.10"
 description = "XLSX document driver for Roborean"
 requires-python = ">=3.11"
 license = "MIT"

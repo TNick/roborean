@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-07-18
+
+### Changed
+
+- Updated .github/PAGES.md
+
 ## [0.1.9] - 2026-07-18
 
 ### Added
@@ -168,6 +174,7 @@
 - Root `pyproject.toml` is marked as a non-package uv workspace so `pip install -e .` no longer fails trying to build `roborean-workspace` with Hatchling.
 
 [0.1.1]: https://github.com/TNick/roborean/compare/846ef574a1c267a96143a80cb33ffe8e935d737c...v0.1.1
+[0.1.10]: https://github.com/TNick/roborean/compare/v0.1.9...v0.1.10
 [0.1.2]: https://github.com/TNick/roborean/compare/v0.1.1...v0.1.2
 [0.1.3]: https://github.com/TNick/roborean/compare/v0.1.2...v0.1.3
 [0.1.4]: https://github.com/TNick/roborean/compare/v0.1.3...v0.1.4
@@ -176,4 +183,4 @@
 [0.1.7]: https://github.com/TNick/roborean/compare/v0.1.6...v0.1.7
 [0.1.8]: https://github.com/TNick/roborean/compare/v0.1.7...v0.1.8
 [0.1.9]: https://github.com/TNick/roborean/compare/v0.1.8...v0.1.9
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.9...HEAD
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.10...HEAD
