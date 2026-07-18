@@ -20,13 +20,13 @@ the official GitHub Pages actions (`upload-pages-artifact` /
    rules”.
 5. Clear any required reviewers / wait timer unless you want manual
    approval on every Pages deploy.
-6. Optional but required for **Choose folder with Google Picker**: set
-   repository variable `VITE_GOOGLE_API_KEY` to a browser **API key**
-   (Google Cloud → APIs & Services → Credentials → Create credentials →
-   API key). Typical keys start with `AIza`. Restrict to HTTP referrers
-   `https://tnick.github.io/*` and `http://localhost:5173/*`, and enable
-   the Google Picker API + Drive API. Without it users can still
-   **Create a new folder** or paste a folder id.
+6. Optional but required for **Choose folder with Google Picker** and
+   **Link existing Google Doc**: set repository variable
+   `VITE_GOOGLE_API_KEY` to a browser **API key** (Google Cloud → APIs &
+   Services → Credentials → Create credentials → API key). Typical keys
+   start with `AIza`. Enable the **Google Picker API** and **Google Drive
+   API** on the **same** Cloud project as the OAuth client. Without the
+   key, users can still **Create a new folder** or paste a folder id.
 
    Do **not** use an OAuth client secret (`GOCSPX-…`) or the OAuth
    client id here. Secrets must never go in repository variables or the
@@ -37,9 +37,40 @@ the official GitHub Pages actions (`upload-pages-artifact` /
    derives it from `VITE_GOOGLE_CLIENT_ID` (`{projectNumber}-….apps…`).
    Override with repository variable `VITE_GOOGLE_APP_ID` only if needed.
 
+## Google Cloud API key (Picker)
+
+The Pages build serves the app at `https://tnick.github.io/roborean/`
+(`VITE_PAGES_BASE=/roborean/` in `apps/web/scripts/build-pages.mjs`).
+Picker sends the browser page as the HTTP referrer, including that path.
+
+On the API key used for `VITE_GOOGLE_API_KEY`:
+
+1. **Same project** as the OAuth client and `appId` (project number).
+   A key from another project causes “The API developer key is invalid”.
+2. **Application restriction**: HTTP referrers (websites), not IP addresses.
+3. **Referrer allowlist** — include both patterns (replace owner/repo if
+   you fork):
+
+   ```text
+   https://tnick.github.io/*
+   https://tnick.github.io/roborean/*
+   http://localhost:5173/*
+   ```
+
+   The `/roborean/*` entry matters because the live site is not at the
+   domain root; a key restricted only to `https://tnick.github.io/*` can
+   still fail Picker with 401 on some referrer checks.
+4. **API restriction**: unrestricted for a quick test, or restrict to
+   Google Picker API (and Google Drive API if offered).
+5. After changes, wait a few minutes, redeploy Pages, and hard-refresh.
+
+OAuth **JavaScript origins** stay host-only (no path): `https://tnick.github.io`
+and `http://localhost:5173` — see below.
+
 ## Google Cloud OAuth client
 
-Authorize these JavaScript origins on the OAuth client:
+Authorize these **JavaScript origins** on the OAuth client (host only, no
+path — unlike the API key referrer list above):
 
 - `https://tnick.github.io`
 - `http://localhost:5173` (local development; Drive is optional when the
