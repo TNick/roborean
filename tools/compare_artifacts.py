@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import io
 import sys
 from pathlib import Path
 
+from PIL import Image
 from roborean_documents_docx.driver import docx_paragraph_texts
 from roborean_documents_xlsx.driver import xlsx_semantic_equal
 
 # Compare modes written into expected.artifacts.json manifests.
 COMPARE_BYTES = "bytes"
+COMPARE_PIXELS = "pixels"
 COMPARE_SEMANTIC = "semantic"
 COMPARE_SKIP = "skip"
 
@@ -22,7 +25,7 @@ def artifact_compare_mode(media_type: str, path: str) -> str:
         path: Relative artifact path (used for suffix fallbacks).
 
     Returns:
-        One of ``bytes``, ``semantic``, or ``skip``.
+        One of ``bytes``, ``pixels``, ``semantic``, or ``skip``.
     """
     suffix = Path(path).suffix.lower()
 
@@ -37,7 +40,45 @@ def artifact_compare_mode(media_type: str, path: str) -> str:
     ):
         return COMPARE_SEMANTIC
 
+    # PNG/JPEG bytes differ across zlib/libpng builds; compare pixels.
+    if media_type.startswith("image/") or suffix in {
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp",
+    }:
+        return COMPARE_PIXELS
+
     return COMPARE_BYTES
+
+
+def _compare_image_pixels(expected_bytes: bytes, actual_bytes: bytes) -> None:
+    """Raise when decoded raster images differ.
+
+    Args:
+        expected_bytes: Golden image bytes.
+        actual_bytes: Produced image bytes.
+
+    Raises:
+        AssertionError: When size, mode, or pixel data differs.
+    """
+    expected = Image.open(io.BytesIO(expected_bytes))
+    actual = Image.open(io.BytesIO(actual_bytes))
+
+    if expected.size != actual.size:
+        raise AssertionError(
+            "Image size mismatch: "
+            f"expected {expected.size}, got {actual.size}"
+        )
+
+    # Normalize mode so RGB vs RGBA encodings of the same canvas fail
+    # clearly after conversion rather than as opaque byte noise.
+    expected_rgb = expected.convert("RGB")
+    actual_rgb = actual.convert("RGB")
+    if expected_rgb.tobytes() != actual_rgb.tobytes():
+        raise AssertionError(
+            f"Pixel mismatch for image: size={expected_rgb.size}"
+        )
 
 
 def compare_artifact_bytes(
@@ -62,6 +103,10 @@ def compare_artifact_bytes(
     suffix = Path(path).suffix.lower()
 
     if mode == COMPARE_SKIP:
+        return
+
+    if mode == COMPARE_PIXELS:
+        _compare_image_pixels(expected_bytes, actual_bytes)
         return
 
     if mode == COMPARE_SEMANTIC:

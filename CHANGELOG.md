@@ -55,6 +55,9 @@
 
 - `tools/run_conformance.py` invokes pnpm without `shell=True` so Linux CI
   actually runs `@roborean/engine` tests instead of bare `pnpm` help.
+- Document conformance compares raster artifacts by decoded pixels (not PNG
+  bytes) so zlib/libpng differences between Windows and Linux CI do not fail
+  D05.
 
 ## [0.1.3] - 2026-07-17
 

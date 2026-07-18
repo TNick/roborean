@@ -4,7 +4,7 @@
       "documentId": "stamp",
       "path": "stamp.png",
       "mediaType": "image/png",
-      "compare": "bytes"
+      "compare": "pixels"
     }
   ]
 }

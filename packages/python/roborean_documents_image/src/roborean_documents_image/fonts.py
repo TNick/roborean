@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from PIL import ImageFont
-from roborean_spec.schema_loader import find_repo_root
+# Pin FreeType interpreter before Pillow loads the library so Windows and
+# Linux CI rasterize the same vendored glyphs.
+os.environ.setdefault(
+    "FREETYPE_PROPERTIES",
+    "truetype:interpreter-version=35",
+)
+
+from PIL import ImageFont  # noqa: E402
+from roborean_spec.schema_loader import find_repo_root  # noqa: E402
 
 DEFAULT_FONT_FILE = "RoboreanConformanceSans.ttf"
 DEFAULT_FONT_SIZE = 16
@@ -53,7 +61,11 @@ def load_truetype_font(path: str, size: int) -> ImageFont.FreeTypeFont:
     Returns:
         Pillow FreeType font instance.
     """
-    return ImageFont.truetype(path, size=size)
+    return ImageFont.truetype(
+        path,
+        size=size,
+        layout_engine=ImageFont.Layout.BASIC,
+    )
 
 
 def raster_font_for_operation(

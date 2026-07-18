@@ -6,7 +6,7 @@
 
 - `roborean.image` Pillow-backed raster driver with draw_text ops.
 - Vendored conformance font under `conformance/fixtures/fonts/` and
-  deterministic PNG byte compare for document fixture D05.
+  deterministic PNG pixel compare for document fixture D05.
 
 ### Changed
 
@@ -14,6 +14,8 @@
   with repository Python style guidelines.
 - Raster text uses vendored TrueType fonts from `conformance/fixtures/fonts/`
   for deterministic PNG output in conformance tests.
+- FreeType loads with interpreter-version=35 and Pillow BASIC layout for
+  more stable cross-platform glyph rasterization.
 
 ### Fixed
 

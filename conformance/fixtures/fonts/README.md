@@ -2,10 +2,15 @@
 
 Vendored TrueType fonts used for **deterministic PNG** golden tests (D05).
 
+Document conformance compares raster goldens by **decoded pixels** (not
+compressed PNG bytes), because zlib/libpng encodings differ across platforms.
+
 ## RoboreanConformanceSans.ttf
 
-Minimal font checked into this directory for CI and local byte-stable
-`image/png` artifacts. Regenerate with:
+Minimal font checked into this directory for CI and local pixel-stable
+`image/png` artifacts. The image driver pins FreeType
+`truetype:interpreter-version=35` and Pillow `Layout.BASIC` when loading
+fonts. Regenerate with:
 
 ```bash
 python playground/gen_conformance_font.py
