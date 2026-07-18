@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Google Picker probes the same API key and OAuth token against Drive to
+  isolate Picker-only API configuration failures from general key or referrer
+  problems.
+
 ## [0.1.12] - 2026-07-19
 
 ### Changed

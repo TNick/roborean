@@ -193,6 +193,48 @@ export function logGooglePickerDiagnostics(
 }
 
 /**
+ * Check whether Google Drive accepts the bundled API key and OAuth token.
+ *
+ * This request distinguishes a general API-key/referrer failure from a Picker
+ * API-only failure. It never logs or returns the access token, API key, or
+ * response body.
+ *
+ * @param token - OAuth access token used only in the authorization header.
+ */
+export async function probeGooglePickerCredentials(
+  token: string,
+): Promise<void> {
+  // Ask for no user data beyond one file id; the response is never consumed.
+  const url = new URL("https://www.googleapis.com/drive/v3/files");
+  url.searchParams.set("pageSize", "1");
+  url.searchParams.set("fields", "files(id)");
+  url.searchParams.set("key", GOOGLE_API_KEY);
+
+  try {
+    // Exercise the same public key, referrer, and OAuth token combination that
+    // Picker receives while keeping both credentials out of console output.
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // Report only transport metadata. A successful Drive probe paired with a
+    // Picker 401 isolates the problem to Picker API enablement/restrictions.
+    logGooglePickerDiagnostics("credential probe completed", {
+      driveApiAcceptedCredentials: response.ok,
+      driveApiStatus: response.status,
+      pickerFailureIsolation: response.ok
+        ? "Drive accepts this key/token; check Google Picker API enablement and key API restrictions"
+        : "Drive also rejected this key/token; check key project and HTTP referrer restrictions",
+    });
+  } catch (error) {
+    // Network policy can prevent the probe without preventing the iframe.
+    logGooglePickerDiagnostics("credential probe unavailable", {
+      probeErrorType: error instanceof Error ? error.name : "unknown",
+    });
+  }
+}
+
+/**
  * Ensure Google Picker dialogs stack above the folder-gate overlay.
  */
 function ensurePickerStackingCss(): void {
@@ -350,6 +392,7 @@ export async function pickDriveFolder(
     appIdApplied: Boolean(appId),
     sharedTokenProvider: Boolean(getAccessToken),
   });
+  void probeGooglePickerCredentials(token);
 
   return new Promise((resolve, reject) => {
     // Folder view must explicitly allow selecting folders (not only opening them).

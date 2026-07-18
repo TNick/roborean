@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   loadGooglePicker,
   logGooglePickerDiagnostics,
+  probeGooglePickerCredentials,
   resolveGoogleAppId,
 } from "./googlePicker.js";
 
@@ -60,6 +61,36 @@ describe("logGooglePickerDiagnostics", () => {
         apiKeySuffix: "not-configured",
       }),
     );
+    info.mockRestore();
+  });
+});
+
+describe("probeGooglePickerCredentials", () => {
+  it("reports whether Drive accepts the same credential pair", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 200 }));
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+
+    await probeGooglePickerCredentials("test-oauth-token");
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    // Inspect the request separately to ensure diagnostics do not receive it.
+    const [requestUrl, requestInit] = fetchMock.mock.calls[0] ?? [];
+    expect(String(requestUrl)).toContain("/drive/v3/files");
+    expect(requestInit).toEqual({
+      headers: { Authorization: "Bearer test-oauth-token" },
+    });
+    expect(info).toHaveBeenLastCalledWith(
+      "[Roborean Google Picker] credential probe completed",
+      expect.objectContaining({
+        driveApiAcceptedCredentials: true,
+        driveApiStatus: 200,
+      }),
+    );
+
+    fetchMock.mockRestore();
     info.mockRestore();
   });
 });
