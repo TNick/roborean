@@ -2,53 +2,39 @@
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-07-18
+
 ### Added
 
-- Web app toolbars show a home or back icon left of the page title for
-  in-app navigation.
-- Shared page shell insets all routes with the same top and side padding
-  as the project editor; below `md` pages are edge-to-edge with no inset.
+- Web app toolbars show a home or back icon left of the page title for in-app navigation.
+- Shared page shell insets all routes with the same top and side padding as the project editor; below `md` pages are edge-to-edge with no inset.
 
 ### Changed
 
-- Local web builds treat Google Drive as optional when the API is
-  available: the folder gate is not required, and the projects list merges
-  API and Drive entries (choose a store when creating). Google-only Pages
-  builds are unchanged.
-- Set and copy template library starter now includes three text documents
-  (title, copy, and workspace summary) filled from workspace variables so
-  dry-run preview shows content for each document.
-- Playwright E2E coverage for home navigation, templates library starters,
-  project CRUD, and document preview after dry-run.
-
-### Changed
-
-- Compact project editor overflow menu integrates theme settings (left
-  submenu per category) and account instead of separate toolbar buttons.
-- Back navigation in the web toolbar is always icon-only; Home still shows
-  a label on wide screens.
-- Below `md`, the project editor uses a stacked panel layout, full-screen
-  detail editing, and a toolbar overflow menu.
-- Toolbar actions use icons with labels from `lg` up, icon-only below
-  `lg`; compact project editor layout still switches at `md`.
-- Templates library uses three side-by-side cards on wider screens and
-  tabs when the viewport is narrower.
-- Home page drops storage status info alerts; on small screens action
-  buttons are centered, large, and stacked with more spacing.
+- Local web builds treat Google Drive as optional when the API is available: the folder gate is not required, and the projects list merges API and Drive entries (choose a store when creating). Google-only Pages builds are unchanged.
+- Set and copy template library starter now includes three text documents (title, copy, and workspace summary) filled from workspace variables so dry-run preview shows content for each document.
+- Playwright E2E coverage for home navigation, templates library starters, project CRUD, and document preview after dry-run.
+- Compact project editor overflow menu integrates theme settings (left submenu per category) and account instead of separate toolbar buttons.
+- Back navigation in the web toolbar is always icon-only; Home still shows a label on wide screens.
+- Below `md`, the project editor uses a stacked panel layout, full-screen detail editing, and a toolbar overflow menu.
+- Toolbar actions use icons with labels from `lg` up, icon-only below `lg`; compact project editor layout still switches at `md`.
+- Templates library uses three side-by-side cards on wider screens and tabs when the viewport is narrower.
+- Home page drops storage status info alerts; on small screens action buttons are centered, large, and stacked with more spacing.
+- Multiple ui adjustments
+- Fixed Set and copy matched four headings
+- Improve dxf support
+- Improve document adapters
+- improve tests
+- Better gdrive integration
+- Implemented the in-app Google Docs preview plan
 
 ### Fixed
 
-- Web app pages use `RoboreanResponsiveToolbarEnd` so theme, account, and
-  page actions collapse into one overflow menu below `md`.
+- Web app pages use `RoboreanResponsiveToolbarEnd` so theme, account, and page actions collapse into one overflow menu below `md`.
 - Project list row hover no longer runs under the Delete button.
-- Opening a project keeps the toolbar chrome during load so the page no
-  longer flashes a blank spinner shell.
-- Google Drive folder Picker: stack above the folder gate, enable folder
-  selection, set origin/app id/developer key per Google's sample, and
-  fail clearly when `VITE_GOOGLE_API_KEY` is missing.
-- Remove accidental `tsc` `.js` emit next to `apps/web` sources (they
-  shadowed TypeScript and broke Picker updates); web `tsconfig` now uses
-  `noEmit`.
+- Opening a project keeps the toolbar chrome during load so the page no longer flashes a blank spinner shell.
+- Google Drive folder Picker: stack above the folder gate, enable folder selection, set origin/app id/developer key per Google's sample, and fail clearly when `VITE_GOOGLE_API_KEY` is missing.
+- Remove accidental `tsc` `.js` emit next to `apps/web` sources (they shadowed TypeScript and broke Picker updates); web `tsconfig` now uses `noEmit`.
 
 ## [0.1.8] - 2026-07-18
 
@@ -189,4 +175,5 @@
 [0.1.6]: https://github.com/TNick/roborean/compare/v0.1.5...v0.1.6
 [0.1.7]: https://github.com/TNick/roborean/compare/v0.1.6...v0.1.7
 [0.1.8]: https://github.com/TNick/roborean/compare/v0.1.7...v0.1.8
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.8...HEAD
+[0.1.9]: https://github.com/TNick/roborean/compare/v0.1.8...v0.1.9
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.9...HEAD
