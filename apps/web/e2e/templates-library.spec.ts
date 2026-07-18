@@ -30,7 +30,9 @@ test.describe("Templates library", () => {
     page,
   }) => {
     await selectTemplatesTab(page, "Project starters");
-    await expect(page.getByText("Set and copy")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Set and copy", exact: true }),
+    ).toBeVisible();
     await expect(
       page.getByText("fills preview documents from workspace"),
     ).toBeVisible();
