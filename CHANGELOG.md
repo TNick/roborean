@@ -2,62 +2,41 @@
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-07-18
+
 ### Added
 
-- Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive
-  folder binding, Sheets-backed project/run storage, Google Docs outputs,
-  and static GitHub Pages deploy via `static.yml` on version tags.
-- Bit type manifests require a human-facing `name` used in the editor and
-  templates library recipe catalog.
-- Global templates library: API catalog, `/templates` web page, and reusable
-  `@roborean/ui` browser with document import, recipe import, and project
-  starter creation flows.
+- Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive folder binding, Sheets-backed project/run storage, Google Docs outputs, and static GitHub Pages deploy via `static.yml` on version tags.
+- Bit type manifests require a human-facing `name` used in the editor and templates library recipe catalog.
+- Global templates library: API catalog, `/templates` web page, and reusable `@roborean/ui` browser with document import, recipe import, and project starter creation flows.
 - Bit-recipe schema for portable workspace/document/bit fragments.
-- Document definitions require a human-facing `title`; optional
-  `description` and `baseTemplateRef` support copy-on-write template forks
-  in the editor and API.
-- Project template file CRUD in the HTTP API with dict and SQLAlchemy
-  storage backends.
-- Web UI can create blank projects, delete projects, and edit project name
-  and description (backed by existing API CRUD).
-- CI semantic gate (`make verify`): core/runtime/document conformance,
-  TypeScript document preview parity, storage integration, OpenAPI drift
-  check, dry-run parity, and schema sync; GitHub Actions split across
-  `tests.yml`, `openapi.yml`, and `platform.yml`.
-- Project package lockfile schema and compile-time enforcement; runtime
-  idempotency/retry/persistence conformance harness; document D99 capability
-  fixture; editor panels for workspace, documents, dependencies, preview, and
-  bit reordering.
-- Phase 4 editor forms (rules, bits, variables), run history panel, and
-  richer run detail downloads; `schemas/preview.schema.json` for the HTTP
-  preview response.
-- TypeScript engine golden tests for all `conformance/runs/*` compile and
-  run-results fixtures (dual-runtime parity with Python).
-- TypeScript document preview conformance for D01–D06 (`make
-  conformance-documents-ts`), driven by `expected.preview-fixtures.json`
-  goldens written by the Python document harness.
+- Document definitions require a human-facing `title`; optional `description` and `baseTemplateRef` support copy-on-write template forks in the editor and API.
+- Project template file CRUD in the HTTP API with dict and SQLAlchemy storage backends.
+- Web UI can create blank projects, delete projects, and edit project name and description (backed by existing API CRUD).
+- CI semantic gate (`make verify`): core/runtime/document conformance, TypeScript document preview parity, storage integration, OpenAPI drift check, dry-run parity, and schema sync; GitHub Actions split across `tests.yml`, `openapi.yml`, and `platform.yml`.
+- Project package lockfile schema and compile-time enforcement; runtime idempotency/retry/persistence conformance harness; document D99 capability fixture; editor panels for workspace, documents, dependencies, preview, and bit reordering.
+- Phase 4 editor forms (rules, bits, variables), run history panel, and richer run detail downloads; `schemas/preview.schema.json` for the HTTP preview response.
+- TypeScript engine golden tests for all `conformance/runs/*` compile and run-results fixtures (dual-runtime parity with Python).
+- TypeScript document preview conformance for D01–D06 (`make conformance-documents-ts`), driven by `expected.preview-fixtures.json` goldens written by the Python document harness.
 - Vendored conformance font and PNG byte goldens for document fixture D05.
 
 ### Changed
 
-- Document conformance compares packages to
-  `conformance/expected/documents/` goldens (artifacts + previews + compile
-  errors), with `python tools/run_document_conformance.py --write` to refresh.
-- Default local API port is `8765` (`make api` / `roborean-api` / web
-  `VITE_API_BASE_URL` fallback) to avoid clashing with Docker stacks on
-  `8000`.
-- Project page shows title and Edit on the same toolbar as Dry-run / Run on
-  server; metadata and delete live in the Edit dialog.
-- Web app uses a shared top toolbar on every page with theme preferences
-  (white/black, spacing, font size) and a stub user menu.
+- Document conformance compares packages to `conformance/expected/documents/` goldens (artifacts + previews + compile errors), with `python tools/run_document_conformance.py --write` to refresh.
+- Default local API port is `8765` (`make api` / `roborean-api` / web `VITE_API_BASE_URL` fallback) to avoid clashing with Docker stacks on `8000`.
+- Project page shows title and Edit on the same toolbar as Dry-run / Run on server; metadata and delete live in the Edit dialog.
+- Web app uses a shared top toolbar on every page with theme preferences (white/black, spacing, font size) and a stub user menu.
+- Document the code
+- UI adjustments. GitHub pages
+- Use action for pages
+- Integrate with static pages
+- CI failed because D05 compared raw PNG bytes
 
 ### Fixed
 
-- `tools/run_conformance.py` invokes pnpm without `shell=True` so Linux CI
-  actually runs `@roborean/engine` tests instead of bare `pnpm` help.
-- Document conformance compares raster artifacts by decoded pixels (not PNG
-  bytes) so zlib/libpng differences between Windows and Linux CI do not fail
-  D05.
+- `tools/run_conformance.py` invokes pnpm without `shell=True` so Linux CI actually runs `@roborean/engine` tests instead of bare `pnpm` help.
+- Document conformance compares raster artifacts by decoded pixels (not PNG bytes) so zlib/libpng differences between Windows and Linux CI do not fail D05.
+- drop shell=True, resolve pnpm via shutil.which, and pass the full argv list. Local tools/run_conformance.py now reports Conformance passed.
 
 ## [0.1.3] - 2026-07-17
 
@@ -124,4 +103,5 @@
 [0.1.1]: https://github.com/TNick/roborean/compare/846ef574a1c267a96143a80cb33ffe8e935d737c...v0.1.1
 [0.1.2]: https://github.com/TNick/roborean/compare/v0.1.1...v0.1.2
 [0.1.3]: https://github.com/TNick/roborean/compare/v0.1.2...v0.1.3
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.3...HEAD
+[0.1.4]: https://github.com/TNick/roborean/compare/v0.1.3...v0.1.4
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.4...HEAD
