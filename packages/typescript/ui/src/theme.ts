@@ -67,8 +67,8 @@ export function createRoboreanTheme(
   return createTheme({
     palette: {
       mode: isDark ? "dark" : "light",
-      primary: { main: "#0b4f6c" },
-      secondary: { main: "#145c9e" },
+      primary: { main: isDark ? "#6ec4e8" : "#0b4f6c" },
+      secondary: { main: isDark ? "#8ab4e8" : "#145c9e" },
       background: isDark
         ? { default: "#121821", paper: "#1a2330" }
         : { default: "#f4f7fb", paper: "#ffffff" },

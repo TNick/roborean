@@ -20,12 +20,12 @@ the official GitHub Pages actions (`upload-pages-artifact` /
    rules”.
 5. Clear any required reviewers / wait timer unless you want manual
    approval on every Pages deploy.
-6. Optional: set repository variable `VITE_GOOGLE_API_KEY` to a browser
-   **API key** (Google Cloud → APIs & Services → Credentials → Create
-   credentials → API key). Typical keys start with `AIza`. Restrict to
-   HTTP referrers `https://tnick.github.io/*` and
-   `http://localhost:5173/*`, and enable the Google Picker API + Drive
-   API. This enables the folder Picker; without it users can still
+6. Optional but required for **Choose folder with Google Picker**: set
+   repository variable `VITE_GOOGLE_API_KEY` to a browser **API key**
+   (Google Cloud → APIs & Services → Credentials → Create credentials →
+   API key). Typical keys start with `AIza`. Restrict to HTTP referrers
+   `https://tnick.github.io/*` and `http://localhost:5173/*`, and enable
+   the Google Picker API + Drive API. Without it users can still
    **Create a new folder** or paste a folder id.
 
    Do **not** use an OAuth client secret (`GOCSPX-…`) or the OAuth
@@ -33,11 +33,17 @@ the official GitHub Pages actions (`upload-pages-artifact` /
    static bundle; Picker will return HTTP 401 if `developerKey` is a
    secret.
 
+   Picker also needs the Cloud **project number** as `setAppId`. The app
+   derives it from `VITE_GOOGLE_CLIENT_ID` (`{projectNumber}-….apps…`).
+   Override with repository variable `VITE_GOOGLE_APP_ID` only if needed.
+
 ## Google Cloud OAuth client
 
 Authorize these JavaScript origins on the OAuth client:
 
 - `https://tnick.github.io`
-- `http://localhost:5173` (local Google-mode development)
+- `http://localhost:5173` (local development; Drive is optional when the
+  API is also available — use `VITE_STORAGE_MODE=google` only for
+  Google-only / Pages-like local testing)
 
 Do not put a client secret in the static bundle or repository variables.

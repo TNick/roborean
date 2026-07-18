@@ -20,7 +20,14 @@ import {
   type WorkspaceBinding,
 } from "@roborean/google-workspace";
 import { createRoboreanClient } from "@roborean/api-types";
-import { API_BASE_URL, GOOGLE_CLIENT_ID, IS_GOOGLE_MODE } from "../config.js";
+import {
+  API_BASE_URL,
+  GOOGLE_CLIENT_ID,
+  IS_API_AVAILABLE,
+  IS_GOOGLE_AVAILABLE,
+  IS_GOOGLE_ONLY,
+  type StorageSource,
+} from "../config.js";
 
 /**
  * Shared storage client surface used by pages and the editor.
@@ -33,9 +40,24 @@ export type AppStorageClient =
  */
 export type WorkspaceContextValue = {
   /**
-   * True when the app is in browser Google Workspace mode.
+   * True when the build is Google-only (no FastAPI).
    */
   isGoogleMode: boolean;
+
+  /**
+   * True when FastAPI storage is available.
+   */
+  isApiAvailable: boolean;
+
+  /**
+   * True when Google OAuth is configured (Drive can be connected).
+   */
+  isGoogleAvailable: boolean;
+
+  /**
+   * True when a Drive folder must be selected before the app is usable.
+   */
+  googleRequired: boolean;
 
   /**
    * True while connection validation is in progress.
@@ -48,12 +70,32 @@ export type WorkspaceContextValue = {
   binding: WorkspaceBinding | null;
 
   /**
-   * Storage client used by pages, or null until connected in Google mode.
+   * FastAPI client when API storage is enabled.
+   */
+  apiClient: AppStorageClient | null;
+
+  /**
+   * Google Workspace client when a Drive folder is connected.
+   */
+  googleClient: AppStorageClient | null;
+
+  /**
+   * Convenience client for single-backend builds.
+   *
+   * Prefer `clientFor` when both backends may be active.
    */
   client: AppStorageClient | null;
 
   /**
-   * Shared Google API clients for the browser session, when in Google mode.
+   * Return the client for a storage source, or null when unavailable.
+   *
+   * @param source - Backend to resolve.
+   * @returns Matching client, or null.
+   */
+  clientFor: (source: StorageSource) => AppStorageClient | null;
+
+  /**
+   * Shared Google API clients for the browser session, when configured.
    */
   apis: GoogleApis | null;
 
@@ -81,7 +123,9 @@ export type WorkspaceContextValue = {
   ) => Promise<void>;
 
   /**
-   * Disconnect and clear the stored binding.
+   * Disconnect Drive and clear the stored binding.
+   *
+   * Does not affect the FastAPI client when API storage is enabled.
    */
   disconnect: () => void;
 };
@@ -89,23 +133,31 @@ export type WorkspaceContextValue = {
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 /**
- * Provide storage client and Google folder connection state.
+ * Provide storage clients and optional Google folder connection state.
  *
  * @param props - Provider children.
  * @returns Context provider element.
  */
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  // Connection validation / client bootstrap state.
-  const [loading, setLoading] = useState(IS_GOOGLE_MODE);
+  // Connection validation / Google client bootstrap state.
+  const [loading, setLoading] = useState(IS_GOOGLE_AVAILABLE);
   const [binding, setBinding] = useState<WorkspaceBinding | null>(null);
-  const [client, setClient] = useState<AppStorageClient | null>(
-    IS_GOOGLE_MODE ? null : createRoboreanClient({ baseUrl: API_BASE_URL }),
+  const [googleClient, setGoogleClient] = useState<AppStorageClient | null>(
+    null,
   );
   const [error, setError] = useState<string | null>(null);
 
-  // One OAuth token provider + API suite for the whole browser session.
+  // FastAPI client is available for the whole session in non-Pages builds.
+  const apiClient = useMemo(() => {
+    if (!IS_API_AVAILABLE) {
+      return null;
+    }
+    return createRoboreanClient({ baseUrl: API_BASE_URL });
+  }, []);
+
+  // One OAuth token provider + API suite when Google is configured.
   const googleSession = useMemo(() => {
-    if (!IS_GOOGLE_MODE || !GOOGLE_CLIENT_ID) {
+    if (!IS_GOOGLE_AVAILABLE || !GOOGLE_CLIENT_ID) {
       return null;
     }
     const tokens = createBrowserTokenProvider({ clientId: GOOGLE_CLIENT_ID });
@@ -116,7 +168,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!IS_GOOGLE_MODE) {
+    if (!IS_GOOGLE_AVAILABLE) {
+      setLoading(false);
       return;
     }
 
@@ -127,7 +180,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
      */
     async function restore(): Promise<void> {
       if (!googleSession) {
-        setError("VITE_GOOGLE_CLIENT_ID is required for Google Workspace mode");
+        setError("VITE_GOOGLE_CLIENT_ID is required for Google Workspace");
         setLoading(false);
         return;
       }
@@ -145,7 +198,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
         saveBinding(validated);
         setBinding(validated);
-        setClient(
+        setGoogleClient(
           createGoogleWorkspaceClient({
             apis: googleSession.apis,
             binding: validated,
@@ -158,7 +211,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
         clearBinding();
         setBinding(null);
-        setClient(null);
+        setGoogleClient(null);
         setError(
           err instanceof Error
             ? err.message
@@ -200,7 +253,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       );
       saveBinding(next);
       setBinding(next);
-      setClient(
+      setGoogleClient(
         createGoogleWorkspaceClient({
           apis: googleSession.apis,
           binding: next,
@@ -217,20 +270,42 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }
 
   /**
-   * Clear the stored binding and disconnect the client.
+   * Clear the stored Drive binding without dropping the API client.
    */
   function disconnect(): void {
     clearBinding();
     setBinding(null);
-    setClient(null);
+    setGoogleClient(null);
     setError(null);
   }
 
+  /**
+   * Resolve the client for a storage source.
+   *
+   * @param source - Backend to resolve.
+   * @returns Matching client, or null.
+   */
+  function clientFor(source: StorageSource): AppStorageClient | null {
+    if (source === "api") {
+      return apiClient;
+    }
+    return googleClient;
+  }
+
+  // Single-backend convenience: prefer API when present, else Google.
+  const client = apiClient ?? googleClient;
+
   const value: WorkspaceContextValue = {
-    isGoogleMode: IS_GOOGLE_MODE,
+    isGoogleMode: IS_GOOGLE_ONLY,
+    isApiAvailable: IS_API_AVAILABLE,
+    isGoogleAvailable: IS_GOOGLE_AVAILABLE,
+    googleRequired: IS_GOOGLE_ONLY,
     loading,
     binding,
+    apiClient,
+    googleClient,
     client,
+    clientFor,
     apis: googleSession?.apis ?? null,
     getAccessToken: googleSession
       ? () => googleSession.tokens.getAccessToken()

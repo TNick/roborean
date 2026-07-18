@@ -22,6 +22,27 @@
       "manifestPath": "hello/hello.manifest.json"
     },
     {
+      "id": "title",
+      "kind": "document",
+      "title": "Title text",
+      "description": "Replace {{title}} with a workspace title value.",
+      "documentType": "text",
+      "driver": "roborean.text",
+      "irFamily": "plain",
+      "tags": ["text", "starter"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": ["title"],
+      "capabilities": [
+        "set_metadata",
+        "replace_named_value",
+        "plain.append_text",
+        "finalize"
+      ],
+      "path": "title/title.txt",
+      "mediaType": "text/plain",
+      "manifestPath": "title/title.manifest.json"
+    },
+    {
       "id": "report",
       "kind": "document",
       "title": "Markdown report",
@@ -107,6 +128,56 @@
       "manifestPath": "frame/frame.manifest.json"
     },
     {
+      "id": "set-and-copy-copy",
+      "kind": "document",
+      "title": "Set and copy — copy line",
+      "description": "Single-line text template for title_copy.",
+      "documentType": "text",
+      "driver": "roborean.text",
+      "irFamily": "plain",
+      "tags": ["text", "starter"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": ["title_copy"],
+      "capabilities": [
+        "set_metadata",
+        "replace_named_value",
+        "plain.append_text",
+        "finalize"
+      ],
+      "path": "set-and-copy/copy.txt",
+      "mediaType": "text/plain",
+      "manifestPath": "set-and-copy/copy.manifest.json"
+    },
+    {
+      "id": "set-and-copy-summary",
+      "kind": "document",
+      "title": "Set and copy — workspace summary",
+      "description": "Multi-field text template for all starter variables.",
+      "documentType": "text",
+      "driver": "roborean.text",
+      "irFamily": "plain",
+      "tags": ["text", "starter"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": [
+        "title",
+        "title_copy",
+        "item_count",
+        "enabled",
+        "due_date",
+        "priority",
+        "score"
+      ],
+      "capabilities": [
+        "set_metadata",
+        "replace_named_value",
+        "plain.append_text",
+        "finalize"
+      ],
+      "path": "set-and-copy/summary.txt",
+      "mediaType": "text/plain",
+      "manifestPath": "set-and-copy/summary.manifest.json"
+    },
+    {
       "id": "blank-workspace",
       "kind": "starter",
       "title": "Blank workspace",
@@ -121,11 +192,11 @@
       "id": "set-and-copy",
       "kind": "starter",
       "title": "Set and copy",
-      "description": "Sets a title variable and copies it to title_copy.",
-      "tags": ["starter", "workspace"],
+      "description": "Sets a title, copies it, and fills preview documents from workspace variables.",
+      "tags": ["starter", "workspace", "document", "text", "preview"],
       "variableCount": 6,
-      "bitCount": 2,
-      "documentCount": 0,
+      "bitCount": 11,
+      "documentCount": 3,
       "starterPath": "starters/set-and-copy.json"
     },
     {

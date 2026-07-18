@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { RunDetail } from "@roborean/api-types";
-import { AppToolbar, RoboreanToolbarEnd } from "@roborean/ui";
-import { IS_GOOGLE_MODE } from "../config.js";
+import {
+  AppToolbar,
+  AppToolbarTitle,
+  RoboreanResponsiveToolbarEnd,
+} from "@roborean/ui";
+import { ToolbarNavButton } from "../components/ToolbarNavButton.js";
+import { PageShell } from "../components/PageShell.js";
+import { isStorageSource, type StorageSource } from "../config.js";
 import { useWorkspace } from "../storage/workspaceContext.js";
 
 type BitResultView = {
@@ -50,8 +56,19 @@ function parseRunResults(raw: unknown): RunResultsView | null {
  * @returns Run detail page element.
  */
 export function RunDetailPage() {
-  const { runId = "" } = useParams();
-  const { client } = useWorkspace();
+  const { source: sourceParam = "", runId = "" } = useParams();
+  const { clientFor } = useWorkspace();
+
+  // Parsed storage source from the route, when valid.
+  const source: StorageSource | null = isStorageSource(sourceParam)
+    ? sourceParam
+    : null;
+
+  // Client for the run’s backend.
+  const client = source ? clientFor(source) : null;
+
+  // Whether artifacts are Drive Docs links rather than file downloads.
+  const isGoogleSource = source === "google";
 
   // Loaded run record from the active storage client.
   const [run, setRun] = useState<RunDetail | null>(null);
@@ -82,7 +99,7 @@ export function RunDetailPage() {
     const text = await blob.text();
 
     // Google Workspace artifacts are Docs URLs; open them directly.
-    if (IS_GOOGLE_MODE && text.startsWith("http")) {
+    if (isGoogleSource && text.startsWith("http")) {
       window.open(text, "_blank", "noopener,noreferrer");
       return;
     }
@@ -96,16 +113,14 @@ export function RunDetailPage() {
   }
 
   return (
-    <>
-      <AppToolbar endActions={<RoboreanToolbarEnd />}>
-        <Typography variant="h6" component="h1">
-          Run {runId}
-        </Typography>
-        <Button component={RouterLink} to="/projects" variant="outlined">
-          Back to projects
-        </Button>
+    <PageShell>
+      <AppToolbar
+        startActions={<ToolbarNavButton kind="back" to="/projects" />}
+        endActions={<RoboreanResponsiveToolbarEnd />}
+      >
+        <AppToolbarTitle>Run {runId}</AppToolbarTitle>
       </AppToolbar>
-      <Stack sx={{ p: 3 }} spacing={2}>
+      <Stack spacing={2}>
         <Typography variant="body2">
           Status: {run?.status ?? "loading"}
         </Typography>
@@ -157,9 +172,9 @@ export function RunDetailPage() {
                     variant="outlined"
                     onClick={() => void download(artifact.documentId)}
                   >
-                    {IS_GOOGLE_MODE ? "Open Doc" : "Download"}
+                    {isGoogleSource ? "Open Doc" : "Download"}
                   </Button>
-                  {!IS_GOOGLE_MODE && client ? (
+                  {!isGoogleSource && client ? (
                     <Link
                       href={client.artifactDownloadUrl(
                         runId,
@@ -182,6 +197,6 @@ export function RunDetailPage() {
           </Typography>
         ) : null}
       </Stack>
-    </>
+    </PageShell>
   );
 }

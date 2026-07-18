@@ -13,6 +13,11 @@
 
 - Align package module docstrings, typed attributes, and block comments
   with repository Python style guidelines.
+- Set and copy starter fills three preview documents (title, copy, and
+  workspace summary) from workspace variables so dry-run preview shows
+  rendered output for each document.
+- Template library starters and recipes label every bit so the editor
+  shows readable titles instead of `(no label)`.
 
 ### Fixed
 

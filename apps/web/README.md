@@ -10,15 +10,16 @@ pnpm --filter web dev
 
 | Mode | When | Persistence |
 |------|------|-------------|
-| `api` | Default locally, or `VITE_STORAGE_MODE=api` | FastAPI at `VITE_API_BASE_URL` |
-| `google` | `VITE_STORAGE_MODE=google` or Pages build | User-selected Drive folder + Sheets + Docs |
+| `api` (default) | Local / unset, or `VITE_STORAGE_MODE=api` | FastAPI at `VITE_API_BASE_URL`; Google Drive optional when `VITE_GOOGLE_CLIENT_ID` is set |
+| `google` | `VITE_STORAGE_MODE=google` or Pages build | User-selected Drive folder + Sheets + Docs (required; no API) |
 
-Google Workspace mode requires a public OAuth client id. Put it in
-`apps/web/.env.local` (gitignored; see `.env.example`):
+Locally, set a Google OAuth client id without `VITE_STORAGE_MODE=google` to
+use both backends: the Drive folder gate is optional, and the projects list
+merges API and Drive entries. Pages builds keep Google-only.
 
 ```bash
 cp apps/web/.env.example apps/web/.env.local
-# edit VITE_GOOGLE_CLIENT_ID
+# edit VITE_GOOGLE_CLIENT_ID (keep STORAGE_MODE unset for dual local mode)
 pnpm --filter web dev
 ```
 

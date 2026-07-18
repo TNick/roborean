@@ -12,9 +12,16 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { ProjectSummary, TemplateLibraryEntry } from "@roborean/api-types";
-import { AppToolbar, RoboreanToolbarEnd, TemplatesLibrary } from "@roborean/ui";
+import {
+  AppToolbar,
+  AppToolbarTitle,
+  RoboreanResponsiveToolbarEnd,
+  TemplatesLibrary,
+} from "@roborean/ui";
 import { createClient } from "../api/createClient.js";
-import { IS_GOOGLE_MODE } from "../config.js";
+import { ToolbarNavButton } from "../components/ToolbarNavButton.js";
+import { PageShell } from "../components/PageShell.js";
+import { IS_API_AVAILABLE, projectPath } from "../config.js";
 import {
   importDocumentTemplate,
   importRecipe,
@@ -29,7 +36,7 @@ import { useWorkspace } from "../storage/workspaceContext.js";
  */
 export function TemplatesLibraryPage() {
   const navigate = useNavigate();
-  const { isGoogleMode } = useWorkspace();
+  const { isApiAvailable } = useWorkspace();
 
   // Catalog rows loaded from the API.
   const [entries, setEntries] = useState<TemplateLibraryEntry[]>([]);
@@ -62,7 +69,7 @@ export function TemplatesLibraryPage() {
    * @returns Promise that settles when entries are stored.
    */
   const loadCatalog = useCallback(async () => {
-    if (IS_GOOGLE_MODE || isGoogleMode) {
+    if (!IS_API_AVAILABLE || !isApiAvailable) {
       setEntries([]);
       setLoading(false);
       setError(null);
@@ -81,7 +88,7 @@ export function TemplatesLibraryPage() {
     } finally {
       setLoading(false);
     }
-  }, [isGoogleMode]);
+  }, [isApiAvailable]);
 
   useEffect(() => {
     void loadCatalog();
@@ -158,24 +165,25 @@ export function TemplatesLibraryPage() {
         await importRecipe(client, projectId, entry);
       }
 
-      navigate(`/projects/${projectId}`);
+      navigate(projectPath("api", projectId));
     });
 
     setPendingAction(null);
   }
 
   return (
-    <>
-      <AppToolbar endActions={<RoboreanToolbarEnd />}>
-        <Typography variant="h6" component="h1">
-          Templates library
-        </Typography>
+    <PageShell>
+      <AppToolbar
+        startActions={<ToolbarNavButton kind="home" to="/" />}
+        endActions={<RoboreanResponsiveToolbarEnd />}
+      >
+        <AppToolbarTitle>Templates library</AppToolbarTitle>
       </AppToolbar>
-      <Stack sx={{ p: 3 }} spacing={2}>
-        {isGoogleMode ? (
+      <Stack spacing={2}>
+        {!isApiAvailable ? (
           <Alert severity="info">
             The templates library requires the optional FastAPI backend. In
-            Google Workspace mode, create blank projects and edit them locally.
+            Google-only builds, create blank projects and edit them locally.
           </Alert>
         ) : null}
         {error ? <Alert severity="error">{error}</Alert> : null}
@@ -190,7 +198,7 @@ export function TemplatesLibraryPage() {
           onUseProjectStarter={(entry) => {
             void withBusy(entry.id, async () => {
               const projectId = await useProjectStarter(createClient(), entry);
-              navigate(`/projects/${projectId}`);
+              navigate(projectPath("api", projectId));
             });
           }}
         />
@@ -232,6 +240,6 @@ export function TemplatesLibraryPage() {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </PageShell>
   );
 }

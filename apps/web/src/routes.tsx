@@ -16,8 +16,8 @@ export function AppRoutes() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/projects" element={<ProjectListPage />} />
-        <Route path="/projects/:id" element={<ProjectEditPage />} />
-        <Route path="/runs/:runId" element={<RunDetailPage />} />
+        <Route path="/projects/:source/:id" element={<ProjectEditPage />} />
+        <Route path="/runs/:source/:runId" element={<RunDetailPage />} />
         <Route path="/templates" element={<TemplatesLibraryPage />} />
       </Routes>
     </HashRouter>

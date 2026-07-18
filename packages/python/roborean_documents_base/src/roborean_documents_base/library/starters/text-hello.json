@@ -24,6 +24,7 @@
   "bits": [
     {
       "id": "fill_name",
+      "label": "Fill hello document",
       "type": "roborean.replace_named_value",
       "when": true,
       "config": {

@@ -2,8 +2,29 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Delete for variables, bits, and documents uses one confirmation
+  dialog from list Remove actions, the desktop center panel title, and
+  compact toolbar or detail chrome.
+- Compact layout shows a red delete control in the main toolbar and in
+  the full-screen detail dialog for the focused variable, bit, or
+  document, with a confirmation dialog before removal.
+- Compact project editor overflow menu integrates theme and account rows
+  instead of separate toolbar buttons in the menu footer.
+- Below `md`, the project editor stacks panels in a single column, opens
+  variable / bit / document editors in a full-screen dialog, and moves
+  toolbar actions into an overflow menu.
+- Project editor toolbar actions (Edit, Dry-run, Save, Run) use responsive
+  icon+label controls from `lg` up; below `lg` they collapse to icon-only
+  while the three-column layout remains until `md`.
+
 ### Added
 
+- Optional `toolbarStart` prop for host navigation controls left of the
+  project title.
+- Preview panel exposes `data-testid="preview-panel"` and
+  `data-testid="preview-body"` for Playwright E2E.
 - Optional `runLabel` prop so hosts can describe browser Google Workspace
   runs versus FastAPI server runs.
 - Bit type picker and bit list show manifest display names instead of raw
@@ -41,8 +62,8 @@
 - Hide list search controls for variables, bits, and documents when the
   corresponding list is empty.
 - `ProjectEditor` uses split panels instead of a single bit JSON dump.
-- Project toolbar uses shared `AppToolbar` with icon-only Edit, labeled
-  Dry-run / Save / Run on server, and host-provided `toolbarEnd` actions.
+- Project toolbar uses shared `AppToolbar` with responsive Edit / Dry-run /
+  Save / Run actions and host-provided `toolbarEnd` actions.
 - Edit opens a dialog for title, description, and optional delete.
 - Bit, variable, document, and rule forms use `FormStack` so control gaps
   follow the theme spacing preset.
@@ -73,6 +94,9 @@
 
 ### Fixed
 
+- Set/copy variable bits auto-sync `writes` / `reads` from config so picking
+  a variable key no longer fails compile with undeclared write / unused
+  variable diagnostics.
 - Dependency graph keeps node circles and labels inside the frame instead of
   clipping the leftmost column.
 - Dependency graph node labels and edges use theme palette colors so they stay

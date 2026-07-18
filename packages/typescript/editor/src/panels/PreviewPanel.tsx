@@ -226,13 +226,14 @@ export function PreviewPanel({
   const template = project.templates.find((item) => item.id === templateRef);
 
   return (
-    <Stack spacing={1}>
+    <Stack spacing={1} data-testid="preview-panel">
       <Typography variant="body2" color="text.secondary">
         Preview ({preview.mode}) · template {template?.id ?? templateRef ?? "—"}
       </Typography>
       <Typography
         component="pre"
         variant="body2"
+        data-testid="preview-body"
         sx={{ whiteSpace: "pre-wrap" }}
       >
         {body}

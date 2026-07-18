@@ -10,6 +10,8 @@ type GoogleHost = {
         addView: (view: unknown) => unknown;
         setOAuthToken: (token: string) => unknown;
         setDeveloperKey: (key: string) => unknown;
+        setAppId: (appId: string) => unknown;
+        setOrigin: (origin: string) => unknown;
         setCallback: (
           cb: (data: {
             action?: string;
@@ -18,7 +20,11 @@ type GoogleHost = {
         ) => unknown;
         build: () => { setVisible: (visible: boolean) => void };
       };
-      ViewId: { FOLDERS: unknown };
+      DocsView: new (viewId?: unknown) => {
+        setIncludeFolders: (include: boolean) => unknown;
+        setSelectFolderEnabled: (enabled: boolean) => unknown;
+      };
+      ViewId: { FOLDERS: unknown; DOCS: unknown };
       Action: { PICKED: string; CANCEL: string };
     };
     accounts?: {
@@ -47,6 +53,8 @@ type PickerBuilder = {
   addView: (view: unknown) => PickerBuilder;
   setOAuthToken: (token: string) => PickerBuilder;
   setDeveloperKey: (key: string) => PickerBuilder;
+  setAppId: (appId: string) => PickerBuilder;
+  setOrigin: (origin: string) => PickerBuilder;
   setCallback: (
     cb: (data: {
       action?: string;
@@ -57,10 +65,25 @@ type PickerBuilder = {
 };
 
 /**
+ * Fluent DocsView helpers used for folder selection.
+ */
+type DocsView = {
+  setIncludeFolders: (include: boolean) => DocsView;
+  setSelectFolderEnabled: (enabled: boolean) => DocsView;
+};
+
+/**
  * Raw optional browser API key from Vite env (may be misconfigured).
  */
 const RAW_GOOGLE_API_KEY = String(
   import.meta.env.VITE_GOOGLE_API_KEY ?? "",
+).trim();
+
+/**
+ * Optional explicit Google Cloud project number for Picker `setAppId`.
+ */
+const RAW_GOOGLE_APP_ID = String(
+  import.meta.env.VITE_GOOGLE_APP_ID ?? "",
 ).trim();
 
 /**
@@ -89,6 +112,47 @@ export const GOOGLE_WORKSPACE_SCOPES = [
   "https://www.googleapis.com/auth/documents",
   "https://www.googleapis.com/auth/spreadsheets",
 ].join(" ");
+
+/**
+ * Resolve the Google Cloud project number used as Picker app id.
+ *
+ * OAuth web client ids are `{projectNumber}-….apps.googleusercontent.com`.
+ *
+ * @param clientId - Public OAuth client id.
+ * @param explicitAppId - Optional override from `VITE_GOOGLE_APP_ID`.
+ * @returns Project number string, or empty when unknown.
+ */
+export function resolveGoogleAppId(
+  clientId: string,
+  explicitAppId = RAW_GOOGLE_APP_ID,
+): string {
+  if (explicitAppId) {
+    return explicitAppId;
+  }
+  const prefix = clientId.split("-")[0] ?? "";
+  return /^\d+$/.test(prefix) ? prefix : "";
+}
+
+/**
+ * Ensure Google Picker dialogs stack above the folder-gate overlay.
+ */
+function ensurePickerStackingCss(): void {
+  const styleId = "roborean-google-picker-zindex";
+  if (document.getElementById(styleId)) {
+    return;
+  }
+  const style = document.createElement("style");
+  style.id = styleId;
+  style.textContent = `
+.picker-dialog-bg {
+  z-index: 20000 !important;
+}
+.picker-dialog {
+  z-index: 20001 !important;
+}
+`;
+  document.head.appendChild(style);
+}
 
 /**
  * Wait until a predicate becomes true or the timeout elapses.
@@ -134,7 +198,8 @@ export async function loadGooglePicker(): Promise<void> {
   }
   await new Promise<void>((resolve, reject) => {
     try {
-      host.gapi!.load("picker", () => resolve());
+      // Match Google's sample: load picker (and client helpers when available).
+      host.gapi!.load("client:picker", () => resolve());
     } catch (err) {
       reject(err instanceof Error ? err : new Error(String(err)));
     }
@@ -197,6 +262,15 @@ export async function pickDriveFolder(
   id: string;
   name: string;
 }> {
+  if (!GOOGLE_API_KEY) {
+    throw new Error(
+      GOOGLE_API_KEY_LOOKS_LIKE_SECRET
+        ? "VITE_GOOGLE_API_KEY looks like an OAuth client secret; use an API key (AIza…)"
+        : "VITE_GOOGLE_API_KEY is required for Google Picker",
+    );
+  }
+
+  ensurePickerStackingCss();
   await loadGooglePicker();
   const host = globalThis as GoogleHost;
   const pickerApi = host.google?.picker;
@@ -205,14 +279,27 @@ export async function pickDriveFolder(
   }
 
   const token = await requestGoogleAccessToken(getAccessToken);
+  const appId = resolveGoogleAppId(GOOGLE_CLIENT_ID);
+  const origin = `${window.location.protocol}//${window.location.host}`;
 
   return new Promise((resolve, reject) => {
-    // Build a folder-only picker; API key is optional but preferred.
-    const builder = new pickerApi.PickerBuilder() as unknown as PickerBuilder;
-    builder.addView(pickerApi.ViewId.FOLDERS).setOAuthToken(token);
-    if (GOOGLE_API_KEY) {
-      builder.setDeveloperKey(GOOGLE_API_KEY);
+    // Folder view must explicitly allow selecting folders (not only opening them).
+    const folderView = new pickerApi.DocsView(
+      pickerApi.ViewId.FOLDERS,
+    ) as unknown as DocsView;
+    folderView.setSelectFolderEnabled(true);
+
+    let builder = new pickerApi.PickerBuilder() as unknown as PickerBuilder;
+    builder = builder
+      .addView(folderView)
+      .setOAuthToken(token)
+      .setDeveloperKey(GOOGLE_API_KEY)
+      .setOrigin(origin);
+
+    if (appId) {
+      builder = builder.setAppId(appId);
     }
+
     const picker = builder
       .setCallback((data) => {
         if (data.action === pickerApi.Action.PICKED) {
@@ -236,5 +323,14 @@ export async function pickDriveFolder(
       })
       .build();
     picker.setVisible(true);
+
+    // Belt-and-suspenders: raise z-index on any dialog nodes Google just added.
+    for (const node of document.querySelectorAll<HTMLElement>(
+      ".picker-dialog, .picker-dialog-bg",
+    )) {
+      node.style.zIndex = node.classList.contains("picker-dialog-bg")
+        ? "20000"
+        : "20001";
+    }
   });
 }

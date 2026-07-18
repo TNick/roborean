@@ -37,6 +37,7 @@ jobs:
           VITE_STORAGE_MODE: google
           VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
           VITE_GOOGLE_API_KEY: ${{ vars.VITE_GOOGLE_API_KEY }}
+          VITE_GOOGLE_APP_ID: ${{ vars.VITE_GOOGLE_APP_ID }}
         run: |
           pnpm install --registry https://registry.npmjs.org/
           pnpm run build:pages

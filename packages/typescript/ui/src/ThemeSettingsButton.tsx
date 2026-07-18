@@ -1,28 +1,15 @@
 import { useState, type MouseEvent, type ReactNode } from "react";
-import IconButton from "@mui/material/IconButton";
+import PaletteIcon from "@mui/icons-material/Palette";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListSubheader from "@mui/material/ListSubheader";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import DensityLargeIcon from "@mui/icons-material/DensityLarge";
-import DensityMediumIcon from "@mui/icons-material/DensityMedium";
-import DensitySmallIcon from "@mui/icons-material/DensitySmall";
-import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
-import InputIcon from "@mui/icons-material/Input";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import PaletteIcon from "@mui/icons-material/Palette";
-import TextDecreaseIcon from "@mui/icons-material/TextDecrease";
-import TextFieldsIcon from "@mui/icons-material/TextFields";
-import TextIncreaseIcon from "@mui/icons-material/TextIncrease";
-import type {
-  AppearancePreferences,
-  ColorMode,
-  FieldVariant,
-  FontSizePreset,
-  SpacingPreset,
-} from "./appearancePreferences.js";
+import type { AppearancePreferences } from "./appearancePreferences.js";
+import {
+  themeCategoriesWithMultipleOptions,
+  themeSettingCategories,
+} from "./themeSettingCategories.js";
+import { ToolbarActionButton } from "./ToolbarActionButton.js";
 
 /**
  * Props for the controlled theme settings menu button.
@@ -46,12 +33,12 @@ export type ThemeSettingsButtonProps = {
  * Controlled appearance menu for color, spacing, and font size presets.
  *
  * @param props - Current value and change handler.
- * @returns Theme settings icon button and menu.
+ * @returns Theme settings toolbar button and menu.
  */
 export function ThemeSettingsButton({
   value,
   onChange,
-  "aria-label": ariaLabel = "Theme settings",
+  "aria-label": ariaLabel = "Theme",
 }: ThemeSettingsButtonProps) {
   // Anchor element for the settings menu.
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -101,103 +88,40 @@ export function ThemeSettingsButton({
 
   return (
     <>
-      <IconButton
+      <ToolbarActionButton
+        label="Theme"
         aria-label={ariaLabel}
+        icon={<PaletteIcon fontSize="small" />}
+        variant="text"
+        color="inherit"
         aria-controls={open ? "theme-settings-menu" : undefined}
         aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
+        aria-expanded={open ? true : undefined}
         onClick={(event: MouseEvent<HTMLButtonElement>) =>
           setAnchorEl(event.currentTarget)
         }
-      >
-        <PaletteIcon fontSize="small" />
-      </IconButton>
+      />
       <Menu
         id="theme-settings-menu"
         anchorEl={anchorEl}
         open={open}
         onClose={() => setAnchorEl(null)}
       >
-        <ListSubheader disableSticky>Color</ListSubheader>
-        {renderOption<ColorMode>(
-          "white",
-          "White",
-          <LightModeIcon fontSize="small" />,
-          value.colorMode === "white",
-          (next) => update({ colorMode: next }),
-        )}
-        {renderOption<ColorMode>(
-          "black",
-          "Black",
-          <DarkModeIcon fontSize="small" />,
-          value.colorMode === "black",
-          (next) => update({ colorMode: next }),
-        )}
-        <ListSubheader disableSticky>Spacing</ListSubheader>
-        {renderOption<SpacingPreset>(
-          "compact",
-          "Compact",
-          <DensitySmallIcon fontSize="small" />,
-          value.spacing === "compact",
-          (next) => update({ spacing: next }),
-        )}
-        {renderOption<SpacingPreset>(
-          "default",
-          "Default",
-          <DensityMediumIcon fontSize="small" />,
-          value.spacing === "default",
-          (next) => update({ spacing: next }),
-        )}
-        {renderOption<SpacingPreset>(
-          "comfortable",
-          "Comfortable",
-          <DensityLargeIcon fontSize="small" />,
-          value.spacing === "comfortable",
-          (next) => update({ spacing: next }),
-        )}
-        <ListSubheader disableSticky>Font size</ListSubheader>
-        {renderOption<FontSizePreset>(
-          "small",
-          "Small",
-          <TextDecreaseIcon fontSize="small" />,
-          value.fontSize === "small",
-          (next) => update({ fontSize: next }),
-        )}
-        {renderOption<FontSizePreset>(
-          "medium",
-          "Medium",
-          <TextFieldsIcon fontSize="small" />,
-          value.fontSize === "medium",
-          (next) => update({ fontSize: next }),
-        )}
-        {renderOption<FontSizePreset>(
-          "large",
-          "Large",
-          <TextIncreaseIcon fontSize="small" />,
-          value.fontSize === "large",
-          (next) => update({ fontSize: next }),
-        )}
-        <ListSubheader disableSticky>Field variant</ListSubheader>
-        {renderOption<FieldVariant>(
-          "outlined",
-          "Outlined",
-          <CheckBoxOutlineBlankIcon fontSize="small" />,
-          value.fieldVariant === "outlined",
-          (next) => update({ fieldVariant: next }),
-        )}
-        {renderOption<FieldVariant>(
-          "filled",
-          "Filled",
-          <InputIcon fontSize="small" />,
-          value.fieldVariant === "filled",
-          (next) => update({ fieldVariant: next }),
-        )}
-        {renderOption<FieldVariant>(
-          "standard",
-          "Standard",
-          <HorizontalRuleIcon fontSize="small" />,
-          value.fieldVariant === "standard",
-          (next) => update({ fieldVariant: next }),
+        {themeCategoriesWithMultipleOptions(themeSettingCategories()).map(
+          (category) => (
+            <span key={category.id}>
+              <ListSubheader disableSticky>{category.label}</ListSubheader>
+              {category.options.map((option) =>
+                renderOption(
+                  option.value,
+                  option.label,
+                  option.icon,
+                  value[category.field] === option.value,
+                  (next) => update({ [category.field]: next }),
+                ),
+              )}
+            </span>
+          ),
         )}
       </Menu>
     </>

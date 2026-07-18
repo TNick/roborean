@@ -1,8 +1,8 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "id": "starter.set-and-copy",
   "name": "Set and copy",
-  "description": "Sets a title, copies it, and declares typed workspace variables.",
+  "description": "Sets a title, copies it, and fills preview documents from workspace variables.",
   "pluginRequirements": [],
   "workspace": {
     "variables": [
@@ -119,6 +119,7 @@
   "bits": [
     {
       "id": "set_title",
+      "label": "Set title to World",
       "type": "roborean.set_variable",
       "when": true,
       "config": {
@@ -138,6 +139,7 @@
     },
     {
       "id": "copy_title",
+      "label": "Copy title to title_copy",
       "type": "roborean.copy_variable",
       "when": true,
       "config": { "from": "title", "to": "title_copy" },
@@ -147,9 +149,218 @@
       "effectClass": "workspace",
       "onError": "abort",
       "capabilities": ["workspace.read", "workspace.write"]
+    },
+    {
+      "id": "fill_title",
+      "label": "Fill title document",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "title_doc",
+        "name": "title",
+        "fromKey": "title"
+      },
+      "reads": ["title"],
+      "writes": [],
+      "emits": ["title_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_copy",
+      "label": "Fill copy document",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "copy_doc",
+        "name": "title_copy",
+        "fromKey": "title_copy"
+      },
+      "reads": ["title_copy"],
+      "writes": [],
+      "emits": ["copy_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_summary_title",
+      "label": "Fill summary: title",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "summary_doc",
+        "name": "title",
+        "fromKey": "title"
+      },
+      "reads": ["title"],
+      "writes": [],
+      "emits": ["summary_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_summary_copy",
+      "label": "Fill summary: title copy",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "summary_doc",
+        "name": "title_copy",
+        "fromKey": "title_copy"
+      },
+      "reads": ["title_copy"],
+      "writes": [],
+      "emits": ["summary_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_summary_count",
+      "label": "Fill summary: item count",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "summary_doc",
+        "name": "item_count",
+        "fromKey": "item_count"
+      },
+      "reads": ["item_count"],
+      "writes": [],
+      "emits": ["summary_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_summary_enabled",
+      "label": "Fill summary: enabled",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "summary_doc",
+        "name": "enabled",
+        "fromKey": "enabled"
+      },
+      "reads": ["enabled"],
+      "writes": [],
+      "emits": ["summary_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_summary_due",
+      "label": "Fill summary: due date",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "summary_doc",
+        "name": "due_date",
+        "fromKey": "due_date"
+      },
+      "reads": ["due_date"],
+      "writes": [],
+      "emits": ["summary_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_summary_priority",
+      "label": "Fill summary: priority",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "summary_doc",
+        "name": "priority",
+        "fromKey": "priority"
+      },
+      "reads": ["priority"],
+      "writes": [],
+      "emits": ["summary_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_summary_score",
+      "label": "Fill summary: score",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "summary_doc",
+        "name": "score",
+        "fromKey": "score"
+      },
+      "reads": ["score"],
+      "writes": [],
+      "emits": ["summary_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
     }
   ],
-  "documents": [],
-  "templates": [],
+  "documents": [
+    {
+      "id": "title_doc",
+      "title": "Title",
+      "type": "text",
+      "driver": "roborean.text",
+      "templateRef": "title",
+      "outputTarget": "title.txt",
+      "irFamily": "plain",
+      "settings": {},
+      "preview": {
+        "mode": "text",
+        "enabled": true
+      }
+    },
+    {
+      "id": "copy_doc",
+      "title": "Copy",
+      "type": "text",
+      "driver": "roborean.text",
+      "templateRef": "copy",
+      "outputTarget": "copy.txt",
+      "irFamily": "plain",
+      "settings": {},
+      "preview": {
+        "mode": "text",
+        "enabled": true
+      }
+    },
+    {
+      "id": "summary_doc",
+      "title": "Workspace summary",
+      "type": "text",
+      "driver": "roborean.text",
+      "templateRef": "summary",
+      "outputTarget": "summary.txt",
+      "irFamily": "plain",
+      "settings": {},
+      "preview": {
+        "mode": "text",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "title",
+      "path": "templates/title.txt"
+    },
+    {
+      "id": "copy",
+      "path": "templates/copy.txt"
+    },
+    {
+      "id": "summary",
+      "path": "templates/summary.txt"
+    }
+  ],
   "metadata": {}
 }

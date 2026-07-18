@@ -1,0 +1,21 @@
+{
+  "templateId": "copy",
+  "templateVersion": "1.0.0",
+  "documentType": "text",
+  "driver": "roborean.text",
+  "requiredInputs": [
+    "title_copy"
+  ],
+  "capabilities": [
+    "set_metadata",
+    "replace_named_value",
+    "plain.append_text",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "title_copy": {
+      "kind": "text",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,8 @@
+Workspace record
+Title: {{title}}
+Copy: {{title_copy}}
+Items: {{item_count}}
+Enabled: {{enabled}}
+Due: {{due_date}}
+Priority: {{priority}}
+Score: {{score}}

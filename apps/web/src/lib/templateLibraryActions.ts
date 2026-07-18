@@ -157,6 +157,17 @@ function templateLibraryIdForTemplate(
   if (starterId === "text-hello" && templateId === "hello") {
     return "hello";
   }
+  if (starterId === "set-and-copy") {
+    if (templateId === "title") {
+      return "title";
+    }
+    if (templateId === "copy") {
+      return "set-and-copy-copy";
+    }
+    if (templateId === "summary") {
+      return "set-and-copy-summary";
+    }
+  }
 
   return templateId;
 }

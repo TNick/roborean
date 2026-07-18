@@ -1,9 +1,10 @@
-import type { ChangeEvent } from "react";
+import { useEffect, type ChangeEvent } from "react";
 import type { Bit, DocumentDefinition, Variable } from "@roborean/spec";
 import MenuItem from "@mui/material/MenuItem";
 import { FormStack, FormTextField, Typography } from "@roborean/ui";
 
 import { getBitManifest } from "../bitManifestRegistry.js";
+import { syncBitDeclaredAccess } from "../syncBitDeclaredAccess.js";
 import { documentDisplayTitle } from "../utils/documentDisplayTitle.js";
 import { VariableKeyField } from "./VariableKeyField.js";
 import {
@@ -135,7 +136,11 @@ function ConfigField(props: {
     );
   }
 
-  if (name === "key" && variables.length > 0) {
+  // Workspace key pickers for set/copy variable config fields.
+  if (
+    (name === "key" || name === "from" || name === "to") &&
+    variables.length > 0
+  ) {
     return (
       <VariableKeyField
         value={String(value ?? "")}
@@ -228,6 +233,23 @@ export function BitForm({ bit, variables, documents, onChange }: BitFormProps) {
     (variable) => variable.key === targetVariableKey,
   );
 
+  // Heal projects that set config.key/from/to without declared access.
+  useEffect(() => {
+    const synced = syncBitDeclaredAccess(bit);
+    if (synced !== bit) {
+      onChange(synced);
+    }
+  }, [bit, onChange]);
+
+  /**
+   * Persist a bit update after syncing declared reads/writes.
+   *
+   * @param next - Candidate bit document.
+   */
+  function commit(next: Bit): void {
+    onChange(syncBitDeclaredAccess(next));
+  }
+
   return (
     <FormStack>
       <FormTextField
@@ -243,7 +265,7 @@ export function BitForm({ bit, variables, documents, onChange }: BitFormProps) {
             delete next.label;
           }
 
-          onChange(next);
+          commit(next);
         }}
       />
       {Object.keys(properties).length > 0 ? (
@@ -272,11 +294,11 @@ export function BitForm({ bit, variables, documents, onChange }: BitFormProps) {
                     ),
                   );
                 }
-                onChange(nextBit);
+                commit(nextBit);
                 return;
               }
 
-              onChange(patchConfig(bit, name, fieldValue));
+              commit(patchConfig(bit, name, fieldValue));
             }}
           />
         ))
@@ -293,7 +315,7 @@ export function BitForm({ bit, variables, documents, onChange }: BitFormProps) {
                 string,
                 unknown
               >;
-              onChange({ ...bit, config });
+              commit({ ...bit, config });
             } catch {
               /* ignore invalid JSON while typing */
             }

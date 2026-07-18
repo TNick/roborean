@@ -28,6 +28,9 @@ def test_get_template_library_entry(api_client: TestClient) -> None:
     body = response.json()
     assert body["kind"] == "starter"
     assert body["project"]["name"] == "Set and copy"
+    assert len(body["project"]["documents"]) == 3
+    assert body["documentCount"] == 3
+    assert body["bitCount"] == 11
 
 
 def test_recipe_required_bit_types_include_names(
@@ -51,6 +54,15 @@ def test_get_template_library_content(api_client: TestClient) -> None:
     body = response.json()
     assert body["templateId"] == "hello"
     assert "Hello" in (body.get("text") or "")
+
+
+def test_get_title_template_library_content(api_client: TestClient) -> None:
+    """Document content endpoint returns title template bytes."""
+    response = api_client.get("/v1/template-library/title/content")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["templateId"] == "title"
+    assert "{{title}}" in (body.get("text") or "")
 
 
 def test_get_template_library_missing(api_client: TestClient) -> None:

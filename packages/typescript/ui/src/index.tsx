@@ -15,6 +15,20 @@ import { CollapsibleSearchField } from "./CollapsibleSearchField.js";
 import { themedScrollbarSx } from "./scrollbarStyles.js";
 
 export { AppToolbar, type AppToolbarProps } from "./AppToolbar.js";
+export {
+  AppToolbarTitle,
+  type AppToolbarTitleProps,
+} from "./AppToolbarTitle.js";
+export {
+  ToolbarActionButton,
+  type ToolbarActionButtonProps,
+} from "./ToolbarActionButton.js";
+export {
+  ToolbarOverflowMenu,
+  type ToolbarOverflowMenuItem,
+  type ToolbarOverflowMenuProps,
+  type ToolbarOverflowSubmenuOption,
+} from "./ToolbarOverflowMenu.js";
 export { FormStack } from "./FormStack.js";
 export { FormTextField } from "./FormTextField.js";
 export {
@@ -36,6 +50,16 @@ export {
   type SpacingPreset,
 } from "./appearancePreferences.js";
 export { RoboreanToolbarEnd } from "./RoboreanToolbarEnd.js";
+export {
+  RoboreanResponsiveToolbarEnd,
+  type RoboreanResponsiveToolbarEndProps,
+} from "./RoboreanResponsiveToolbarEnd.js";
+export { useCompactToolbarLayout } from "./useCompactToolbarLayout.js";
+export {
+  buildRoboreanToolbarOverflowItems,
+  useRoboreanToolbarOverflowItems,
+  type RoboreanToolbarOverflowGroups,
+} from "./roboreanToolbarOverflowItems.js";
 export {
   ThemePreferencesProvider,
   useThemePreferences,
@@ -85,6 +109,9 @@ export type PanelProps = {
 
   /** Panel body content. */
   children: ReactNode;
+
+  /** Optional control rendered on the right of the title row. */
+  headerEnd?: ReactNode;
 
   /** Optional search query shown in a collapsible field on the title row. */
   searchQuery?: string;
@@ -142,6 +169,7 @@ export function ScrollablePanelSection({
 export function Panel({
   title,
   children,
+  headerEnd,
   searchQuery,
   onSearchQueryChange,
   searchPlaceholder,
@@ -168,6 +196,12 @@ export function Panel({
         >
           {title}
         </Typography>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }} />
+        {headerEnd ? (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            {headerEnd}
+          </Box>
+        ) : null}
         {showSearch ? (
           <CollapsibleSearchField
             value={searchQuery}

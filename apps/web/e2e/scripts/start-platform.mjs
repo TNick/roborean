@@ -119,6 +119,8 @@ try {
 const viteEnv = {
   ...process.env,
   VITE_API_BASE_URL: apiBase,
+  VITE_GOOGLE_CLIENT_ID: "",
+  VITE_GOOGLE_API_KEY: "",
 };
 
 const web = spawnLogged(

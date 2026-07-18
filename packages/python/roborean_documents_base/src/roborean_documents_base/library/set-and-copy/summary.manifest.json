@@ -1,0 +1,51 @@
+{
+  "templateId": "summary",
+  "templateVersion": "1.0.0",
+  "documentType": "text",
+  "driver": "roborean.text",
+  "requiredInputs": [
+    "title",
+    "title_copy",
+    "item_count",
+    "enabled",
+    "due_date",
+    "priority",
+    "score"
+  ],
+  "capabilities": [
+    "set_metadata",
+    "replace_named_value",
+    "plain.append_text",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "title": {
+      "kind": "text",
+      "required": true
+    },
+    "title_copy": {
+      "kind": "text",
+      "required": true
+    },
+    "item_count": {
+      "kind": "text",
+      "required": true
+    },
+    "enabled": {
+      "kind": "text",
+      "required": true
+    },
+    "due_date": {
+      "kind": "text",
+      "required": true
+    },
+    "priority": {
+      "kind": "text",
+      "required": true
+    },
+    "score": {
+      "kind": "text",
+      "required": true
+    }
+  }
+}

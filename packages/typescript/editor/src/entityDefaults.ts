@@ -7,6 +7,7 @@ import type {
 
 import { getBitManifest } from "./bitManifestRegistry.js";
 import { defaultWorkspaceValueForKind } from "./forms/workspaceValueDefaults.js";
+import { syncBitDeclaredAccess } from "./syncBitDeclaredAccess.js";
 
 /**
  * Pick a unique string id among existing values.
@@ -104,7 +105,7 @@ export function defaultBit(id: string, typeId: string, project: Project): Bit {
     bit.label = manifest.name.trim();
   }
 
-  return bit;
+  return syncBitDeclaredAccess(bit);
 }
 
 /**

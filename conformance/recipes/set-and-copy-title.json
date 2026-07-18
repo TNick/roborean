@@ -57,6 +57,7 @@
   "bits": [
     {
       "id": "set_title",
+      "label": "Set title to World",
       "type": "roborean.set_variable",
       "when": true,
       "config": {
@@ -76,6 +77,7 @@
     },
     {
       "id": "copy_title",
+      "label": "Copy title to title_copy",
       "type": "roborean.copy_variable",
       "when": true,
       "config": { "from": "title", "to": "title_copy" },

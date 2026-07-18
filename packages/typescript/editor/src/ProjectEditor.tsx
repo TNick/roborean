@@ -6,12 +6,17 @@ import {
   type DragEvent,
 } from "react";
 import type { ChangeEvent, ReactNode } from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import Toolbar from "@mui/material/Toolbar";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SaveIcon from "@mui/icons-material/Save";
@@ -22,6 +27,7 @@ import type { DependencyNode } from "@roborean/validation";
 import {
   Alert,
   AppToolbar,
+  AppToolbarTitle,
   Button,
   DiagnosticList,
   List,
@@ -32,11 +38,17 @@ import {
   ScrollablePanelSection,
   SplitPane,
   Stack,
+  ToolbarActionButton,
+  ToolbarOverflowMenu,
+  type ToolbarOverflowMenuItem,
+  useCompactToolbarLayout,
+  useRoboreanToolbarOverflowItems,
   Typography,
 } from "@roborean/ui";
 import { scrubProjectForEditor } from "@roborean/validation";
 import { bitDisplayLabel } from "./utils/bitDisplayLabel.js";
 import { bitTypeDisplayName } from "./utils/bitTypeDisplayName.js";
+import { documentDisplayTitle } from "./utils/documentDisplayTitle.js";
 import { filterBits } from "./listFilters.js";
 
 import { VariableForm } from "./forms/VariableForm.js";
@@ -109,10 +121,23 @@ export type ProjectEditorProps = {
   toolbarEnd?: ReactNode;
 
   /**
+   * Optional navigation controls rendered left of the project title.
+   */
+  toolbarStart?: ReactNode;
+
+  /**
    * Label for the durable run action button.
    */
   runLabel?: string;
 };
+
+/**
+ * Workspace item pending deletion in the confirmation dialog.
+ */
+type DeleteTarget =
+  | { kind: "variable"; key: string }
+  | { kind: "document"; id: string }
+  | { kind: "bit"; id: string };
 
 /**
  * Subscribe a React component to an editor store.
@@ -139,8 +164,15 @@ export function ProjectEditor({
   onDelete,
   deleting = false,
   toolbarEnd,
+  toolbarStart,
   runLabel = "Run on server",
 }: ProjectEditorProps) {
+  // Integrated theme and account rows for compact overflow menu.
+  const { themeItems, accountItems } = useRoboreanToolbarOverflowItems();
+
+  // Stack panels and use overflow toolbar below md.
+  const compactLayout = useCompactToolbarLayout();
+
   // Recreate the store only when the host switches project identity.
   const store = useMemo(
     () => createEditorStore(scrubProjectForEditor(project)),
@@ -174,11 +206,26 @@ export function ProjectEditor({
   // Whether the project metadata edit dialog is open.
   const [editOpen, setEditOpen] = useState(false);
 
+  // Full-screen detail editor on compact layouts.
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  // Variable, bit, or document awaiting delete confirmation.
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+
   /**
    * Notify the host after a store mutation.
    */
   function syncProject(): void {
     onChange?.(store.getState().project);
+  }
+
+  /**
+   * Open the full-screen detail editor when the layout is compact.
+   */
+  function openDetailIfCompact(): void {
+    if (compactLayout) {
+      setDetailOpen(true);
+    }
   }
 
   // Prefer an injected client; otherwise build one from the base URL.
@@ -267,6 +314,18 @@ export function ProjectEditor({
   }
 
   /**
+   * Start a durable server run for the current project.
+   */
+  async function runOnServer(): Promise<void> {
+    if (!api || !projectId) {
+      return;
+    }
+
+    const run = await api.createRun(projectId, {}, crypto.randomUUID());
+    store.setServerRun(run);
+  }
+
+  /**
    * Load template bytes for the selected document when missing locally.
    */
   useEffect(() => {
@@ -307,13 +366,13 @@ export function ProjectEditor({
   function selectGraphNode(node: DependencyNode): void {
     if (node.kind === "bit") {
       store.selectBit(node.id);
-      return;
-    }
-    if (node.kind === "variable") {
+    } else if (node.kind === "variable") {
       store.selectVariable(node.key);
-      return;
+    } else {
+      store.selectDocument(node.id);
     }
-    store.selectDocument(node.id);
+
+    openDetailIfCompact();
   }
 
   /**
@@ -349,52 +408,484 @@ export function ProjectEditor({
     }
   }, [hasBits, bitsSearchQuery]);
 
-  return (
-    <Stack spacing={2}>
-      <AppToolbar endActions={toolbarEnd}>
-        <Typography variant="h6" component="h1" noWrap>
-          {title}
-        </Typography>
-        <IconButton aria-label="Edit project" onClick={() => setEditOpen(true)}>
-          <EditIcon fontSize="small" />
-        </IconButton>
-        <Button
-          variant="contained"
-          startIcon={<PlayArrowIcon />}
-          onClick={() => store.recomputeLocal()}
-        >
-          Dry-run
-        </Button>
-        {api && projectId ? (
-          <Button
-            variant="outlined"
-            startIcon={<SaveIcon />}
-            disabled={saving || !state.dirty || !state.project.name.trim()}
-            onClick={() => void saveProject()}
-          >
-            Save
+  /**
+   * Whether the current editor focus targets a removable list item.
+   *
+   * @returns True when delete is allowed for the focused selection.
+   */
+  function focusedElementDeletable(): boolean {
+    if (state.focus === "variable") {
+      return Boolean(state.selectedVariableKey && selectedVariable);
+    }
+
+    if (state.focus === "document") {
+      return Boolean(state.selectedDocumentId && selectedDocument);
+    }
+
+    return Boolean(state.selectedBitId && selectedBit);
+  }
+
+  /**
+   * Copy for the delete confirmation dialog.
+   *
+   * @returns Dialog title and body, or null when no target is pending.
+   */
+  function deleteConfirmCopy(): { title: string; message: string } | null {
+    if (!deleteTarget) {
+      return null;
+    }
+
+    if (deleteTarget.kind === "variable") {
+      return {
+        title: "Delete variable",
+        message: `Delete variable "${deleteTarget.key}"? This cannot be undone.`,
+      };
+    }
+
+    if (deleteTarget.kind === "document") {
+      const document = state.project.documents.find(
+        (entry) => entry.id === deleteTarget.id,
+      );
+
+      if (!document) {
+        return null;
+      }
+
+      return {
+        title: "Delete document",
+        message: `Delete document "${documentDisplayTitle(document)}"? This cannot be undone.`,
+      };
+    }
+
+    const bit = state.project.bits.find(
+      (entry) => entry.id === deleteTarget.id,
+    );
+
+    if (!bit) {
+      return null;
+    }
+
+    return {
+      title: "Delete bit",
+      message: `Delete bit "${bitDisplayLabel(bit)}"? This cannot be undone.`,
+    };
+  }
+
+  /**
+   * Queue a workspace variable for delete confirmation.
+   *
+   * @param key - Variable key to remove when confirmed.
+   */
+  function openDeleteConfirmForVariable(key: string): void {
+    setDeleteTarget({ kind: "variable", key });
+  }
+
+  /**
+   * Queue a document definition for delete confirmation.
+   *
+   * @param id - Document id to remove when confirmed.
+   */
+  function openDeleteConfirmForDocument(id: string): void {
+    setDeleteTarget({ kind: "document", id });
+  }
+
+  /**
+   * Queue a bit for delete confirmation.
+   *
+   * @param id - Bit id to remove when confirmed.
+   */
+  function openDeleteConfirmForBit(id: string): void {
+    setDeleteTarget({ kind: "bit", id });
+  }
+
+  /**
+   * Open delete confirmation for the focused center-panel item.
+   */
+  function openDeleteConfirmForFocus(): void {
+    if (state.focus === "variable" && state.selectedVariableKey) {
+      openDeleteConfirmForVariable(state.selectedVariableKey);
+      return;
+    }
+
+    if (state.focus === "document" && state.selectedDocumentId) {
+      openDeleteConfirmForDocument(state.selectedDocumentId);
+      return;
+    }
+
+    if (state.selectedBitId) {
+      openDeleteConfirmForBit(state.selectedBitId);
+    }
+  }
+
+  /**
+   * Remove the pending variable, bit, or document after confirmation.
+   */
+  function confirmDeleteTarget(): void {
+    if (!deleteTarget) {
+      return;
+    }
+
+    if (deleteTarget.kind === "variable") {
+      store.removeVariable(deleteTarget.key);
+    } else if (deleteTarget.kind === "document") {
+      store.removeDocument(deleteTarget.id);
+    } else {
+      store.removeBit(deleteTarget.id);
+    }
+
+    setDeleteTarget(null);
+    syncProject();
+    setDetailOpen(false);
+  }
+
+  /**
+   * Red delete control for a removable workspace item.
+   *
+   * @returns Delete icon button or null when nothing is deletable.
+   */
+  function renderFocusDeleteButton(): ReactNode {
+    if (!focusedElementDeletable()) {
+      return null;
+    }
+
+    return (
+      <IconButton
+        color="error"
+        aria-label="Delete"
+        onClick={() => openDeleteConfirmForFocus()}
+      >
+        <DeleteOutlineIcon fontSize="small" />
+      </IconButton>
+    );
+  }
+
+  /**
+   * Render the center detail editor body shared by desktop and compact views.
+   *
+   * @returns Variable, document, or bit detail form.
+   */
+  function renderCenterContent(): ReactNode {
+    if (state.focus === "variable" && selectedVariable) {
+      return (
+        <VariableForm
+          variable={selectedVariable}
+          onChange={(next) => {
+            store.updateVariable(selectedVariable.key, next);
+            syncProject();
+          }}
+        />
+      );
+    }
+
+    if (state.focus === "document" && selectedDocument) {
+      return (
+        <DocumentForm
+          project={state.project}
+          projectId={projectId}
+          document={selectedDocument}
+          getTemplateText={(templateId) => store.getTemplateText(templateId)}
+          setTemplateText={(templateId, text) =>
+            store.setTemplateText(templateId, text)
+          }
+          setTemplateBytes={(templateId, bytes) =>
+            store.setTemplateBytes(templateId, bytes)
+          }
+          onTemplateDelete={(templateId) =>
+            store.markTemplateDeleted(templateId)
+          }
+          onChange={(next) => {
+            store.updateDocument(selectedDocument.id, next);
+            syncProject();
+          }}
+          onProjectChange={(next) => {
+            store.replaceProjectDocument(next);
+            syncProject();
+          }}
+        />
+      );
+    }
+
+    return (
+      <BitDetailPanel
+        bit={selectedBit ?? null}
+        bitIndex={selectedBitIndex}
+        bitCount={state.project.bits.length}
+        variables={state.project.workspace.variables}
+        documents={state.project.documents}
+        onMove={(direction) => {
+          if (selectedBit) {
+            store.reorderBit(selectedBit.id, direction);
+            syncProject();
+          }
+        }}
+        onChange={(next) => {
+          if (selectedBit) {
+            store.updateBit(selectedBit.id, next);
+            syncProject();
+          }
+        }}
+      />
+    );
+  }
+
+  // Variables, bits, and documents list panels.
+  const listPanels = (
+    <>
+      <WorkspacePanel
+        project={state.project}
+        selectedKey={state.selectedVariableKey}
+        onSelectKey={(key) => {
+          store.selectVariable(key);
+          openDetailIfCompact();
+        }}
+        onAdd={() => {
+          store.addVariable();
+          syncProject();
+          openDetailIfCompact();
+        }}
+        onRemove={() => {
+          if (state.selectedVariableKey) {
+            openDeleteConfirmForVariable(state.selectedVariableKey);
+          }
+        }}
+      />
+      <Panel
+        title="Bits"
+        {...(hasBits
+          ? {
+              searchQuery: bitsSearchQuery,
+              onSearchQueryChange: setBitsSearchQuery,
+            }
+          : {})}
+      >
+        <ScrollablePanelSection>
+          <List dense>
+            {filteredBits.map((bit) => (
+              <ListItemButton
+                key={bit.id}
+                selected={bit.id === state.selectedBitId}
+                draggable
+                onDragStart={() => setDragBitId(bit.id)}
+                onDragOver={(event: DragEvent) => event.preventDefault()}
+                onDrop={() => {
+                  const targetIndex = state.project.bits.findIndex(
+                    (candidate) => candidate.id === bit.id,
+                  );
+                  handleBitDrop(targetIndex);
+                }}
+                onClick={() => {
+                  store.selectBit(bit.id);
+                  openDetailIfCompact();
+                }}
+              >
+                <ListItemText
+                  primary={bitDisplayLabel(bit)}
+                  secondary={bitTypeDisplayName(bit.type)}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        </ScrollablePanelSection>
+        <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+          <Button variant="outlined" onClick={() => setBitAddOpen(true)}>
+            Add
           </Button>
-        ) : null}
-        {api && projectId ? (
           <Button
             variant="outlined"
-            startIcon={<CloudUploadIcon />}
-            onClick={async () => {
-              const run = await api.createRun(
-                projectId,
-                {},
-                crypto.randomUUID(),
-              );
-              store.setServerRun(run);
+            color="error"
+            disabled={!state.selectedBitId}
+            onClick={() => {
+              if (state.selectedBitId) {
+                openDeleteConfirmForBit(state.selectedBitId);
+              }
             }}
           >
-            {runLabel}
+            Remove
           </Button>
-        ) : null}
-        {state.dirty ? (
-          <Typography variant="body2" color="text.secondary">
-            Unsaved changes
-          </Typography>
+        </Stack>
+      </Panel>
+      <DocumentsPanel
+        project={state.project}
+        selectedDocumentId={state.selectedDocumentId}
+        onSelectDocument={(id) => {
+          store.selectDocument(id);
+          openDetailIfCompact();
+        }}
+        onAdd={() => {
+          store.addDocument();
+          syncProject();
+          openDetailIfCompact();
+        }}
+        onRemove={() => {
+          if (state.selectedDocumentId) {
+            openDeleteConfirmForDocument(state.selectedDocumentId);
+          }
+        }}
+      />
+    </>
+  );
+
+  const diagnosticsPanel = (
+    <Panel title="Diagnostics">
+      <ScrollablePanelSection>
+        <DiagnosticList items={state.diagnostics} />
+      </ScrollablePanelSection>
+    </Panel>
+  );
+
+  const dependenciesPanel = (
+    <Panel title="Dependencies">
+      {state.graph ? (
+        <DependencyGraphPanel
+          nodes={state.graph.nodes}
+          edges={state.graph.edges}
+          bitLabels={Object.fromEntries(
+            state.project.bits.map((bit) => [bit.id, bitDisplayLabel(bit)]),
+          )}
+          onNodeSelect={selectGraphNode}
+        />
+      ) : (
+        <Typography variant="body2">No graph</Typography>
+      )}
+    </Panel>
+  );
+
+  const dryRunPanel = (
+    <Panel title="Dry-run">
+      <Typography variant="body2" data-testid="dry-run-status">
+        {state.localRun?.status ?? "not run"}
+      </Typography>
+      {state.serverRun ? (
+        <Typography variant="caption">
+          Server: {state.serverRun.status}
+        </Typography>
+      ) : null}
+    </Panel>
+  );
+
+  const previewPanel = (
+    <Panel title="Preview">
+      <PreviewPanel
+        project={state.project}
+        document={selectedDocument}
+        localRun={state.localRun}
+        projectId={projectId}
+        client={api}
+        getTemplateText={(templateId) => store.getTemplateText(templateId)}
+      />
+    </Panel>
+  );
+
+  const runHistoryPanel =
+    api && projectId ? (
+      <Panel title="Run history">
+        <RunHistoryPanel
+          projectId={projectId}
+          client={api}
+          selectedRunId={state.serverRun?.runId ?? null}
+          onSelectRun={(run) => store.setServerRun(run)}
+        />
+      </Panel>
+    ) : null;
+
+  const overflowItems: ToolbarOverflowMenuItem[] = [
+    {
+      id: "edit",
+      label: "Edit",
+      icon: <EditIcon fontSize="small" />,
+      onClick: () => setEditOpen(true),
+    },
+    {
+      id: "dry-run",
+      label: "Dry-run",
+      icon: <PlayArrowIcon fontSize="small" />,
+      onClick: () => store.recomputeLocal(),
+    },
+  ];
+
+  if (api && projectId) {
+    overflowItems.push({
+      id: "save",
+      label: "Save",
+      icon: <SaveIcon fontSize="small" />,
+      disabled: saving || !state.dirty || !state.project.name.trim(),
+      onClick: () => void saveProject(),
+    });
+    overflowItems.push({
+      id: "run",
+      label: runLabel,
+      icon: <CloudUploadIcon fontSize="small" />,
+      onClick: () => void runOnServer(),
+    });
+  }
+
+  if (state.dirty) {
+    overflowItems.push({
+      id: "unsaved",
+      label: "Unsaved changes",
+      icon: <SaveIcon fontSize="small" />,
+      disabled: true,
+    });
+  }
+
+  return (
+    <Stack spacing={2}>
+      <AppToolbar
+        startActions={toolbarStart}
+        endActions={
+          compactLayout ? (
+            <>
+              {renderFocusDeleteButton()}
+              <ToolbarOverflowMenu
+                items={overflowItems}
+                trailingItems={themeItems}
+                footerItems={accountItems}
+              />
+            </>
+          ) : (
+            toolbarEnd
+          )
+        }
+      >
+        <AppToolbarTitle noWrap>{title}</AppToolbarTitle>
+        {!compactLayout ? (
+          <>
+            <ToolbarActionButton
+              label="Edit"
+              icon={<EditIcon fontSize="small" />}
+              variant="text"
+              color="inherit"
+              onClick={() => setEditOpen(true)}
+            />
+            <ToolbarActionButton
+              label="Dry-run"
+              icon={<PlayArrowIcon fontSize="small" />}
+              variant="contained"
+              onClick={() => store.recomputeLocal()}
+            />
+            {api && projectId ? (
+              <ToolbarActionButton
+                label="Save"
+                icon={<SaveIcon fontSize="small" />}
+                variant="outlined"
+                disabled={saving || !state.dirty || !state.project.name.trim()}
+                onClick={() => void saveProject()}
+              />
+            ) : null}
+            {api && projectId ? (
+              <ToolbarActionButton
+                label={runLabel}
+                icon={<CloudUploadIcon fontSize="small" />}
+                variant="outlined"
+                onClick={() => void runOnServer()}
+              />
+            ) : null}
+            {state.dirty ? (
+              <Typography variant="body2" color="text.secondary">
+                Unsaved changes
+              </Typography>
+            ) : null}
+          </>
         ) : null}
       </AppToolbar>
       <Dialog
@@ -483,222 +974,94 @@ export function ProjectEditor({
               store.addBit(newBitTypeId);
               syncProject();
               setBitAddOpen(false);
+              openDetailIfCompact();
             }}
           >
             Add
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>{deleteConfirmCopy()?.title ?? "Delete"}</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            {deleteConfirmCopy()?.message ?? ""}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => confirmDeleteTarget()}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        fullScreen
+        open={compactLayout && detailOpen}
+        onClose={() => setDetailOpen(false)}
+      >
+        <AppBar position="static" color="default" elevation={0}>
+          <Toolbar variant="dense">
+            <IconButton
+              edge="start"
+              aria-label="Close"
+              onClick={() => setDetailOpen(false)}
+            >
+              <CloseIcon />
+            </IconButton>
+            <Typography variant="h6" component="h2" sx={{ flexGrow: 1 }} noWrap>
+              {centerTitle}
+            </Typography>
+            {renderFocusDeleteButton()}
+          </Toolbar>
+        </AppBar>
+        <Box sx={{ p: 2, overflow: "auto" }}>{renderCenterContent()}</Box>
+      </Dialog>
       {saveError ? <Alert severity="error">{saveError}</Alert> : null}
       {!state.project.name.trim() ? (
         <Alert severity="warning">Project name is required</Alert>
       ) : null}
-      <SplitPane
-        left={
-          <Stack spacing={2}>
-            <WorkspacePanel
-              project={state.project}
-              selectedKey={state.selectedVariableKey}
-              onSelectKey={(key) => store.selectVariable(key)}
-              onAdd={() => {
-                store.addVariable();
-                syncProject();
-              }}
-              onRemove={() => {
-                if (state.selectedVariableKey) {
-                  store.removeVariable(state.selectedVariableKey);
-                  syncProject();
-                }
-              }}
-            />
-            <Panel
-              title="Bits"
-              {...(hasBits
-                ? {
-                    searchQuery: bitsSearchQuery,
-                    onSearchQueryChange: setBitsSearchQuery,
-                  }
-                : {})}
-            >
-              <ScrollablePanelSection>
-                <List dense>
-                  {filteredBits.map((bit) => (
-                    <ListItemButton
-                      key={bit.id}
-                      selected={bit.id === state.selectedBitId}
-                      draggable
-                      onDragStart={() => setDragBitId(bit.id)}
-                      onDragOver={(event: DragEvent) => event.preventDefault()}
-                      onDrop={() => {
-                        const targetIndex = state.project.bits.findIndex(
-                          (candidate) => candidate.id === bit.id,
-                        );
-                        handleBitDrop(targetIndex);
-                      }}
-                      onClick={() => store.selectBit(bit.id)}
-                    >
-                      <ListItemText
-                        primary={bitDisplayLabel(bit)}
-                        secondary={bitTypeDisplayName(bit.type)}
-                      />
-                    </ListItemButton>
-                  ))}
-                </List>
-              </ScrollablePanelSection>
-              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                <Button variant="outlined" onClick={() => setBitAddOpen(true)}>
-                  Add
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  disabled={!state.selectedBitId}
-                  onClick={() => {
-                    if (state.selectedBitId) {
-                      store.removeBit(state.selectedBitId);
-                      syncProject();
-                    }
-                  }}
-                >
-                  Remove
-                </Button>
-              </Stack>
+      {compactLayout ? (
+        <Stack spacing={2}>
+          {listPanels}
+          {diagnosticsPanel}
+          {previewPanel}
+          {dryRunPanel}
+          {dependenciesPanel}
+          {runHistoryPanel}
+        </Stack>
+      ) : (
+        <SplitPane
+          left={
+            <Stack spacing={2}>
+              {listPanels}
+              {runHistoryPanel}
+            </Stack>
+          }
+          center={
+            <Panel title={centerTitle} headerEnd={renderFocusDeleteButton()}>
+              {renderCenterContent()}
             </Panel>
-            <DocumentsPanel
-              project={state.project}
-              selectedDocumentId={state.selectedDocumentId}
-              onSelectDocument={(id) => store.selectDocument(id)}
-              onAdd={() => {
-                store.addDocument();
-                syncProject();
-              }}
-              onRemove={() => {
-                if (state.selectedDocumentId) {
-                  store.removeDocument(state.selectedDocumentId);
-                  syncProject();
-                }
-              }}
-            />
-            {api && projectId ? (
-              <Panel title="Run history">
-                <RunHistoryPanel
-                  projectId={projectId}
-                  client={api}
-                  selectedRunId={state.serverRun?.runId ?? null}
-                  onSelectRun={(run) => store.setServerRun(run)}
-                />
-              </Panel>
-            ) : null}
-          </Stack>
-        }
-        center={
-          <Panel title={centerTitle}>
-            {state.focus === "variable" && selectedVariable ? (
-              <VariableForm
-                variable={selectedVariable}
-                onChange={(next) => {
-                  store.updateVariable(selectedVariable.key, next);
-                  syncProject();
-                }}
-              />
-            ) : state.focus === "document" && selectedDocument ? (
-              <DocumentForm
-                project={state.project}
-                projectId={projectId}
-                document={selectedDocument}
-                getTemplateText={(templateId) =>
-                  store.getTemplateText(templateId)
-                }
-                setTemplateText={(templateId, text) =>
-                  store.setTemplateText(templateId, text)
-                }
-                setTemplateBytes={(templateId, bytes) =>
-                  store.setTemplateBytes(templateId, bytes)
-                }
-                onTemplateDelete={(templateId) =>
-                  store.markTemplateDeleted(templateId)
-                }
-                onChange={(next) => {
-                  store.updateDocument(selectedDocument.id, next);
-                  syncProject();
-                }}
-                onProjectChange={(next) => {
-                  store.replaceProjectDocument(next);
-                  syncProject();
-                }}
-              />
-            ) : (
-              <BitDetailPanel
-                bit={selectedBit ?? null}
-                bitIndex={selectedBitIndex}
-                bitCount={state.project.bits.length}
-                variables={state.project.workspace.variables}
-                documents={state.project.documents}
-                onMove={(direction) => {
-                  if (selectedBit) {
-                    store.reorderBit(selectedBit.id, direction);
-                    syncProject();
-                  }
-                }}
-                onChange={(next) => {
-                  if (selectedBit) {
-                    store.updateBit(selectedBit.id, next);
-                    syncProject();
-                  }
-                }}
-              />
-            )}
-          </Panel>
-        }
-        right={
-          <Stack spacing={2}>
-            <Panel title="Diagnostics">
-              <ScrollablePanelSection>
-                <DiagnosticList items={state.diagnostics} />
-              </ScrollablePanelSection>
-            </Panel>
-            <Panel title="Dependencies">
-              {state.graph ? (
-                <DependencyGraphPanel
-                  nodes={state.graph.nodes}
-                  edges={state.graph.edges}
-                  bitLabels={Object.fromEntries(
-                    state.project.bits.map((bit) => [
-                      bit.id,
-                      bitDisplayLabel(bit),
-                    ]),
-                  )}
-                  onNodeSelect={selectGraphNode}
-                />
-              ) : (
-                <Typography variant="body2">No graph</Typography>
-              )}
-            </Panel>
-            <Panel title="Dry-run">
-              <Typography variant="body2" data-testid="dry-run-status">
-                {state.localRun?.status ?? "not run"}
-              </Typography>
-              {state.serverRun ? (
-                <Typography variant="caption">
-                  Server: {state.serverRun.status}
-                </Typography>
-              ) : null}
-            </Panel>
-            <Panel title="Preview">
-              <PreviewPanel
-                project={state.project}
-                document={selectedDocument}
-                localRun={state.localRun}
-                projectId={projectId}
-                client={api}
-                getTemplateText={(templateId) =>
-                  store.getTemplateText(templateId)
-                }
-              />
-            </Panel>
-          </Stack>
-        }
-      />
+          }
+          right={
+            <Stack spacing={2}>
+              {diagnosticsPanel}
+              {dependenciesPanel}
+              {dryRunPanel}
+              {previewPanel}
+            </Stack>
+          }
+        />
+      )}
     </Stack>
   );
 }

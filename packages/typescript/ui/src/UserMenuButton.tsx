@@ -1,8 +1,8 @@
 import { useState, type MouseEvent } from "react";
-import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { ToolbarActionButton } from "./ToolbarActionButton.js";
 
 /**
  * Props for the stub user menu button.
@@ -16,10 +16,10 @@ export type UserMenuButtonProps = {
  * Stub user account menu for hosts that have not wired auth yet.
  *
  * @param props - Optional accessibility label.
- * @returns User menu icon button and placeholder menu.
+ * @returns User menu toolbar button and placeholder menu.
  */
 export function UserMenuButton({
-  "aria-label": ariaLabel = "User menu",
+  "aria-label": ariaLabel = "Account",
 }: UserMenuButtonProps) {
   // Anchor element for the user menu.
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -28,24 +28,26 @@ export function UserMenuButton({
 
   return (
     <>
-      <IconButton
+      <ToolbarActionButton
+        label="Account"
         aria-label={ariaLabel}
+        icon={<AccountCircleIcon fontSize="small" />}
+        variant="text"
+        color="inherit"
         aria-controls={open ? "user-menu" : undefined}
         aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
+        aria-expanded={open ? true : undefined}
         onClick={(event: MouseEvent<HTMLButtonElement>) =>
           setAnchorEl(event.currentTarget)
         }
-      >
-        <AccountCircleIcon fontSize="small" />
-      </IconButton>
+      />
       <Menu
         id="user-menu"
         anchorEl={anchorEl}
         open={open}
         onClose={() => setAnchorEl(null)}
       >
-        <MenuItem disabled>Account — coming soon</MenuItem>
+        <MenuItem disabled>Public access</MenuItem>
       </Menu>
     </>
   );

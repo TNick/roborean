@@ -22,8 +22,9 @@ const SAMPLE_ENTRIES: TemplateLibraryEntry[] = [
     title: "Set and copy",
     description: "Workspace starter",
     tags: ["workspace"],
-    variableCount: 2,
-    bitCount: 2,
+    variableCount: 6,
+    bitCount: 11,
+    documentCount: 3,
   },
   {
     id: "set-and-copy-title",
