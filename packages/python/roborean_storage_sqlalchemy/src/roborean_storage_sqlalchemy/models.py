@@ -2,7 +2,14 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, Text, UniqueConstraint
+from sqlalchemy import (
+    DateTime,
+    Integer,
+    LargeBinary,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -47,6 +54,31 @@ class ProjectRow(Base):
     schema_version: Mapped[str] = mapped_column(String(32), nullable=False)
     body_json: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ProjectFileRow(Base):
+    """Binary project package files keyed by relative path.
+
+    Attributes:
+        __tablename__: ``"project_files"``.
+        __table_args__: Unique constraint on (``project_id``, ``path``).
+        project_id: Project identifier; part of the composite primary
+            key.
+        path: Relative path inside the project package (for example
+            ``templates/hello.txt``).
+        content: Raw file bytes.
+        updated_at: Timestamp when the file row was last updated.
+    """
+
+    __tablename__ = "project_files"
+    __table_args__ = (
+        UniqueConstraint("project_id", "path", name="uq_project_files_path"),
+    )
+
+    project_id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    path: Mapped[str] = mapped_column(String(1024), primary_key=True)
+    content: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 

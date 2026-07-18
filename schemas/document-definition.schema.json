@@ -4,9 +4,12 @@
   "title": "DocumentDefinition",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "type", "templateRef", "driver"],
+  "required": ["id", "title", "type", "templateRef", "driver"],
   "properties": {
     "id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "baseTemplateRef": { "type": "string", "minLength": 1 },
     "type": {
       "type": "string",
       "enum": ["text", "markdown", "xlsx", "docx", "image", "dxf"]

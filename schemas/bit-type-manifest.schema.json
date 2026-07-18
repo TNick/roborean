@@ -5,6 +5,7 @@
   "type": "object",
   "required": [
     "typeId",
+    "name",
     "version",
     "configSchema",
     "effectClass",
@@ -13,6 +14,7 @@
   ],
   "properties": {
     "typeId": {"type": "string", "minLength": 1},
+    "name": {"type": "string", "minLength": 1},
     "version": {"type": "string", "minLength": 1},
     "configSchema": {"type": "object"},
     "effectClass": {

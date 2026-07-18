@@ -54,7 +54,11 @@ export interface Bit {
 }
 export interface DocumentDefinition {
   id: string;
+  title: string;
+  description?: string;
   type: string;
+  templateRef?: string;
+  baseTemplateRef?: string;
   [key: string]: unknown;
 }
 export interface Project {
@@ -82,6 +86,7 @@ export interface WorkspaceSnapshot {
 }
 export interface BitTypeManifest {
   typeId: string;
+  name: string;
   version: string;
   configSchema: Record<string, unknown>;
   effectClass: string;

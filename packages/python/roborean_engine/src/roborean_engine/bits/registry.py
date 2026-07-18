@@ -128,6 +128,17 @@ class BitTypeRegistry:
         """
         return self._items[type_id]
 
+    def iter_types(self) -> list[tuple[str, BitTypeManifest]]:
+        """List registered bit type ids and manifests.
+
+        Returns:
+            Pairs of type id and manifest for each registered bit type.
+        """
+        return [
+            (type_id, manifest)
+            for type_id, (manifest, _) in self._items.items()
+        ]
+
 
 def _manifest(filename: str) -> BitTypeManifest:
     """Load a bundled canonical manifest.

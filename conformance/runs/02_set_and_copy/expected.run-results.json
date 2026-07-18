@@ -1,12 +1,12 @@
 {
-  "runId": "54300272-8a0d-43f3-83b0-526c4b94c227",
+  "runId": "47629a67-967b-4103-a9f8-88e8210b6125",
   "projectId": "example.set-and-copy",
-  "projectDigest": "023ecc650faf56859dd84357bccd4f39bf2f66fda3616d03f515a0cec811e878",
-  "startedAt": "2026-07-17T09:23:28.815601+00:00",
-  "finishedAt": "2026-07-17T09:23:28.816602+00:00",
+  "projectDigest": "0f0edff1cca4666399786b42641ca57bc2add4e49f49faf362b9a366cd23d146",
+  "startedAt": "2026-07-18T07:29:34.347738+00:00",
+  "finishedAt": "2026-07-18T07:29:34.348737+00:00",
   "status": "success",
-  "inputWorkspaceHash": "7ac8cb0ae4937af2f4de19105359e4590b1cf3a99b951b3162fcc4be81ee8d79",
-  "finalWorkspaceHash": "9dda58cc764c93621f00a735bbc2eda33a878d25f26087a905e9042b16846016",
+  "inputWorkspaceHash": "c67bb98531ce9ab11e727e2a6b143522596f08e8a2aa0ed8d55dda0a44bf7b22",
+  "finalWorkspaceHash": "58dfb12c16b1609c3c926c4a8c1e0fdaf9cce567a5db03982ca942b98335f760",
   "bitResults": [
     {
       "bitId": "set_title",
@@ -14,7 +14,7 @@
       "active": true,
       "activationReason": "always",
       "status": "success",
-      "durationMs": 1.0458999968250282,
+      "durationMs": 1.2209999840706587,
       "workspacePatch": {
         "ops": [
           {
@@ -38,7 +38,7 @@
       "active": true,
       "activationReason": "always",
       "status": "success",
-      "durationMs": 0.032999996619764715,
+      "durationMs": 0.03020002623088658,
       "workspacePatch": {
         "ops": [
           {

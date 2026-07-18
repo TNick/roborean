@@ -27,8 +27,17 @@ def migrate_project(
         return result
 
     if source == "1.0.0" and target == "1.1.0":
-        # Document fields are additive; bump the version marker only.
+        # Backfill document titles from ids before bumping the version.
+        for document in result.get("documents", []):
+            if isinstance(document, dict) and not document.get("title"):
+                document["title"] = str(document.get("id", "Document"))
         result["schemaVersion"] = "1.1.0"
+        return result
+
+    if source == "1.1.0" and target == "1.1.0":
+        for document in result.get("documents", []):
+            if isinstance(document, dict) and not document.get("title"):
+                document["title"] = str(document.get("id", "Document"))
         return result
 
     if source == "1.0.0" and target == "1.0.0":

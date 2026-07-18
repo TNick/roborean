@@ -1,0 +1,56 @@
+{
+  "documents": {
+    "frame": {
+      "definition": {
+        "id": "frame",
+        "type": "dxf",
+        "driver": "roborean.dxf"
+      },
+      "ops": [
+        {
+          "documentId": "frame",
+          "op": "drawing.ensure_layer",
+          "name": "title"
+        },
+        {
+          "documentId": "frame",
+          "op": "drawing.insert_polyline",
+          "layer": "title",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              100,
+              0
+            ],
+            [
+              100,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "documentId": "frame",
+          "op": "drawing.insert_text",
+          "layer": "title",
+          "at": [
+            10,
+            20
+          ],
+          "text": "FRAME",
+          "height": 5
+        }
+      ]
+    }
+  }
+}

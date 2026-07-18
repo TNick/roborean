@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D99_capability_fail",
+  "name": "Capability fail",
+  "workspace": {
+    "variables": [
+      {
+        "key": "name",
+        "schema": { "type": "string" },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Ada"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "bad_sheet",
+      "type": "roborean.sheet_set_cells",
+      "when": true,
+      "config": {
+        "documentId": "hello_doc",
+        "cells": [
+          {
+            "sheet": "Estimate",
+            "cell": "B4",
+            "fromKey": "name"
+          }
+        ]
+      },
+      "reads": ["name"],
+      "writes": [],
+      "emits": ["hello_doc"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": ["document.write"]
+    }
+  ],
+  "documents": [
+    {
+      "id": "hello_doc",
+      "title": "Hello",
+      "type": "text",
+      "driver": "roborean.text",
+      "templateRef": "hello",
+      "outputTarget": "hello.txt",
+      "irFamily": "plain",
+      "settings": {},
+      "preview": { "mode": "text", "enabled": true }
+    }
+  ],
+  "templates": [{ "id": "hello", "path": "templates/hello.txt" }],
+  "pluginRequirements": [],
+  "metadata": {}
+}

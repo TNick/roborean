@@ -110,7 +110,7 @@ jobs:
       - name: Install and build
         run: |
           pnpm install --registry https://registry.npmjs.org/
-          pnpm run build
+          pnpm run build:packages
 
       # OIDC: do not set NODE_AUTH_TOKEN — pnpm/npm exchange GitHub id-token.
       - name: Publish @roborean packages
@@ -126,8 +126,48 @@ jobs:
             @roborean/validation \
             @roborean/api-types \
             @roborean/ui \
-            @roborean/editor
+            @roborean/editor \
+            @roborean/google-workspace
           do
             echo "Publishing ${pkg}..."
             pnpm --filter "${pkg}" publish --access public --no-git-checks
           done
+
+  publish-pages:
+    needs: [gate, publish-pypi, publish-npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install and build static Pages bundle
+        env:
+          VITE_STORAGE_MODE: google
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+        run: |
+          pnpm install --registry https://registry.npmjs.org/
+          pnpm run build:pages
+          test -f apps/web/dist/index.html
+          test -n "${VITE_GOOGLE_CLIENT_ID}"
+
+      - name: Write version manifest
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          printf '{"version":"%s","commit":"%s","builtAt":"%s"}\n' \
+            "$VERSION" "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > apps/web/dist/version.json
+
+      - name: Publish gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/web/dist
+          publish_branch: gh-pages
+          force_orphan: true

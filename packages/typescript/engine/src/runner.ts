@@ -97,7 +97,7 @@ export function runProject(
       continue;
     }
     try {
-      const patch = executeBit(bit, workspace);
+      const { workspacePatch: patch, documentOps } = executeBit(bit, workspace);
       const [next, audited] = applyPatch(workspace, patch, {
         allowedWrites: bit.writes,
         constKeys,
@@ -121,7 +121,7 @@ export function runProject(
         status: rejected.length ? "failed" : "success",
         durationMs: performance.now() - started,
         workspacePatch: audited,
-        documentOps: [],
+        documentOps,
         diagnostics,
         pluginVersion: compiled.pluginVersions[bit.type] ?? "",
       });

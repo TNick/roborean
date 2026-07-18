@@ -43,6 +43,7 @@
   "documents": [
     {
       "id": "letter",
+      "title": "Letter",
       "type": "docx",
       "driver": "roborean.docx",
       "templateRef": "letter",

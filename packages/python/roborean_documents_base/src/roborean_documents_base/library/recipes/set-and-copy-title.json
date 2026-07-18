@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "bit-recipe",
+  "id": "set-and-copy-title",
+  "name": "Set and copy title",
+  "description": "Adds title and title_copy variables with set and copy bits.",
+  "tags": ["workspace", "recipe"],
+  "requiredBitTypes": [
+    {
+      "typeId": "roborean.set_variable",
+      "versionRange": ">=0.1.0"
+    },
+    {
+      "typeId": "roborean.copy_variable",
+      "versionRange": ">=0.1.0"
+    }
+  ],
+  "requiredDocumentDrivers": [],
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "title",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Hello"
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Primary title used by the set-and-copy bits."
+      },
+      {
+        "key": "title_copy",
+        "schema": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": ""
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Copy of the title variable."
+      }
+    ]
+  },
+  "documents": [],
+  "templates": [],
+  "bits": [
+    {
+      "id": "set_title",
+      "type": "roborean.set_variable",
+      "when": true,
+      "config": {
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      "reads": [],
+      "writes": ["title"],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.write"]
+    },
+    {
+      "id": "copy_title",
+      "type": "roborean.copy_variable",
+      "when": true,
+      "config": { "from": "title", "to": "title_copy" },
+      "reads": ["title"],
+      "writes": ["title_copy"],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.read", "workspace.write"]
+    }
+  ],
+  "insertPolicy": {
+    "bitPlacement": "append",
+    "onVariableConflict": "rename",
+    "onDocumentConflict": "remap",
+    "onBitIdConflict": "rename"
+  }
+}

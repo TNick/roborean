@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { Project } from "@roborean/spec";
 import { buildDependencyGraph } from "../src/dependencyGraph.js";
+import { localDryRun } from "../src/dryRun.js";
 import { scrubProjectForEditor } from "../src/secretExposure.js";
+
+const root = resolve(import.meta.dirname, "../../../../");
+const fixture = (path: string): unknown =>
+  JSON.parse(readFileSync(resolve(root, path), "utf8"));
 
 const sample: Project = {
   schemaVersion: "1.0.0",
@@ -65,5 +72,29 @@ describe("validation", () => {
       },
     });
     expect(scrubbed.workspace.variables[0]?.defaultValue.kind).toBe("redacted");
+  });
+
+  it("dry-runs browser-safe text document bits", () => {
+    const project = fixture(
+      "conformance/documents/D01_text_hello/project.json",
+    ) as Project;
+    const outcome = localDryRun(project);
+
+    expect(outcome.diagnostics.some((item) => item.severity === "error")).toBe(
+      false,
+    );
+    expect(
+      outcome.diagnostics.some(
+        (item) => item.code === "W_BACKEND_ONLY_SKIPPED",
+      ),
+    ).toBe(false);
+    expect(outcome.results?.status).toBe("success");
+    expect(outcome.results?.bitResults[0]?.documentOps).toEqual([
+      expect.objectContaining({
+        op: "replace_named_value",
+        documentId: "hello_doc",
+        name: "name",
+      }),
+    ]);
   });
 });

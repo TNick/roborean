@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "hello_doc",
+      "path": "hello.txt",
+      "mediaType": "text/plain",
+      "compare": "bytes"
+    }
+  ]
+}

@@ -21,6 +21,7 @@ const NAMES = [
   "bit",
   "bit-type-manifest",
   "document-definition",
+  "recipe",
   "workspace-patch",
   "compiled-project",
   "run-results",

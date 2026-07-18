@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "estimate",
+      "path": "estimate.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "compare": "semantic"
+    }
+  ]
+}

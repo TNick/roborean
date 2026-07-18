@@ -1,0 +1,55 @@
+{
+  "frame": {
+    "documentId": "frame",
+    "mode": "drawing-json",
+    "body": {
+      "entities": [
+        {
+          "type": "layer",
+          "name": "title"
+        },
+        {
+          "type": "polyline",
+          "layer": "title",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              100,
+              0
+            ],
+            [
+              100,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "layer": "title",
+          "at": [
+            10,
+            20
+          ],
+          "text": "FRAME",
+          "height": 5.0
+        }
+      ]
+    },
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-dxf",
+      "version": "0.3.0"
+    }
+  }
+}

@@ -68,24 +68,7 @@ jobs:
       - name: Pytest
         run: ./venv/bin/python -m pytest packages/python -q
 
-  test-typescript:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-
-      - name: Install and test TypeScript packages
-        run: |
-          pnpm install --registry https://registry.npmjs.org/
-          pnpm run build
-          pnpm -r test
-
-  platform-e2e:
+  verify-semantics:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -104,12 +87,24 @@ jobs:
         run: make init-d
 
       - name: Build TypeScript packages
-        run: pnpm run build
+        run: pnpm run build:packages
 
-      - name: Install Playwright browsers
-        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Semantic verification gates
+        run: make verify-core
 
-      # One Playwright process (shared webServer). Avoid e2e-ai's per-test
-      # loop here so CI does not restart API/Vite three times.
-      - name: E2E verify
-        run: pnpm --filter web exec playwright test
+  test-typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install and test TypeScript packages
+        run: |
+          pnpm install --registry https://registry.npmjs.org/
+          pnpm run build:packages
+          pnpm -r test

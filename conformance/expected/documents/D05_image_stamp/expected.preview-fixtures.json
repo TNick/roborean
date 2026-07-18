@@ -1,0 +1,27 @@
+{
+  "documents": {
+    "stamp": {
+      "definition": {
+        "id": "stamp",
+        "type": "image",
+        "driver": "roborean.image"
+      },
+      "ops": [
+        {
+          "documentId": "stamp",
+          "op": "raster.draw_text",
+          "layer": "main",
+          "text": "DRAFT",
+          "anchor": [
+            20,
+            40
+          ]
+        }
+      ],
+      "imageSize": [
+        200,
+        100
+      ]
+    }
+  }
+}

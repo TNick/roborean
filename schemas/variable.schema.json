@@ -12,7 +12,7 @@
     "exposure": {
       "enum": ["backendOnly", "redactedToClient", "clientVisible"]
     },
-    "description": {"type": "string"}
+    "description": {"type": ["string", "null"]}
   },
   "additionalProperties": false
 }

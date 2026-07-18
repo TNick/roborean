@@ -2,6 +2,11 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    exclude: ["**/node_modules/**", "e2e/**"],
+    environment: "node",
+    include: ["src/**/*.test.ts"],
+    env: {
+      VITE_STORAGE_MODE: "",
+      VITE_GOOGLE_CLIENT_ID: "",
+    },
   },
 });

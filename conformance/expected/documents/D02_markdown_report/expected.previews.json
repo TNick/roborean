@@ -1,0 +1,12 @@
+{
+  "report_doc": {
+    "documentId": "report_doc",
+    "mode": "text",
+    "body": "# Report\n\n## Summary\n\nAll good.\n\n| Item | Qty |\n\n| --- | --- |\n\n| A | 1 |\n\n| B | 2 |\n",
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-markdown",
+      "version": "0.3.0"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "documents": {
+    "estimate": {
+      "definition": {
+        "id": "estimate",
+        "type": "xlsx",
+        "driver": "roborean.xlsx"
+      },
+      "ops": [
+        {
+          "documentId": "estimate",
+          "op": "sheet.set_cell",
+          "sheet": "Estimate",
+          "cell": "B1",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "number",
+            "value": 10
+          }
+        },
+        {
+          "documentId": "estimate",
+          "op": "sheet.set_formula",
+          "sheet": "Estimate",
+          "cell": "B2",
+          "formula": "=B1*2"
+        }
+      ],
+      "sheetRows": {
+        "Estimate": [
+          [
+            "Price",
+            "10"
+          ],
+          [
+            "Total",
+            "=B1*2"
+          ]
+        ]
+      }
+    }
+  }
+}

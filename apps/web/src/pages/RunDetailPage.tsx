@@ -1,25 +1,187 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
+import Button from "@mui/material/Button";
+import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { RunDetail } from "@roborean/api-types";
-import { createClient } from "../api/createClient.js";
+import { AppToolbar, RoboreanToolbarEnd } from "@roborean/ui";
+import { IS_GOOGLE_MODE } from "../config.js";
+import { useWorkspace } from "../storage/workspaceContext.js";
 
+type BitResultView = {
+  bitId: string;
+  status: string;
+  active: boolean;
+  diagnostics: Array<{ severity: string; code: string; message: string }>;
+  workspacePatch: { ops: unknown[] };
+};
+
+type RunResultsView = {
+  bitResults: BitResultView[];
+  artifacts: Array<{
+    documentId: string;
+    path: string;
+    mediaType: string;
+    webViewLink?: string;
+  }>;
+};
+
+/**
+ * Parse API run results into a display-friendly shape when possible.
+ *
+ * @param raw - Redacted results object from the API.
+ * @returns Parsed results or null.
+ */
+function parseRunResults(raw: unknown): RunResultsView | null {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+  const candidate = raw as RunResultsView;
+  if (!Array.isArray(candidate.bitResults)) {
+    return null;
+  }
+  return candidate;
+}
+
+/**
+ * Run detail page with bit diagnostics, patches, and artifact downloads.
+ *
+ * @returns Run detail page element.
+ */
 export function RunDetailPage() {
   const { runId = "" } = useParams();
+  const { client } = useWorkspace();
+
+  // Loaded run record from the active storage client.
   const [run, setRun] = useState<RunDetail | null>(null);
+
   useEffect(() => {
-    createClient()
+    if (!client) {
+      setRun(null);
+      return;
+    }
+    client
       .getRun(runId)
       .then(setRun)
       .catch(() => setRun(null));
-  }, [runId]);
+  }, [runId, client]);
+
+  const results = parseRunResults(run?.results);
+
+  /**
+   * Download one artifact through the storage client.
+   *
+   * @param documentId - Artifact document id.
+   */
+  async function download(documentId: string): Promise<void> {
+    if (!client) {
+      return;
+    }
+    const blob = await client.downloadArtifact(runId, documentId);
+    const text = await blob.text();
+
+    // Google Workspace artifacts are Docs URLs; open them directly.
+    if (IS_GOOGLE_MODE && text.startsWith("http")) {
+      window.open(text, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = documentId;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
-    <Stack sx={{ p: 3 }} spacing={1}>
-      <Typography variant="h5">Run {runId}</Typography>
-      <Typography variant="body2">
-        Status: {run?.status ?? "loading"}
-      </Typography>
-    </Stack>
+    <>
+      <AppToolbar endActions={<RoboreanToolbarEnd />}>
+        <Typography variant="h6" component="h1">
+          Run {runId}
+        </Typography>
+        <Button component={RouterLink} to="/projects" variant="outlined">
+          Back to projects
+        </Button>
+      </AppToolbar>
+      <Stack sx={{ p: 3 }} spacing={2}>
+        <Typography variant="body2">
+          Status: {run?.status ?? "loading"}
+        </Typography>
+        {run?.error ? (
+          <Typography variant="body2" color="error">
+            Error: {JSON.stringify(run.error)}
+          </Typography>
+        ) : null}
+        {results ? (
+          <Stack spacing={2}>
+            <Typography variant="subtitle2">Bit results</Typography>
+            {results.bitResults.map((bit) => (
+              <Stack key={bit.bitId} spacing={0.5} sx={{ pl: 1 }}>
+                <Typography variant="body2">
+                  {bit.bitId} · {bit.status} · active={String(bit.active)}
+                </Typography>
+                {bit.diagnostics.length > 0 ? (
+                  <Typography variant="caption" component="div">
+                    {bit.diagnostics.map((item) => (
+                      <div key={`${item.code}-${item.message}`}>
+                        {item.severity}: {item.code} — {item.message}
+                      </div>
+                    ))}
+                  </Typography>
+                ) : null}
+                {bit.workspacePatch.ops.length > 0 ? (
+                  <Typography component="pre" variant="caption">
+                    {JSON.stringify(bit.workspacePatch, null, 2)}
+                  </Typography>
+                ) : null}
+              </Stack>
+            ))}
+            <Typography variant="subtitle2">Artifacts</Typography>
+            {results.artifacts.length === 0 ? (
+              <Typography variant="body2">No artifacts</Typography>
+            ) : (
+              results.artifacts.map((artifact) => (
+                <Stack
+                  key={artifact.documentId}
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                >
+                  <Typography variant="body2">
+                    {artifact.path} ({artifact.mediaType})
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => void download(artifact.documentId)}
+                  >
+                    {IS_GOOGLE_MODE ? "Open Doc" : "Download"}
+                  </Button>
+                  {!IS_GOOGLE_MODE && client ? (
+                    <Link
+                      href={client.artifactDownloadUrl(
+                        runId,
+                        artifact.documentId,
+                      )}
+                      variant="body2"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open
+                    </Link>
+                  ) : null}
+                </Stack>
+              ))
+            )}
+          </Stack>
+        ) : run?.results ? (
+          <Typography component="pre" variant="body2">
+            {JSON.stringify(run.results, null, 2)}
+          </Typography>
+        ) : null}
+      </Stack>
+    </>
   );
 }

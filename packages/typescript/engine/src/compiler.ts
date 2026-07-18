@@ -12,7 +12,7 @@ import {
 import { migrateProject, validate } from "@roborean/spec";
 
 export interface CompiledProject {
-  schemaVersion: "1.0.0";
+  schemaVersion: "1.0.0" | "1.1.0";
   projectId: string;
   projectName: string;
   compiledAt: string;
@@ -109,6 +109,8 @@ export function compileProject(
           message: String(error),
         });
       }
+    } else {
+      activationExpressions[bit.id] = { op: "const", args: [true] };
     }
     for (const key of [...bit.reads, ...bit.writes]) {
       if (!variableMap.has(key) && strict) {
@@ -164,7 +166,7 @@ export function compileProject(
       diagnostics.push({
         severity: "warning",
         code: "W_UNUSED_VARIABLE",
-        message: `Unused variable: ${variable.key}`,
+        message: `Variable is never read or written: ${variable.key}`,
       });
   for (const bit of project.bits)
     if (
@@ -194,7 +196,12 @@ export function compileProject(
     documents: project.documents,
     templates: project.templates,
     pluginVersions: Object.fromEntries(
-      builtinManifests.map((manifest) => [manifest.typeId, manifest.version]),
+      [...new Set(project.bits.map((bit) => bit.type))].map((typeId) => {
+        const manifest = builtinManifests.find(
+          (item) => item.typeId === typeId,
+        );
+        return [typeId, manifest?.version ?? "1.0.0"];
+      }),
     ),
     diagnostics,
   };

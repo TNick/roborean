@@ -53,7 +53,7 @@ schemas/                 # canonical JSON Schema
 conformance/             # golden projects, rules, runs, documents
 packages/python/         # roborean_* publishable packages
 packages/typescript/     # @roborean/* publishable packages
-apps/                    # thin deployables (web, api, cli-diagnostics)
+apps/                    # thin deployables (web, api)
 tools/                   # schema sync, conformance, OpenAPI drift
 research/                # design docs (not runtime code)
 playground/              # scratch, temp files, agent output only
@@ -245,6 +245,9 @@ The product web app and editor packages use **Material UI (MUI)**:
 - After adding or changing behavior, re-run the relevant package tests and
   `make conformance` when semantics touch the dual runtime.
 - Prefer short tests with branch coverage over large brittle scenarios.
+- Web UI CI uses Playwright directly. `make e2e` / `e2e-ai` (`verify`,
+  `repair`, `doctor`, …) is for **local development only**. Wiring e2e-ai
+  into CI is a **non-goal**; do not add it to GitHub Actions.
 
 ## Packages (publishable)
 

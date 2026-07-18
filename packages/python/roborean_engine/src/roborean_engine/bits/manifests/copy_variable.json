@@ -1,16 +1,29 @@
 {
   "typeId": "roborean.copy_variable",
+  "name": "Copy variable",
   "version": "1.0.0",
   "configSchema": {
     "type": "object",
-    "required": ["from", "to"],
+    "required": [
+      "from",
+      "to"
+    ],
     "properties": {
-      "from": {"type": "string", "minLength": 1},
-      "to": {"type": "string", "minLength": 1}
+      "from": {
+        "type": "string",
+        "minLength": 1
+      },
+      "to": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "additionalProperties": false
   },
   "effectClass": "workspace",
-  "capabilities": ["workspace.read", "workspace.write"],
+  "capabilities": [
+    "workspace.read",
+    "workspace.write"
+  ],
   "browserSafe": true
 }

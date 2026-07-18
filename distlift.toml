@@ -165,6 +165,12 @@ kind = "package-json"
 language = "javascript"
 primary = false
 
+[[version_files]]
+path = "packages/typescript/google-workspace/package.json"
+kind = "package-json"
+language = "javascript"
+primary = false
+
 [[build.targets]]
 name = "roborean-spec"
 path = "packages/python/roborean_spec"
@@ -403,4 +409,14 @@ ecosystem = "npm"
 [[publish.targets]]
 name = "ts-editor"
 path = "packages/typescript/editor"
+ecosystem = "npm"
+
+[[build.targets]]
+name = "ts-google-workspace"
+path = "packages/typescript/google-workspace"
+ecosystem = "npm"
+
+[[publish.targets]]
+name = "ts-google-workspace"
+path = "packages/typescript/google-workspace"
 ecosystem = "npm"

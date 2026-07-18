@@ -6,6 +6,9 @@
 
 - SQLAlchemy ORM tables and repository adapters for projects and durable
   runs, mapping to Pydantic domain models.
+- `project_files` table and repository file helpers for template bytes.
+- `materialize_project_package` helper for compile/preview on SQL-backed
+  projects.
 
 ### Changed
 

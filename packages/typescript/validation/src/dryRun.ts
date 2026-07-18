@@ -1,9 +1,12 @@
 import type { Project } from "@roborean/spec";
-import { compileProject, runProject, type Diagnostic } from "@roborean/engine";
+import {
+  compileProject,
+  isBrowserRunnableBitType,
+  runProject,
+  type Diagnostic,
+} from "@roborean/engine";
 
 import type { EditorDiagnostic } from "./projectDiagnostics.js";
-
-const BACKEND_EFFECTS = new Set(["network", "external", "document", "storage"]);
 
 function mapDiagnostic(item: Diagnostic): EditorDiagnostic {
   return {
@@ -21,8 +24,9 @@ export function localDryRun(project: Project): {
   diagnostics: EditorDiagnostic[];
 } {
   const diagnostics: EditorDiagnostic[] = [];
+
   for (const bit of project.bits) {
-    if (BACKEND_EFFECTS.has(bit.effectClass)) {
+    if (!isBrowserRunnableBitType(bit.type)) {
       diagnostics.push({
         severity: "warning",
         code: "W_BACKEND_ONLY_SKIPPED",
@@ -31,17 +35,21 @@ export function localDryRun(project: Project): {
       });
     }
   }
+
   try {
     const compiled = compileProject(project, { strict: true });
     diagnostics.push(...compiled.diagnostics.map(mapDiagnostic));
+
     if (compiled.diagnostics.some((item) => item.severity === "error")) {
       return { compiled: null, results: null, diagnostics };
     }
-    const runnable = {
-      ...project,
-      bits: project.bits.filter((bit) => !BACKEND_EFFECTS.has(bit.effectClass)),
+
+    const runnableCompiled = {
+      ...compiled,
+      bits: compiled.bits.filter((bit) => isBrowserRunnableBitType(bit.type)),
     };
-    const results = runProject(compiled, runnable, { dryRun: true });
+    const results = runProject(runnableCompiled, project, { dryRun: true });
+
     return { compiled, results, diagnostics };
   } catch (error) {
     diagnostics.push({

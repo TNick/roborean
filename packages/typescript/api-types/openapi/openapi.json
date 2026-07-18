@@ -11,7 +11,7 @@
           "health"
         ],
         "summary": "Health",
-        "description": "Return liveness and engine version.",
+        "description": "Return liveness and engine version.\n\nReturns:\n    Mapping with ``status`` and ``engineVersion`` keys.",
         "operationId": "health_health_get",
         "responses": {
           "200": {
@@ -37,7 +37,7 @@
           "projects"
         ],
         "summary": "List Projects",
-        "description": "List project summaries.",
+        "description": "List project summaries.\n\nArgs:\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Summary rows for each stored project.",
         "operationId": "list_projects_v1_projects_get",
         "responses": {
           "200": {
@@ -61,7 +61,7 @@
           "projects"
         ],
         "summary": "Create Project",
-        "description": "Create a stored project.",
+        "description": "Create a stored project.\n\nArgs:\n    body: Create request containing the project document.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Redacted project detail for the created project.",
         "operationId": "create_project_v1_projects_post",
         "requestBody": {
           "content": {
@@ -103,7 +103,7 @@
           "projects"
         ],
         "summary": "Get Project",
-        "description": "Fetch one project.",
+        "description": "Fetch one project.\n\nArgs:\n    project_id: Identifier of the project to load.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Redacted project detail for the requested project.",
         "operationId": "get_project_v1_projects__project_id__get",
         "parameters": [
           {
@@ -144,7 +144,7 @@
           "projects"
         ],
         "summary": "Update Project",
-        "description": "Replace a project.",
+        "description": "Replace a project.\n\nArgs:\n    project_id: Identifier from the URL path.\n    body: Update request containing the replacement project.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Redacted project detail for the updated project.\n\nRaises:\n    ApiError: When the body project id does not match the URL.",
         "operationId": "update_project_v1_projects__project_id__put",
         "parameters": [
           {
@@ -195,7 +195,7 @@
           "projects"
         ],
         "summary": "Delete Project",
-        "description": "Delete a project.",
+        "description": "Delete a project.\n\nArgs:\n    project_id: Identifier of the project to delete.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Empty response with HTTP 204 status.",
         "operationId": "delete_project_v1_projects__project_id__delete",
         "parameters": [
           {
@@ -225,13 +225,168 @@
         }
       }
     },
+    "/v1/projects/{project_id}/templates/{template_id}/content": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get Template Content",
+        "description": "Fetch one template file for a stored project.\n\nArgs:\n    project_id: Identifier of the project to load.\n    template_id: Template identifier from the project table.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Template file bytes and optional UTF-8 text body.",
+        "operationId": "get_template_content_v1_projects__project_id__templates__template_id__content_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Template Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateContentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Put Template Content",
+        "description": "Replace one template file for a stored project.\n\nArgs:\n    project_id: Identifier of the project to update.\n    template_id: Template identifier from the project table.\n    body: Template bytes or UTF-8 text to persist.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Stored template file metadata.",
+        "operationId": "put_template_content_v1_projects__project_id__templates__template_id__content_put",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Template Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateContentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateContentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Delete Template Content",
+        "description": "Delete one template file from project storage.\n\nArgs:\n    project_id: Identifier of the project to update.\n    template_id: Template identifier from the project table.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Empty response with HTTP 204 status.",
+        "operationId": "delete_template_content_v1_projects__project_id__templates__template_id__content_delete",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Template Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/projects/{project_id}/compile": {
       "post": {
         "tags": [
           "compile"
         ],
         "summary": "Compile Project",
-        "description": "Compile a stored project.",
+        "description": "Compile a stored project.\n\nArgs:\n    project_id: Identifier of the project to compile.\n    body: Optional compile flags; defaults when omitted.\n    state: Shared repositories and run service.\n    registry: Bit type registry used by the compiler.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Compiled project snapshot for the client.",
         "operationId": "compile_project_v1_projects__project_id__compile_post",
         "parameters": [
           {
@@ -291,7 +446,7 @@
           "runs"
         ],
         "summary": "Create Run",
-        "description": "Execute a durable run.",
+        "description": "Execute a durable run.\n\nArgs:\n    project_id: Project that owns the new run.\n    body: Run create request with workspace overrides.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n    idempotency_key: Required ``Idempotency-Key`` header value.\n\nReturns:\n    Client-facing detail for the created or reused run.\n\nRaises:\n    ApiError: When the idempotency header is missing.",
         "operationId": "create_run_v1_projects__project_id__runs_post",
         "parameters": [
           {
@@ -358,7 +513,7 @@
           "runs"
         ],
         "summary": "List Runs",
-        "description": "List runs for a project.",
+        "description": "List runs for a project.\n\nArgs:\n    project_id: Project whose runs should be listed.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Summary rows for recent runs of the project.",
         "operationId": "list_runs_v1_projects__project_id__runs_get",
         "parameters": [
           {
@@ -405,7 +560,7 @@
           "runs"
         ],
         "summary": "Get Run",
-        "description": "Fetch one run.",
+        "description": "Fetch one run.\n\nArgs:\n    run_id: Identifier of the run to load.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Client-facing run detail with redacted results.",
         "operationId": "get_run_v1_runs__run_id__get",
         "parameters": [
           {
@@ -448,7 +603,7 @@
           "artifacts"
         ],
         "summary": "Download Artifact",
-        "description": "Stream one stored artifact (document id).",
+        "description": "Stream one stored artifact (document id).\n\nArgs:\n    run_id: Durable run that owns the artifact.\n    artifact_id: Document id used as the artifact key suffix.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Raw artifact bytes with a best-effort media type.\n\nRaises:\n    ApiError: When the artifact bytes are missing from storage.",
         "operationId": "download_artifact_v1_runs__run_id__artifacts__artifact_id__get",
         "parameters": [
           {
@@ -498,7 +653,7 @@
           "previews"
         ],
         "summary": "Preview Document",
-        "description": "Return a browser-safe document preview.",
+        "description": "Return a browser-safe document preview.\n\nArgs:\n    project_id: Identifier of the project to preview.\n    body: Preview request with document id and overrides.\n    state: Shared repositories and run service.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Preview payload for the requested document.",
         "operationId": "preview_document_v1_projects__project_id__preview_post",
         "parameters": [
           {
@@ -528,6 +683,178 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PreviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/template-library": {
+      "get": {
+        "tags": [
+          "template-library"
+        ],
+        "summary": "List Template Library",
+        "description": "List catalog entries with optional filters.\n\nArgs:\n    kind: Optional entry kind filter.\n    document_type: Optional document type filter.\n    tag: Optional tag filter.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Matching catalog summary rows.",
+        "operationId": "list_template_library_v1_template_library_get",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Documenttype"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateLibraryEntry"
+                  },
+                  "title": "Response List Template Library V1 Template Library Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/template-library/{entry_id}": {
+      "get": {
+        "tags": [
+          "template-library"
+        ],
+        "summary": "Get Template Library Entry",
+        "description": "Fetch one catalog entry with its payload body.\n\nArgs:\n    entry_id: Catalog entry identifier.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Entry summary plus manifest, project, or recipe payload.\n\nRaises:\n    ApiError: When the entry id is unknown.",
+        "operationId": "get_template_library_entry_v1_template_library__entry_id__get",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateLibraryDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/template-library/{entry_id}/content": {
+      "get": {
+        "tags": [
+          "template-library"
+        ],
+        "summary": "Get Template Library Content",
+        "description": "Return template bytes for a document catalog entry.\n\nArgs:\n    entry_id: Document catalog entry identifier.\n    _principal: Resolved caller identity (auth stub).\n\nReturns:\n    Base64-encoded template bytes plus a UTF-8 hint when applicable.\n\nRaises:\n    ApiError: When the entry is missing or not a document template.",
+        "operationId": "get_template_library_content_v1_template_library__entry_id__content_get",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateContentResponse"
                 }
               }
             }
@@ -636,7 +963,7 @@
           "capabilities"
         ],
         "title": "Bit",
-        "description": "An ordered conditional unit of project work."
+        "description": "An ordered conditional unit of project work.\n\nAttributes:\n    id: Unique identifier of the bit within the project.\n    type: The bit type implementation to execute.\n    label: Optional human-readable label for the bit.\n    when: Activation condition; either always-true or a rule\n        expression evaluated against the workspace.\n    config: Bit-specific configuration payload.\n    reads: Workspace keys the bit declares it reads.\n    writes: Workspace keys the bit declares it writes.\n    emits: Document operation kinds the bit declares it emits.\n    effect_class: Effect classification (``effectClass`` alias) used\n        for retry and idempotency handling.\n    on_error: Behavior to apply on failure (``onError`` alias).\n    capabilities: Capability identifiers required to run the bit."
       },
       "Bucket": {
         "properties": {
@@ -678,7 +1005,7 @@
           "bucket"
         ],
         "title": "Bucket",
-        "description": "A bucketed value with optional numeric bounds."
+        "description": "A bucketed value with optional numeric bounds.\n\nAttributes:\n    kind: Discriminator identifying this value as a bucket.\n    bucket: Identifier of the bucket the value falls into.\n    bounds: Optional inclusive lower and upper numeric bounds for\n        the bucket."
       },
       "CompileRequest": {
         "properties": {
@@ -691,7 +1018,7 @@
         "additionalProperties": false,
         "type": "object",
         "title": "CompileRequest",
-        "description": "Optional compile flags."
+        "description": "Optional compile flags.\n\nAttributes:\n    strict_undeclared_access: When true, reject undeclared bit reads\n        and writes (``strictUndeclaredAccess``)."
       },
       "CompileResponse": {
         "properties": {
@@ -707,7 +1034,7 @@
           "compiled"
         ],
         "title": "CompileResponse",
-        "description": "Compiled project snapshot."
+        "description": "Compiled project snapshot.\n\nAttributes:\n    compiled: JSON-serializable compiled project document."
       },
       "DiagnosticDto": {
         "properties": {
@@ -748,13 +1075,28 @@
           "message"
         ],
         "title": "DiagnosticDto",
-        "description": "One compile or validation diagnostic."
+        "description": "One compile or validation diagnostic.\n\nAttributes:\n    severity: Diagnostic level (``error``, ``warning``, or ``info``).\n    code: Stable machine-readable diagnostic code.\n    message: Human-readable diagnostic text.\n    path: Optional JSON-pointer-like location within the project."
       },
       "DocumentDefinition": {
         "properties": {
           "id": {
             "type": "string",
             "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
           },
           "type": {
             "type": "string",
@@ -771,6 +1113,17 @@
           "templateRef": {
             "type": "string",
             "title": "Templateref"
+          },
+          "baseTemplateRef": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basetemplateref"
           },
           "templateManifestRef": {
             "anyOf": [
@@ -836,12 +1189,13 @@
         "type": "object",
         "required": [
           "id",
+          "title",
           "type",
           "templateRef",
           "driver"
         ],
         "title": "DocumentDefinition",
-        "description": "A deferred document output definition."
+        "description": "A deferred document output definition.\n\nAttributes:\n    id: Unique identifier of the document within the project.\n    title: Human-readable document title shown in the editor.\n    description: Optional multiline document description.\n    type: Document family, one of ``text``, ``markdown``, ``xlsx``,\n        ``docx``, ``image``, or ``dxf``.\n    template_ref: Reference to the template used to render the\n        document (``templateRef`` alias).\n    base_template_ref: When set, ``template_ref`` is a document-local\n        fork of this shared template id (``baseTemplateRef`` alias).\n    template_manifest_ref: Optional reference to the template's\n        manifest (``templateManifestRef`` alias).\n    driver: Identifier of the document driver used to render the\n        document.\n    output_target: Optional workspace key or path describing where\n        the rendered artifact should be written (``outputTarget``\n        alias).\n    ir_family: Optional intermediate-representation family produced\n        by the driver (``irFamily`` alias): one of ``flow``,\n        ``sheet``, ``drawing``, ``raster``, or ``plain``.\n    settings: Driver-specific rendering settings.\n    preview: Optional preview configuration for the document."
       },
       "DocumentPreviewSettings": {
         "properties": {
@@ -867,7 +1221,7 @@
           "enabled"
         ],
         "title": "DocumentPreviewSettings",
-        "description": "Preview configuration for a document definition."
+        "description": "Preview configuration for a document definition.\n\nAttributes:\n    mode: The preview rendering mode, one of ``none``, ``text``,\n        ``html``, or ``drawing-json``.\n    enabled: Whether preview generation is enabled."
       },
       "EffectClass": {
         "type": "string",
@@ -881,7 +1235,7 @@
           "transactional-external"
         ],
         "title": "EffectClass",
-        "description": "Classifies a bit's execution effects."
+        "description": "Classifies a bit's execution effects.\n\nAttributes:\n    PURE: No observable side effects.\n    WORKSPACE: Mutates the workspace only.\n    DOCUMENT: Emits document operations.\n    FILESYSTEM: Reads or writes the local filesystem.\n    NETWORK: Performs network I/O.\n    EXTERNAL_PROCESS: Invokes an external process.\n    TRANSACTIONAL_EXTERNAL: Calls an external system that supports\n        transactional semantics."
       },
       "EqToken": {
         "properties": {
@@ -913,7 +1267,7 @@
           "token"
         ],
         "title": "EqToken",
-        "description": "An equality-preserving opaque token."
+        "description": "An equality-preserving opaque token.\n\nAttributes:\n    kind: Discriminator identifying this value as an equality token.\n    token: The opaque token value used for equality comparisons.\n    domain: Optional domain that scopes the token's equality\n        semantics."
       },
       "Exposure": {
         "type": "string",
@@ -923,7 +1277,7 @@
           "clientVisible"
         ],
         "title": "Exposure",
-        "description": "Controls whether a workspace value can reach clients."
+        "description": "Controls whether a workspace value can reach clients.\n\nAttributes:\n    BACKEND_ONLY: The value never leaves the backend.\n    REDACTED_TO_CLIENT: The value reaches the client only after\n        redaction.\n    CLIENT_VISIBLE: The value may be sent to the client as-is."
       },
       "HTTPValidationError": {
         "properties": {
@@ -946,7 +1300,7 @@
           "continue"
         ],
         "title": "OnError",
-        "description": "Controls a run after a failed bit."
+        "description": "Controls a run after a failed bit.\n\nAttributes:\n    ABORT: Stop the run immediately.\n    SKIP: Skip the failed bit and continue.\n    CONTINUE: Continue the run despite the failure."
       },
       "PreviewRequest": {
         "properties": {
@@ -966,7 +1320,7 @@
           "documentId"
         ],
         "title": "PreviewRequest",
-        "description": "Preview one document definition."
+        "description": "Preview one document definition.\n\nAttributes:\n    document_id: Document definition id to preview (``documentId``).\n    workspace_overrides: Optional workspace values for the dry run\n        (``workspaceOverrides``)."
       },
       "PreviewResponse": {
         "properties": {
@@ -1004,7 +1358,7 @@
           "body"
         ],
         "title": "PreviewResponse",
-        "description": "Browser-safe preview payload."
+        "description": "Browser-safe preview payload.\n\nAttributes:\n    document_id: Document definition id that was previewed\n        (``documentId``).\n    kind: Preview body format returned to the client.\n    body: Preview content (string or structured JSON).\n    warnings: Non-fatal diagnostics from preview generation."
       },
       "Project": {
         "properties": {
@@ -1099,7 +1453,7 @@
           "metadata"
         ],
         "title": "Project",
-        "description": "A portable, versioned Roborean project."
+        "description": "A portable, versioned Roborean project.\n\nAttributes:\n    schema_version: Schema version the project conforms to\n        (``schemaVersion`` alias): one of ``1.0.0`` or ``1.1.0``.\n    id: Unique identifier of the project.\n    name: Human-readable project name.\n    description: Optional human-readable project description.\n    plugin_requirements: Plugin dependency declarations\n        (``pluginRequirements`` alias).\n    workspace: Declared workspace variables, keyed by group name.\n    bits: Ordered list of bits that make up the project.\n    documents: Document definitions produced by the project.\n    templates: Template references used by the project's documents.\n    metadata: Free-form project metadata.\n    variables: Declared workspace variables, read from the\n        ``variables`` group of `workspace`."
       },
       "ProjectCreate": {
         "properties": {
@@ -1113,7 +1467,7 @@
           "project"
         ],
         "title": "ProjectCreate",
-        "description": "Create one stored project."
+        "description": "Create one stored project.\n\nAttributes:\n    project: Full project document to validate and persist."
       },
       "ProjectDetail": {
         "properties": {
@@ -1129,7 +1483,7 @@
           "project"
         ],
         "title": "ProjectDetail",
-        "description": "Redacted project payload."
+        "description": "Redacted project payload.\n\nAttributes:\n    project: JSON-serializable project with secrets redacted."
       },
       "ProjectSummary": {
         "properties": {
@@ -1154,7 +1508,7 @@
           "schemaVersion"
         ],
         "title": "ProjectSummary",
-        "description": "List row for projects."
+        "description": "List row for projects.\n\nAttributes:\n    id: Stable project identifier.\n    name: Human-readable project name.\n    schema_version: Project schema version (``schemaVersion``)."
       },
       "ProjectUpdate": {
         "properties": {
@@ -1168,7 +1522,7 @@
           "project"
         ],
         "title": "ProjectUpdate",
-        "description": "Replace a stored project."
+        "description": "Replace a stored project.\n\nAttributes:\n    project: Replacement project document (id must match the URL)."
       },
       "PublicLiteral": {
         "properties": {
@@ -1199,7 +1553,7 @@
           "value"
         ],
         "title": "PublicLiteral",
-        "description": "A public literal workspace value."
+        "description": "A public literal workspace value.\n\nAttributes:\n    kind: Discriminator identifying this value as a public literal.\n    data_type: The literal's declared type (``dataType`` alias): one\n        of ``string``, ``number``, ``boolean``, or ``date``.\n    value: The literal value itself."
       },
       "Redacted": {
         "properties": {
@@ -1226,7 +1580,27 @@
           "reason"
         ],
         "title": "Redacted",
-        "description": "A value withheld by secret or policy rules."
+        "description": "A value withheld by secret or policy rules.\n\nAttributes:\n    kind: Discriminator identifying this value as redacted.\n    reason: Why the value was withheld, one of ``secret``,\n        ``policy``, ``consent``, or ``unknown``."
+      },
+      "RequiredBitTypeSummary": {
+        "properties": {
+          "typeId": {
+            "type": "string",
+            "title": "Typeid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "typeId",
+          "name"
+        ],
+        "title": "RequiredBitTypeSummary",
+        "description": "Required bit type row for recipe catalog entries.\n\nAttributes:\n    type_id: Bit type identifier (``typeId`` alias).\n    name: Human-readable bit type name."
       },
       "RuleAst": {
         "properties": {
@@ -1261,7 +1635,7 @@
           "args"
         ],
         "title": "RuleAst",
-        "description": "A recursive CEL-profile rule expression."
+        "description": "A recursive CEL-profile rule expression.\n\nAttributes:\n    op: The operator for this expression node, one of ``and``,\n        ``or``, ``not``, ``eq``, ``ne``, ``lt``, ``le``, ``gt``,\n        ``ge``, ``has``, ``const``, or ``var``.\n    args: Operands for the operator, which may themselves be nested\n        rule expressions or literal values."
       },
       "RunCreate": {
         "properties": {
@@ -1289,7 +1663,7 @@
         "additionalProperties": false,
         "type": "object",
         "title": "RunCreate",
-        "description": "Body for POST /runs."
+        "description": "Body for POST /runs.\n\nAttributes:\n    dry_run: When true, execute without durable side effects\n        (``dryRun``).\n    stop_on_bit_error: Stop the run after the first bit failure\n        (``stopOnBitError``).\n    workspace_overrides: Optional workspace values for the run\n        (``workspaceOverrides``).\n    strict_workspace_access: Enforce declared workspace access\n        (``strictWorkspaceAccess``)."
       },
       "RunDetail": {
         "properties": {
@@ -1350,7 +1724,7 @@
           "status"
         ],
         "title": "RunDetail",
-        "description": "Redacted durable run."
+        "description": "Redacted durable run.\n\nAttributes:\n    run_id: Durable run identifier (``runId``).\n    project_id: Owning project identifier (``projectId``).\n    status: Current run status string.\n    results: Redacted run results payload, when present.\n    diff: Serialized workspace/document diff, when present.\n    error: Serialized run error payload, when present."
       },
       "RunSummary": {
         "properties": {
@@ -1391,7 +1765,7 @@
           "createdAt"
         ],
         "title": "RunSummary",
-        "description": "Run list item."
+        "description": "Run list item.\n\nAttributes:\n    run_id: Durable run identifier (``runId``).\n    project_id: Owning project identifier (``projectId``).\n    status: Current run status string.\n    created_at: ISO-8601 creation timestamp (``createdAt``).\n    finished_at: ISO-8601 finish timestamp when complete\n        (``finishedAt``)."
       },
       "SecretRefValue": {
         "properties": {
@@ -1423,7 +1797,7 @@
           "ref"
         ],
         "title": "SecretRefValue",
-        "description": "A reference to a secret held outside the portable project."
+        "description": "A reference to a secret held outside the portable project.\n\nAttributes:\n    kind: Discriminator identifying this value as a secret\n        reference.\n    ref: Opaque identifier used to resolve the secret at run time.\n    display_hint: Optional human-readable hint (``displayHint``\n        alias) shown in place of the secret value."
       },
       "ShapeToken": {
         "properties": {
@@ -1462,7 +1836,445 @@
           "shape"
         ],
         "title": "ShapeToken",
-        "description": "A value represented by its structural shape."
+        "description": "A value represented by its structural shape.\n\nAttributes:\n    kind: Discriminator identifying this value as a shape token.\n    shape: The structural shape category, one of ``email``,\n        ``phone``, ``iban``, ``uuid``, or ``code``.\n    length: Optional length constraint for the underlying value."
+      },
+      "TemplateContentResponse": {
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "title": "Templateid"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "contentBase64": {
+            "type": "string",
+            "title": "Contentbase64"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "templateId",
+          "path",
+          "contentBase64"
+        ],
+        "title": "TemplateContentResponse",
+        "description": "Template file payload returned by the API.\n\nAttributes:\n    template_id: Template identifier from the project table\n        (``templateId`` alias).\n    path: Relative package path for the template file.\n    content_base64: Base64-encoded template bytes\n        (``contentBase64`` alias).\n    text: UTF-8 decoded body when the file is textual."
+      },
+      "TemplateContentUpdate": {
+        "properties": {
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "contentBase64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contentbase64"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TemplateContentUpdate",
+        "description": "Replace one template file.\n\nAttributes:\n    text: UTF-8 template body for text-like templates.\n    content_base64: Base64-encoded bytes for binary templates\n        (``contentBase64`` alias)."
+      },
+      "TemplateLibraryDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "document",
+              "starter",
+              "recipe"
+            ],
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "documentType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documenttype"
+          },
+          "driver": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Driver"
+          },
+          "irFamily": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Irfamily"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "templateVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Templateversion"
+          },
+          "requiredInputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Requiredinputs"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Capabilities"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "mediaType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediatype"
+          },
+          "variableCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variablecount"
+          },
+          "bitCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bitcount"
+          },
+          "documentCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentcount"
+          },
+          "requiredBitTypes": {
+            "items": {
+              "$ref": "#/components/schemas/RequiredBitTypeSummary"
+            },
+            "type": "array",
+            "title": "Requiredbittypes"
+          },
+          "manifest": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project"
+          },
+          "recipe": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recipe"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title"
+        ],
+        "title": "TemplateLibraryDetail",
+        "description": "Full catalog entry with optional payload bodies.\n\nAttributes:\n    manifest: Parsed template manifest for document entries.\n    project: Starter project document for starter entries.\n    recipe: Recipe document for recipe entries."
+      },
+      "TemplateLibraryEntry": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "document",
+              "starter",
+              "recipe"
+            ],
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "documentType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documenttype"
+          },
+          "driver": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Driver"
+          },
+          "irFamily": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Irfamily"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "templateVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Templateversion"
+          },
+          "requiredInputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Requiredinputs"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Capabilities"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "mediaType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediatype"
+          },
+          "variableCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variablecount"
+          },
+          "bitCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bitcount"
+          },
+          "documentCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentcount"
+          },
+          "requiredBitTypes": {
+            "items": {
+              "$ref": "#/components/schemas/RequiredBitTypeSummary"
+            },
+            "type": "array",
+            "title": "Requiredbittypes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title"
+        ],
+        "title": "TemplateLibraryEntry",
+        "description": "Summary row for one catalog entry.\n\nAttributes:\n    id: Stable catalog entry identifier.\n    kind: Entry kind: document, starter, or recipe.\n    title: Human-readable catalog title.\n    description: Optional longer description.\n    document_type: Document type for document entries\n        (``documentType`` alias).\n    driver: Document driver id for document entries.\n    ir_family: Intermediate representation family for documents\n        (``irFamily`` alias).\n    tags: Optional discovery tags.\n    template_version: Template semver for document entries\n        (``templateVersion`` alias).\n    required_inputs: Named template inputs for document entries\n        (``requiredInputs`` alias).\n    capabilities: Declared document capabilities for document entries.\n    path: Relative template path for document entries.\n    media_type: MIME type for document template bytes\n        (``mediaType`` alias).\n    variable_count: Variable count for starters and recipes\n        (``variableCount`` alias).\n    bit_count: Bit count for starters and recipes (``bitCount`` alias).\n    document_count: Document count for starters and recipes\n        (``documentCount`` alias).\n    required_bit_types: Required bit types for recipe entries\n        (``requiredBitTypes`` alias)."
       },
       "ValidationError": {
         "properties": {
@@ -1578,7 +2390,7 @@
           "exposure"
         ],
         "title": "Variable",
-        "description": "A declared workspace variable."
+        "description": "A declared workspace variable.\n\nAttributes:\n    key: The variable's unique workspace key.\n    schema_: JSON Schema (``schema`` alias) describing valid values.\n    default_value: Default workspace value (``defaultValue`` alias)\n        used when no override is provided.\n    const: Whether the variable's value is immutable once set.\n    exposure: Client-visibility policy for the variable's value.\n    description: Optional human-readable description of the\n        variable."
       }
     }
   }

@@ -8,6 +8,13 @@
   artifact download, and document preview endpoints.
 - Client redaction for workspace secrets and run results.
 - Optional auth stub via `X-Roborean-Principal`.
+- Template file GET/PUT/DELETE endpoints under
+  `/v1/projects/{id}/templates/{templateId}/content`.
+- Global template library catalog at `/v1/template-library` with detail and
+  document content endpoints; recipe entries expose required bit types with
+  display names.
+- SQL-backed projects materialize template bytes into temporary package
+  directories for compile, preview, and runs.
 
 ### Changed
 

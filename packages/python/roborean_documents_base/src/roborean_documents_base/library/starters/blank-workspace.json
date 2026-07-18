@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "starter.blank-workspace",
+  "name": "Blank workspace",
+  "description": "Empty project with no bits or documents.",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": []
+  },
+  "bits": [],
+  "documents": [],
+  "templates": [],
+  "metadata": {}
+}

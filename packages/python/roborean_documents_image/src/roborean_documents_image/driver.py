@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from roborean_documents_base.capabilities import assert_op_allowed
 from roborean_documents_base.template_store import DocumentTemplateStore
 from roborean_spec import (
@@ -15,6 +15,8 @@ from roborean_spec import (
     DocumentPreview,
     TemplateManifest,
 )
+
+from .fonts import raster_font_for_operation
 
 
 @dataclass
@@ -155,7 +157,7 @@ class ImageDocumentDriver:
         elif op.op == "raster.draw_text":
             anchor = (int(data["anchor"][0]), int(data["anchor"][1]))
             text = str(data["text"])
-            font = ImageFont.load_default()
+            font = raster_font_for_operation(data, self._settings)
             session.draw.text(anchor, text, fill="black", font=font)
             session.drawn_texts.append({"text": text, "anchor": list(anchor)})
 
@@ -177,7 +179,15 @@ class ImageDocumentDriver:
             Encoded image payload in the session format.
         """
         buffer = io.BytesIO()
-        session.image.save(buffer, format=session.format)
+        if session.format == "PNG":
+            session.image.save(
+                buffer,
+                format="PNG",
+                compress_level=6,
+                optimize=False,
+            )
+        else:
+            session.image.save(buffer, format=session.format)
         return buffer.getvalue()
 
     def preview(self, session: ImageSession) -> DocumentPreview:

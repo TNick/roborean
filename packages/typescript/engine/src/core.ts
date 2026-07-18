@@ -10,6 +10,12 @@ import {
   type WorkspaceValue,
 } from "@roborean/spec";
 import { sha256Hex } from "./crypto_iso.js";
+import { documentBitManifests } from "./documentBitManifests.js";
+import {
+  documentBitTypeIds,
+  executeDocumentBit,
+} from "./documentBitExecution.js";
+import type { BitExecutionResult } from "./bitExecutionTypes.js";
 
 export { sha256Hex } from "./crypto_iso.js";
 export const ENGINE_VERSION = "0.3.0";
@@ -37,11 +43,38 @@ export function stableStringify(value: unknown): string {
     .map((key) => `${JSON.stringify(key)}:${stableStringify(object[key])}`)
     .join(",")}}`;
 }
+
+/**
+ * Drop null and undefined entries recursively (Python ``exclude_none`` digest).
+ *
+ * @param value - JSON-like project value.
+ * @returns Copy without nullish object properties.
+ */
+export function omitNullish(value: unknown): unknown {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => omitNullish(item));
+  }
+  if (typeof value === "object") {
+    const object = value as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(object)) {
+      const next = omitNullish(item);
+      if (next !== undefined && next !== null) {
+        out[key] = next;
+      }
+    }
+    return out;
+  }
+  return value;
+}
 export function workspaceHash(snapshot: WorkspaceSnapshot): string {
   return sha256Hex(stableStringify(snapshot.values));
 }
 export function projectDigest(project: Project): string {
-  return sha256Hex(stableStringify(project));
+  return sha256Hex(stableStringify(omitNullish(project)));
 }
 
 export function initialSnapshot(project: Project): WorkspaceSnapshot {
@@ -201,6 +234,7 @@ export function evaluateRule(
 export const builtinManifests: BitTypeManifest[] = [
   {
     typeId: "roborean.noop",
+    name: "No-op",
     version: "1.0.0",
     configSchema: { type: "object", additionalProperties: false },
     effectClass: "pure",
@@ -209,6 +243,7 @@ export const builtinManifests: BitTypeManifest[] = [
   },
   {
     typeId: "roborean.set_variable",
+    name: "Set variable",
     version: "1.0.0",
     configSchema: {
       type: "object",
@@ -222,6 +257,7 @@ export const builtinManifests: BitTypeManifest[] = [
   },
   {
     typeId: "roborean.copy_variable",
+    name: "Copy variable",
     version: "1.0.0",
     configSchema: {
       type: "object",
@@ -233,28 +269,64 @@ export const builtinManifests: BitTypeManifest[] = [
     capabilities: ["workspace.read", "workspace.write"],
     browserSafe: true,
   },
+  ...documentBitManifests,
 ];
+
+/**
+ * Whether a bit type may execute in the browser dry-run runtime.
+ *
+ * @param typeId - Bit type identifier.
+ * @returns True when the manifest marks the type as browser-safe.
+ */
+export function isBrowserRunnableBitType(typeId: string): boolean {
+  const manifest = builtinManifests.find((item) => item.typeId === typeId);
+
+  return manifest?.browserSafe === true;
+}
+
 export function executeBit(
   bit: Bit,
   workspace: WorkspaceSnapshot,
-): WorkspacePatch {
-  if (bit.type === "roborean.noop") return { ops: [] };
-  if (bit.type === "roborean.set_variable")
+): BitExecutionResult {
+  if (documentBitTypeIds.has(bit.type)) {
+    return executeDocumentBit(bit, workspace);
+  }
+
+  if (bit.type === "roborean.noop") {
+    return { workspacePatch: { ops: [] }, documentOps: [] };
+  }
+
+  if (bit.type === "roborean.set_variable") {
     return {
-      ops: [
-        {
-          op: "set",
-          key: String(bit.config.key),
-          value: bit.config.value as WorkspaceValue,
-        },
-      ],
+      workspacePatch: {
+        ops: [
+          {
+            op: "set",
+            key: String(bit.config.key),
+            value: bit.config.value as WorkspaceValue,
+          },
+        ],
+      },
+      documentOps: [],
     };
+  }
+
   if (bit.type === "roborean.copy_variable") {
     const from = String(bit.config.from);
     const to = String(bit.config.to);
     const value = workspace.values[from];
-    if (!value) throw new Error(`Missing source variable: ${from}`);
-    return { ops: [{ op: "set", key: to, value: structuredClone(value) }] };
+
+    if (!value) {
+      throw new Error(`Missing source variable: ${from}`);
+    }
+
+    return {
+      workspacePatch: {
+        ops: [{ op: "set", key: to, value: structuredClone(value) }],
+      },
+      documentOps: [],
+    };
   }
+
   throw new Error(`Unknown bit type: ${bit.type}`);
 }

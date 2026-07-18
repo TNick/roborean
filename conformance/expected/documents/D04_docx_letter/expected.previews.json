@@ -1,0 +1,12 @@
+{
+  "letter": {
+    "documentId": "letter",
+    "mode": "html",
+    "body": "<div class=\"roborean-docx\"><p>Dear Ada,</p><p>Thank you.</p><p>Best regards.</p></div>",
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-docx",
+      "version": "0.3.0"
+    }
+  }
+}

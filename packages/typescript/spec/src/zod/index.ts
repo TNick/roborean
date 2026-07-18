@@ -103,8 +103,11 @@ export const projectSchema = z
       z
         .object({
           id: z.string(),
+          title: z.string(),
+          description: z.string().optional(),
           type: z.enum(["text", "markdown", "xlsx", "docx", "image", "dxf"]),
           templateRef: z.string(),
+          baseTemplateRef: z.string().optional(),
           driver: z.string(),
         })
         .passthrough(),

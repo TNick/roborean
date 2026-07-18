@@ -11,6 +11,7 @@ license = "MIT"
 dependencies = [
   "fastapi>=0.115.0",
   "pydantic-settings>=2.0.0",
+  "roborean-documents-base>=0.1.1",
   "roborean-engine>=0.1.1",
   "roborean-storage-base>=0.1.1",
   "roborean-storage-dict>=0.1.1",

@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "starter.set-and-copy",
+  "name": "Set and copy",
+  "description": "Sets a title, copies it, and declares typed workspace variables.",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "title",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Hello"
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Primary title used by the set-and-copy bits."
+      },
+      {
+        "key": "title_copy",
+        "schema": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": ""
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Copy of the title variable."
+      },
+      {
+        "key": "item_count",
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "number",
+          "value": 0
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Non-negative inventory count."
+      },
+      {
+        "key": "enabled",
+        "schema": {
+          "type": "boolean"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "boolean",
+          "value": true
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Whether the example item is active."
+      },
+      {
+        "key": "due_date",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "date",
+          "value": "2026-01-15"
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "ISO due date for the example record."
+      },
+      {
+        "key": "priority",
+        "schema": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "medium"
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Priority label constrained to three values."
+      },
+      {
+        "key": "score",
+        "schema": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "multipleOf": 0.5
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "number",
+          "value": 10
+        },
+        "const": false,
+        "exposure": "clientVisible",
+        "description": "Numeric score from 0 to 100 in half-point steps."
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "set_title",
+      "type": "roborean.set_variable",
+      "when": true,
+      "config": {
+        "key": "title",
+        "value": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "World"
+        }
+      },
+      "reads": [],
+      "writes": ["title"],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.write"]
+    },
+    {
+      "id": "copy_title",
+      "type": "roborean.copy_variable",
+      "when": true,
+      "config": { "from": "title", "to": "title_copy" },
+      "reads": ["title"],
+      "writes": ["title_copy"],
+      "emits": [],
+      "effectClass": "workspace",
+      "onError": "abort",
+      "capabilities": ["workspace.read", "workspace.write"]
+    }
+  ],
+  "documents": [],
+  "templates": [],
+  "metadata": {}
+}

@@ -1,0 +1,24 @@
+{
+  "documents": {
+    "hello_doc": {
+      "definition": {
+        "id": "hello_doc",
+        "type": "text",
+        "driver": "roborean.text"
+      },
+      "ops": [
+        {
+          "documentId": "hello_doc",
+          "op": "replace_named_value",
+          "name": "name",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Ada"
+          }
+        }
+      ],
+      "templateText": "Hello, {{name}}!\n"
+    }
+  }
+}

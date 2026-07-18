@@ -1,19 +1,31 @@
 {
   "typeId": "roborean.replace_named_value",
+  "name": "Replace named value",
   "version": "1.0.0",
   "configSchema": {
     "type": "object",
-    "required": ["documentId", "name"],
+    "required": [
+      "documentId",
+      "name"
+    ],
     "properties": {
-      "documentId": { "type": "string" },
-      "name": { "type": "string" },
-      "fromKey": { "type": "string" },
+      "documentId": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "fromKey": {
+        "type": "string"
+      },
       "value": {}
     },
     "additionalProperties": false
   },
   "effectClass": "document",
-  "capabilities": ["document.write"],
+  "capabilities": [
+    "document.write"
+  ],
   "readsFromConfig": true,
   "browserSafe": true
 }

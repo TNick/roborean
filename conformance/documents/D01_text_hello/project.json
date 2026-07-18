@@ -45,6 +45,7 @@
   "documents": [
     {
       "id": "hello_doc",
+      "title": "Hello",
       "type": "text",
       "driver": "roborean.text",
       "templateRef": "hello",

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roborean.dev/schemas/preview.schema.json",
+  "title": "ApiDocumentPreview",
+  "description": "HTTP preview response wrapper (see also document-preview.schema.json).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["documentId", "kind", "body", "warnings"],
+  "properties": {
+    "documentId": { "type": "string" },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "html",
+        "text",
+        "sheet-json",
+        "drawing-json",
+        "unsupported"
+      ]
+    },
+    "body": {},
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "code", "message"],
+        "properties": {
+          "severity": { "type": "string" },
+          "code": { "type": "string" },
+          "message": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

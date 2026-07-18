@@ -2,15 +2,17 @@
   "schemaVersion": "1.1.0",
   "projectId": "example.set-and-copy",
   "projectName": "Set and copy",
-  "compiledAt": "2026-07-17T09:23:28.813601+00:00",
+  "compiledAt": "2026-07-18T07:29:34.344738+00:00",
   "engineVersion": "0.3.0",
   "ruleProfileVersion": "1.0.0",
-  "digest": "023ecc650faf56859dd84357bccd4f39bf2f66fda3616d03f515a0cec811e878",
+  "digest": "0f0edff1cca4666399786b42641ca57bc2add4e49f49faf362b9a366cd23d146",
   "variables": [
     {
       "key": "title",
       "schema": {
-        "type": "string"
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
       },
       "defaultValue": {
         "kind": "public_literal",
@@ -19,12 +21,13 @@
       },
       "const": false,
       "exposure": "clientVisible",
-      "description": null
+      "description": "Primary title used by the set-and-copy bits."
     },
     {
       "key": "title_copy",
       "schema": {
-        "type": "string"
+        "type": "string",
+        "maxLength": 80
       },
       "defaultValue": {
         "kind": "public_literal",
@@ -33,7 +36,88 @@
       },
       "const": false,
       "exposure": "clientVisible",
-      "description": null
+      "description": "Copy of the title variable."
+    },
+    {
+      "key": "item_count",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 999
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "number",
+        "value": 0
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": "Non-negative inventory count."
+    },
+    {
+      "key": "enabled",
+      "schema": {
+        "type": "boolean"
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "boolean",
+        "value": true
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": "Whether the example item is active."
+    },
+    {
+      "key": "due_date",
+      "schema": {
+        "type": "string",
+        "format": "date"
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "date",
+        "value": "2026-01-15"
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": "ISO due date for the example record."
+    },
+    {
+      "key": "priority",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "string",
+        "value": "medium"
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": "Priority label constrained to three values."
+    },
+    {
+      "key": "score",
+      "schema": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 100,
+        "multipleOf": 0.5
+      },
+      "defaultValue": {
+        "kind": "public_literal",
+        "dataType": "number",
+        "value": 10
+      },
+      "const": false,
+      "exposure": "clientVisible",
+      "description": "Numeric score from 0 to 100 in half-point steps."
     }
   ],
   "bits": [
@@ -123,5 +207,36 @@
     "roborean.set_variable": "1.0.0",
     "roborean.copy_variable": "1.0.0"
   },
-  "diagnostics": []
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "W_UNUSED_VARIABLE",
+      "message": "Variable is never read or written: item_count",
+      "path": null
+    },
+    {
+      "severity": "warning",
+      "code": "W_UNUSED_VARIABLE",
+      "message": "Variable is never read or written: enabled",
+      "path": null
+    },
+    {
+      "severity": "warning",
+      "code": "W_UNUSED_VARIABLE",
+      "message": "Variable is never read or written: due_date",
+      "path": null
+    },
+    {
+      "severity": "warning",
+      "code": "W_UNUSED_VARIABLE",
+      "message": "Variable is never read or written: priority",
+      "path": null
+    },
+    {
+      "severity": "warning",
+      "code": "W_UNUSED_VARIABLE",
+      "message": "Variable is never read or written: score",
+      "path": null
+    }
+  ]
 }

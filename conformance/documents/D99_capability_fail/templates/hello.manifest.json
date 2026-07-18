@@ -1,0 +1,16 @@
+{
+  "templateId": "hello",
+  "templateVersion": "1.0.0",
+  "documentType": "text",
+  "driver": "roborean.text",
+  "requiredInputs": ["name"],
+  "capabilities": [
+    "set_metadata",
+    "replace_named_value",
+    "plain.append_text",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "name": { "kind": "text", "required": true }
+  }
+}

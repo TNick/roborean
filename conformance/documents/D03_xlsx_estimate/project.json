@@ -57,6 +57,7 @@
   "documents": [
     {
       "id": "estimate",
+      "title": "Estimate",
       "type": "xlsx",
       "driver": "roborean.xlsx",
       "templateRef": "estimate",

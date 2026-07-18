@@ -1,0 +1,80 @@
+name: Platform
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Python packages
+        run: |
+          python -m venv venv
+          ./venv/bin/pip install --upgrade pip
+          ./venv/bin/pip install --isolated --index-url https://pypi.org/simple/ \
+            -e packages/python/roborean_spec \
+            -e "packages/python/roborean_engine[dev]"
+
+      - name: Dry-run parity
+        run: make parity-dryrun
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: make init-d
+
+      - name: Build TypeScript packages
+        run: pnpm run build:packages
+
+      - name: Install Playwright browsers
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      # One Playwright process (shared webServer). Avoid e2e-ai's per-test
+      # loop here so CI does not restart API/Vite three times.
+      - name: E2E verify
+        run: pnpm --filter web exec playwright test
+
+  pages-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: pnpm install --registry https://registry.npmjs.org/
+
+      - name: Build static GitHub Pages bundle
+        env:
+          VITE_GOOGLE_CLIENT_ID: ci-dummy.apps.googleusercontent.com
+        run: pnpm run build:pages
+
+      - name: Verify Pages asset base path
+        run: grep -q '/roborean/' apps/web/dist/index.html

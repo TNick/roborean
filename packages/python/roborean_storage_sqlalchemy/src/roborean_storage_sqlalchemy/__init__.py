@@ -1,6 +1,7 @@
 """SQLAlchemy persistence adapter for Roborean."""
 
 from .migrate import SCHEMA_VERSION, upgrade
+from .package_materializer import materialize_project_package
 from .project_repo import SqlAlchemyProjectRepository
 from .run_repo import SqlAlchemyRunRepository
 from .session import create_all, make_engine, make_session_factory
@@ -14,5 +15,6 @@ __all__ = [
     "create_all",
     "make_engine",
     "make_session_factory",
+    "materialize_project_package",
     "upgrade",
 ]

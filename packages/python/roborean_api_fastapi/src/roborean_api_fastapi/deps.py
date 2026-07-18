@@ -1,5 +1,6 @@
 """FastAPI dependency wiring."""
 
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,6 +22,8 @@ from roborean_storage_dict import (
 
 from .security import Principal, resolve_principal
 from .settings import Settings, load_settings
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -88,12 +91,24 @@ def build_app_state(settings: Settings) -> AppState:
             project_id: Project identifier used by the repository.
 
         Returns:
-            Package directory path when present for dict storage, else None.
+            Package directory path when available, else None.
         """
         if isinstance(projects, DictProjectRepository):
             path = projects._project_dir(project_id)
             return path if path.is_dir() else None
-        return None
+
+        from roborean_storage_sqlalchemy import materialize_project_package
+
+        try:
+            project = projects.get(project_id)
+        except Exception:
+            logger.debug(
+                "Could not load project %s for package materialization",
+                project_id,
+                exc_info=True,
+            )
+            return None
+        return materialize_project_package(projects, project)
 
     # Wire the durable run service to the selected ports.
     run_service = RunService(

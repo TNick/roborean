@@ -1,9 +1,9 @@
 {
-  "runId": "229b51c3-098e-4b68-865c-c177f5e92611",
+  "runId": "fa5ac5aa-a6f5-4299-9c25-1d4c1403abb0",
   "projectId": "example.minimal",
   "projectDigest": "f664e49a48a049b4a5c44fe6db479db426b29105ce2fc4d7085afb11527ba328",
-  "startedAt": "2026-07-17T09:23:28.779045+00:00",
-  "finishedAt": "2026-07-17T09:23:28.780046+00:00",
+  "startedAt": "2026-07-18T07:29:34.313346+00:00",
+  "finishedAt": "2026-07-18T07:29:34.313346+00:00",
   "status": "success",
   "inputWorkspaceHash": "82d8a6993e84fdd6ffdc1a7ba65e1b2efbe2b2a4c914e512c02a6965fdaa5966",
   "finalWorkspaceHash": "82d8a6993e84fdd6ffdc1a7ba65e1b2efbe2b2a4c914e512c02a6965fdaa5966",
@@ -14,7 +14,7 @@
       "active": true,
       "activationReason": "always",
       "status": "success",
-      "durationMs": 0.09480000153416768,
+      "durationMs": 0.030099996365606785,
       "workspacePatch": {
         "ops": []
       },

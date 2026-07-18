@@ -9,8 +9,63 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { useTheme } from "@mui/material/styles";
 
-export { roboreanTheme } from "./theme.js";
+import { CollapsibleSearchField } from "./CollapsibleSearchField.js";
+import { themedScrollbarSx } from "./scrollbarStyles.js";
+
+export { AppToolbar, type AppToolbarProps } from "./AppToolbar.js";
+export { FormStack } from "./FormStack.js";
+export { FormTextField } from "./FormTextField.js";
+export {
+  buttonSizeForPreset,
+  controlStackSpacingForPreset,
+  defaultButtonSize,
+  defaultControlStackSpacing,
+  defaultFieldVariant,
+  type ButtonSize,
+} from "./roboreanThemeAugmentation.js";
+export { useControlStackSpacing } from "./useControlStackSpacing.js";
+export { useFieldVariant } from "./useFieldVariant.js";
+export {
+  defaultAppearancePreferences,
+  type AppearancePreferences,
+  type ColorMode,
+  type FieldVariant,
+  type FontSizePreset,
+  type SpacingPreset,
+} from "./appearancePreferences.js";
+export { RoboreanToolbarEnd } from "./RoboreanToolbarEnd.js";
+export {
+  ThemePreferencesProvider,
+  useThemePreferences,
+  type ThemePreferencesContextValue,
+  type ThemePreferencesProviderProps,
+} from "./ThemePreferencesProvider.js";
+export {
+  ThemeSettingsButton,
+  type ThemeSettingsButtonProps,
+} from "./ThemeSettingsButton.js";
+export { UserMenuButton, type UserMenuButtonProps } from "./UserMenuButton.js";
+export {
+  loadThemePreferences,
+  saveThemePreferences,
+  THEME_PREFERENCES_STORAGE_KEY,
+} from "./themePreferences.js";
+export { createRoboreanTheme, roboreanTheme } from "./theme.js";
+export {
+  CollapsibleSearchField,
+  type CollapsibleSearchFieldProps,
+} from "./CollapsibleSearchField.js";
+export {
+  TemplatesLibrary,
+  documentTypeFilters,
+  filterTemplateLibraryEntries,
+  recipeTagFilters,
+  type TemplateLibraryEntry,
+  type TemplateLibraryKind,
+  type TemplatesLibraryProps,
+} from "./TemplatesLibrary.js";
 export {
   Alert,
   Box,
@@ -25,17 +80,103 @@ export {
 };
 
 export type PanelProps = {
+  /** Panel section title shown on the left of the header row. */
   title: string;
+
+  /** Panel body content. */
   children: ReactNode;
+
+  /** Optional search query shown in a collapsible field on the title row. */
+  searchQuery?: string;
+
+  /**
+   * Called when the user edits the optional panel search field.
+   *
+   * @param query - Updated search query text.
+   */
+  onSearchQueryChange?: (query: string) => void;
+
+  /** Placeholder for the optional panel search field. */
+  searchPlaceholder?: string;
 };
 
+/** Default max height for scrollable list sections in stacked editor panels. */
+export const PANEL_LIST_MAX_HEIGHT = 220;
+
+export type ScrollablePanelSectionProps = {
+  /** Panel section content that should scroll when it overflows. */
+  children: ReactNode;
+
+  /** Maximum section height before vertical scrolling is enabled. */
+  maxHeight?: number | string;
+};
+
+/**
+ * Scrollable body region for list-style editor panels.
+ *
+ * @param props - Children and optional max height override.
+ * @returns Scrollable panel section element.
+ */
+export function ScrollablePanelSection({
+  children,
+  maxHeight = PANEL_LIST_MAX_HEIGHT,
+}: ScrollablePanelSectionProps) {
+  const theme = useTheme();
+
+  return (
+    <Box
+      sx={{
+        maxHeight,
+        overflowY: "auto",
+        overflowX: "hidden",
+        pr: 0.5,
+        ...themedScrollbarSx(theme),
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 /** Titled section chrome for editor panels. */
-export function Panel({ title, children }: PanelProps) {
+export function Panel({
+  title,
+  children,
+  searchQuery,
+  onSearchQueryChange,
+  searchPlaceholder,
+}: PanelProps) {
+  const showSearch =
+    searchQuery !== undefined && onSearchQueryChange !== undefined;
+
   return (
     <Paper variant="outlined" sx={{ p: 2, height: "100%" }}>
-      <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
-        {title}
-      </Typography>
+      <Box
+        sx={{
+          alignItems: "center",
+          display: "flex",
+          gap: 1,
+          justifyContent: "space-between",
+          mb: 1,
+          minWidth: 0,
+        }}
+      >
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 600, minWidth: 0 }}
+          noWrap
+        >
+          {title}
+        </Typography>
+        {showSearch ? (
+          <CollapsibleSearchField
+            value={searchQuery}
+            onChange={onSearchQueryChange}
+            placeholder={searchPlaceholder}
+            ariaLabel={`Search ${title.toLowerCase()}`}
+          />
+        ) : null}
+      </Box>
       {children}
     </Paper>
   );

@@ -1,0 +1,48 @@
+{
+  "documents": {
+    "report_doc": {
+      "definition": {
+        "id": "report_doc",
+        "type": "markdown",
+        "driver": "roborean.markdown"
+      },
+      "ops": [
+        {
+          "documentId": "report_doc",
+          "op": "flow.insert_heading",
+          "level": 2,
+          "text": "Summary"
+        },
+        {
+          "documentId": "report_doc",
+          "op": "flow.insert_paragraph",
+          "runs": [
+            {
+              "text": "All good."
+            }
+          ]
+        },
+        {
+          "documentId": "report_doc",
+          "op": "flow.replace_table_rows",
+          "table": "items",
+          "rows": [
+            [
+              "Item",
+              "Qty"
+            ],
+            [
+              "A",
+              "1"
+            ],
+            [
+              "B",
+              "2"
+            ]
+          ]
+        }
+      ],
+      "templateText": "# Report\n"
+    }
+  }
+}

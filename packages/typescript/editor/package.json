@@ -19,15 +19,18 @@
     "@roborean/engine": "workspace:*",
     "@roborean/spec": "workspace:*",
     "@roborean/ui": "workspace:*",
+    "@roborean/documents-preview": "workspace:*",
     "@roborean/validation": "workspace:*"
   },
   "peerDependencies": {
+    "@mui/icons-material": "^6.0.0",
     "@mui/material": "^6.0.0",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",

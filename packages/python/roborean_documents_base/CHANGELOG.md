@@ -4,6 +4,8 @@
 
 ### Added
 
+- Static template library assets (D01–D06 document templates, starters, and
+  recipes) with `template_library` loader helpers.
 - Document driver protocols, template store, capability checks, and
   session manager for Phase 3 document generation.
 

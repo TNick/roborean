@@ -1,0 +1,27 @@
+{
+  "documents": {
+    "letter": {
+      "definition": {
+        "id": "letter",
+        "type": "docx",
+        "driver": "roborean.docx"
+      },
+      "ops": [
+        {
+          "documentId": "letter",
+          "op": "flow.insert_paragraph",
+          "runs": [
+            {
+              "text": "Best regards."
+            }
+          ]
+        }
+      ],
+      "paragraphTexts": [
+        "Dear Ada,",
+        "Thank you.",
+        "Best regards."
+      ]
+    }
+  }
+}

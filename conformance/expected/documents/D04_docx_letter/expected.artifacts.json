@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "letter",
+      "path": "letter.docx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "compare": "semantic"
+    }
+  ]
+}

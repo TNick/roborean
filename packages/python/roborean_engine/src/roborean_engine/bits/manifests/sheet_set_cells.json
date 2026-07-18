@@ -1,18 +1,29 @@
 {
   "typeId": "roborean.sheet_set_cells",
+  "name": "Set cells",
   "version": "1.0.0",
   "configSchema": {
     "type": "object",
-    "required": ["documentId"],
+    "required": [
+      "documentId"
+    ],
     "properties": {
-      "documentId": { "type": "string" },
-      "cells": { "type": "array" },
-      "formulas": { "type": "array" }
+      "documentId": {
+        "type": "string"
+      },
+      "cells": {
+        "type": "array"
+      },
+      "formulas": {
+        "type": "array"
+      }
     },
     "additionalProperties": false
   },
   "effectClass": "document",
-  "capabilities": ["document.write"],
+  "capabilities": [
+    "document.write"
+  ],
   "readsFromConfig": true,
   "browserSafe": false
 }

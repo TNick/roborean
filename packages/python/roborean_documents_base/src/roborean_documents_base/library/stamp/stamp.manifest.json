@@ -1,0 +1,12 @@
+{
+  "templateId": "stamp",
+  "templateVersion": "1.0.0",
+  "documentType": "image",
+  "driver": "roborean.image",
+  "requiredInputs": [],
+  "capabilities": [
+    "raster.draw_text",
+    "finalize"
+  ],
+  "declaredSlots": {}
+}

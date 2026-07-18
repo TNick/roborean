@@ -1,6 +1,7 @@
 """Store-backed durable run orchestration."""
 
 import logging
+import time
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -122,7 +123,14 @@ class RunService:
             createdAt=now,
             requestDigest=digest,
         )
-        self.runs.save(record)
+        try:
+            self.runs.save(record)
+        except ConflictError as error:
+            if "different request body" in str(error):
+                raise
+            return self._wait_for_idempotent_run(
+                request.project_id, key, digest
+            )
 
         # Transition to running before pure execution.
         started = self.clock().isoformat()
@@ -230,6 +238,45 @@ class RunService:
             )
             self.runs.update(record)
             raise
+
+    def _wait_for_idempotent_run(
+        self,
+        project_id: str,
+        idempotency_key: str,
+        request_digest: str,
+        *,
+        attempts: int = 100,
+        delay_seconds: float = 0.02,
+    ) -> RunRecord:
+        """Return the run record after a concurrent idempotency claim.
+
+        Args:
+            project_id: Project that owns the idempotency key.
+            idempotency_key: Normalized idempotency key.
+            request_digest: Digest of the request body for conflict checks.
+            attempts: Maximum poll iterations when the run dir is pending.
+            delay_seconds: Sleep between polls.
+
+        Returns:
+            The durable run record for the idempotency key.
+
+        Raises:
+            ConflictError: When the key is bound to a different request body
+                or the run record never appears.
+        """
+        for _ in range(attempts):
+            existing = self.runs.get_by_idempotency(project_id, idempotency_key)
+            if existing is not None:
+                if (
+                    existing.request_digest
+                    and existing.request_digest != request_digest
+                ):
+                    raise ConflictError(
+                        "idempotency key reused with a different request body"
+                    )
+                return existing
+            time.sleep(delay_seconds)
+        raise ConflictError("idempotency key already exists")
 
     def _persist_run_artifacts(self, run_id: str, outcome: RunOutcome) -> None:
         """Store generated document bytes for later download.

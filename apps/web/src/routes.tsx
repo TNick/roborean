@@ -1,18 +1,25 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import { HomePage } from "./pages/HomePage.js";
 import { ProjectEditPage } from "./pages/ProjectEditPage.js";
 import { ProjectListPage } from "./pages/ProjectListPage.js";
 import { RunDetailPage } from "./pages/RunDetailPage.js";
+import { TemplatesLibraryPage } from "./pages/TemplatesLibraryPage.js";
 
+/**
+ * Application routes using a hash router for static hosting.
+ *
+ * @returns Router element.
+ */
 export function AppRoutes() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/projects" element={<ProjectListPage />} />
         <Route path="/projects/:id" element={<ProjectEditPage />} />
         <Route path="/runs/:runId" element={<RunDetailPage />} />
+        <Route path="/templates" element={<TemplatesLibraryPage />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

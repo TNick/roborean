@@ -1,0 +1,158 @@
+{
+  "entries": [
+    {
+      "id": "hello",
+      "kind": "document",
+      "title": "Hello text",
+      "description": "Replace {{name}} with a greeting.",
+      "documentType": "text",
+      "driver": "roborean.text",
+      "irFamily": "plain",
+      "tags": ["text", "starter"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": ["name"],
+      "capabilities": [
+        "set_metadata",
+        "replace_named_value",
+        "plain.append_text",
+        "finalize"
+      ],
+      "path": "hello/hello.txt",
+      "mediaType": "text/plain",
+      "manifestPath": "hello/hello.manifest.json"
+    },
+    {
+      "id": "report",
+      "kind": "document",
+      "title": "Markdown report",
+      "description": "Flow-based markdown report template.",
+      "documentType": "markdown",
+      "driver": "roborean.markdown",
+      "irFamily": "flow",
+      "tags": ["markdown"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": [],
+      "capabilities": [
+        "flow.insert_heading",
+        "flow.insert_paragraph",
+        "flow.replace_table_rows",
+        "finalize"
+      ],
+      "path": "report/report.md",
+      "mediaType": "text/markdown",
+      "manifestPath": "report/report.manifest.json"
+    },
+    {
+      "id": "estimate",
+      "kind": "document",
+      "title": "Spreadsheet estimate",
+      "description": "Excel estimate workbook template.",
+      "documentType": "xlsx",
+      "driver": "roborean.xlsx",
+      "irFamily": "sheet",
+      "tags": ["xlsx", "spreadsheet"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": [],
+      "capabilities": ["sheet.replace_cell", "finalize"],
+      "path": "estimate/estimate.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "manifestPath": "estimate/estimate.manifest.json"
+    },
+    {
+      "id": "letter",
+      "kind": "document",
+      "title": "Word letter",
+      "description": "DOCX letter with named placeholders.",
+      "documentType": "docx",
+      "driver": "roborean.docx",
+      "irFamily": "flow",
+      "tags": ["docx", "letter"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": ["recipient"],
+      "capabilities": ["flow.replace_named_value", "finalize"],
+      "path": "letter/letter.docx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "manifestPath": "letter/letter.manifest.json"
+    },
+    {
+      "id": "stamp",
+      "kind": "document",
+      "title": "Image stamp",
+      "description": "PNG stamp overlay template.",
+      "documentType": "image",
+      "driver": "roborean.image",
+      "irFamily": "raster",
+      "tags": ["image", "png"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": [],
+      "capabilities": ["raster.overlay", "finalize"],
+      "path": "stamp/stamp.png",
+      "mediaType": "image/png",
+      "manifestPath": "stamp/stamp.manifest.json"
+    },
+    {
+      "id": "frame",
+      "kind": "document",
+      "title": "DXF frame",
+      "description": "CAD frame drawing template.",
+      "documentType": "dxf",
+      "driver": "roborean.dxf",
+      "irFamily": "drawing",
+      "tags": ["dxf", "cad"],
+      "templateVersion": "1.0.0",
+      "requiredInputs": [],
+      "capabilities": ["drawing.insert_entity", "finalize"],
+      "path": "frame/frame.dxf",
+      "mediaType": "application/dxf",
+      "manifestPath": "frame/frame.manifest.json"
+    },
+    {
+      "id": "blank-workspace",
+      "kind": "starter",
+      "title": "Blank workspace",
+      "description": "Empty project with no bits or documents.",
+      "tags": ["starter", "minimal"],
+      "variableCount": 0,
+      "bitCount": 0,
+      "documentCount": 0,
+      "starterPath": "starters/blank-workspace.json"
+    },
+    {
+      "id": "set-and-copy",
+      "kind": "starter",
+      "title": "Set and copy",
+      "description": "Sets a title variable and copies it to title_copy.",
+      "tags": ["starter", "workspace"],
+      "variableCount": 6,
+      "bitCount": 2,
+      "documentCount": 0,
+      "starterPath": "starters/set-and-copy.json"
+    },
+    {
+      "id": "text-hello",
+      "kind": "starter",
+      "title": "Text hello",
+      "description": "Greeting document filled from a workspace name variable.",
+      "tags": ["starter", "document", "text"],
+      "variableCount": 1,
+      "bitCount": 1,
+      "documentCount": 1,
+      "starterPath": "starters/text-hello.json"
+    },
+    {
+      "id": "set-and-copy-title",
+      "kind": "recipe",
+      "title": "Set and copy title",
+      "description": "Adds title/title_copy variables and set+copy bits.",
+      "tags": ["workspace", "recipe"],
+      "variableCount": 2,
+      "bitCount": 2,
+      "documentCount": 0,
+      "requiredBitTypes": [
+        "roborean.set_variable",
+        "roborean.copy_variable"
+      ],
+      "recipePath": "recipes/set-and-copy-title.json"
+    }
+  ]
+}

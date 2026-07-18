@@ -36,11 +36,17 @@ export function loadSchema(name: string): Record<string, unknown> {
 function createAjv(): {
   addSchema: (schema: object) => void;
   validate: (schemaKey: string, data: unknown) => boolean;
+  compile: (schema: object) => ((data: unknown) => boolean) & {
+    errors?: ErrorObject[] | null;
+  };
   errors: ErrorObject[] | null | undefined;
 } {
   const ajv = new Ajv2020({ allErrors: true, strict: false }) as {
     addSchema: (schema: object) => void;
     validate: (schemaKey: string, data: unknown) => boolean;
+    compile: (schema: object) => ((data: unknown) => boolean) & {
+      errors?: ErrorObject[] | null;
+    };
     errors: ErrorObject[] | null | undefined;
   };
   addFormats(ajv);
@@ -58,4 +64,21 @@ export function validate(schemaName: string, data: unknown): ValidationResult {
   const schema = loadSchema(schemaName);
   const valid = ajv.validate(schema.$id as string, data);
   return { valid: Boolean(valid), errors: ajv.errors };
+}
+
+/**
+ * Validates data against an inline JSON Schema object.
+ *
+ * @param schema - Draft 2020-12 schema document.
+ * @param data - Value to validate.
+ * @returns Whether the value is valid and any Ajv errors.
+ */
+export function validateDataAgainstSchema(
+  schema: Record<string, unknown>,
+  data: unknown,
+): ValidationResult {
+  const ajv = createAjv();
+  const validateFn = ajv.compile(schema);
+  const valid = validateFn(data);
+  return { valid: Boolean(valid), errors: validateFn.errors ?? null };
 }

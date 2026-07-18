@@ -8,6 +8,11 @@ Normative rules for Phase 3 document drivers and operations.
    drivers are forbidden except test-only `roborean.null`.
 2. Each template has a sidecar manifest
    (`templates/<id>.manifest.json` by default).
+3. When a document's template content is edited in the editor, the
+   project forks a stand-alone template for that document. The fork is
+   tracked with optional ``baseTemplateRef`` pointing at the shared
+   template the document originally referenced. Revert drops the fork
+   and restores ``templateRef`` to ``baseTemplateRef``.
 3. Slot syntax for the text driver is Mustache-like `{{slot}}` replace
    only — no Jinja logic in Phase 3.
 4. Text artifacts use LF newlines. Trailing newline is preserved when the

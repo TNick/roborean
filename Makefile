@@ -1,4 +1,4 @@
-.PHONY: init init-d test lint delint pre-commit conformance test-storage conformance-documents api web platform openapi openapi-check e2e e2e-discover e2e-run e2e-repair e2e-doctor parity-dryrun
+.PHONY: init init-d test lint delint pre-commit conformance test-storage conformance-documents conformance-documents-ts conformance-runtime verify verify-core schema-sync api web platform openapi openapi-check e2e e2e-discover e2e-run e2e-repair e2e-doctor parity-dryrun pages
 
 ifeq ($(OS),Windows_NT)
 PYTHON = venv/Scripts/python.exe
@@ -48,6 +48,9 @@ api:
 
 web:
 	pnpm --filter web dev
+
+pages:
+	pnpm run build:pages
 
 platform:
 	@echo "Run make api and make web in separate terminals"
@@ -109,3 +112,16 @@ conformance:
 
 conformance-documents:
 	$(PYTHON) tools/run_document_conformance.py
+
+conformance-documents-ts:
+	pnpm --filter @roborean/documents-preview test
+
+conformance-runtime:
+	$(PYTHON) tools/run_runtime_conformance.py
+
+schema-sync:
+	$(PYTHON) tools/check_schema_sync.py
+
+verify-core: schema-sync conformance conformance-runtime test-storage conformance-documents conformance-documents-ts
+
+verify: verify-core openapi-check parity-dryrun

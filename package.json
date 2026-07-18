@@ -4,9 +4,11 @@
   "type": "module",
   "scripts": {
     "test": "pnpm run build && pnpm -r test",
-    "lint": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types && prettier --check \"packages/typescript/**/*.{ts,tsx,js,jsx,mjs,cjs}\" \"apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}\"",
+    "lint": "tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types packages/typescript/google-workspace && prettier --check \"packages/typescript/**/*.{ts,tsx,js,jsx,mjs,cjs}\" \"apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}\"",
     "format": "prettier --write \"packages/typescript/**/*.{ts,tsx,js,jsx,mjs,cjs}\" \"apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}\"",
-    "build": "node packages/typescript/spec/scripts/embed-schemas.mjs && tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types"
+    "build": "node packages/typescript/spec/scripts/embed-schemas.mjs && tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types packages/typescript/google-workspace && pnpm --filter web build",
+    "build:packages": "node packages/typescript/spec/scripts/embed-schemas.mjs && tsc -b packages/typescript/spec packages/typescript/engine packages/typescript/documents-base packages/typescript/documents-text packages/typescript/documents-markdown packages/typescript/documents-preview packages/typescript/validation packages/typescript/api-types packages/typescript/google-workspace",
+    "build:pages": "pnpm run build:packages && pnpm --filter web build:pages"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

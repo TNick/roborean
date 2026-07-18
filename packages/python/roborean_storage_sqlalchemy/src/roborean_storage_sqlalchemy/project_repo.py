@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
 from .mappers import project_to_row, revision_to_row, row_to_project
-from .models import ProjectRevisionRow, ProjectRow
+from .models import ProjectFileRow, ProjectRevisionRow, ProjectRow
 
 
 class SqlAlchemyProjectRepository:
@@ -97,6 +97,91 @@ class SqlAlchemyProjectRepository:
             session.commit()
         return rev
 
+    def get_file(self, project_id: str, relative_path: str) -> bytes:
+        """Read one project package file.
+
+        Args:
+            project_id: Stable project identifier.
+            relative_path: Path relative to the package root.
+
+        Returns:
+            Raw file bytes.
+
+        Raises:
+            NotFoundError: When the file is not stored.
+        """
+        with self._session_factory() as session:
+            row = session.get(
+                ProjectFileRow,
+                {"project_id": project_id, "path": relative_path},
+            )
+            if row is None:
+                raise NotFoundError(relative_path)
+            return bytes(row.content)
+
+    def put_file(
+        self, project_id: str, relative_path: str, data: bytes
+    ) -> None:
+        """Write one project package file.
+
+        Args:
+            project_id: Stable project identifier.
+            relative_path: Path relative to the package root.
+            data: Raw file bytes to persist.
+        """
+        with self._session_factory() as session:
+            row = session.get(
+                ProjectFileRow,
+                {"project_id": project_id, "path": relative_path},
+            )
+            now = datetime.now(UTC)
+            if row is None:
+                session.add(
+                    ProjectFileRow(
+                        project_id=project_id,
+                        path=relative_path,
+                        content=data,
+                        updated_at=now,
+                    )
+                )
+            else:
+                row.content = data
+                row.updated_at = now
+            session.commit()
+
+    def delete_file(self, project_id: str, relative_path: str) -> None:
+        """Remove one project package file when present.
+
+        Args:
+            project_id: Stable project identifier.
+            relative_path: Path relative to the package root.
+        """
+        with self._session_factory() as session:
+            row = session.get(
+                ProjectFileRow,
+                {"project_id": project_id, "path": relative_path},
+            )
+            if row is not None:
+                session.delete(row)
+                session.commit()
+
+    def list_files(self, project_id: str) -> list[str]:
+        """List stored relative paths for one project.
+
+        Args:
+            project_id: Stable project identifier.
+
+        Returns:
+            Sorted list of relative package paths.
+        """
+        with self._session_factory() as session:
+            rows = session.scalars(
+                select(ProjectFileRow.path)
+                .where(ProjectFileRow.project_id == project_id)
+                .order_by(ProjectFileRow.path)
+            )
+            return list(rows)
+
     def list_ids(self) -> list[str]:
         """List stored project identifiers.
 
@@ -132,4 +217,11 @@ class SqlAlchemyProjectRepository:
             )
             for revision in revisions:
                 session.delete(revision)
+            files = session.scalars(
+                select(ProjectFileRow).where(
+                    ProjectFileRow.project_id == project_id
+                )
+            )
+            for file_row in files:
+                session.delete(file_row)
             session.commit()

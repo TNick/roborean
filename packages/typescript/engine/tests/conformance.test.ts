@@ -50,6 +50,15 @@ describe("shared conformance fixtures", () => {
       "success",
     ]);
   });
+  it("compiles document bit projects with replace_named_value", () => {
+    const project = fixture(
+      "conformance/documents/D01_text_hello/project.json",
+    );
+    const compiled = compileProject(project);
+    expect(compiled.bits.map((bit) => bit.type)).toEqual([
+      "roborean.replace_named_value",
+    ]);
+  });
   it("rejects invalid undeclared writes during compilation", () => {
     expect(() =>
       compileProject(

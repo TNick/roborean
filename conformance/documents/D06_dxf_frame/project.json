@@ -69,6 +69,7 @@
   "documents": [
     {
       "id": "frame",
+      "title": "Frame",
       "type": "dxf",
       "driver": "roborean.dxf",
       "templateRef": "frame",

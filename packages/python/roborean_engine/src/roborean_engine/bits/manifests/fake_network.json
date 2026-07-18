@@ -1,5 +1,6 @@
 {
   "typeId": "roborean.fake_network",
+  "name": "Fake network",
   "version": "1.0.0",
   "configSchema": {
     "type": "object",

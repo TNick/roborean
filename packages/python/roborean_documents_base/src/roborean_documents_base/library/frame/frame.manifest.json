@@ -1,0 +1,14 @@
+{
+  "templateId": "frame",
+  "templateVersion": "1.0.0",
+  "documentType": "dxf",
+  "driver": "roborean.dxf",
+  "requiredInputs": [],
+  "capabilities": [
+    "drawing.ensure_layer",
+    "drawing.insert_polyline",
+    "drawing.insert_text",
+    "finalize"
+  ],
+  "declaredSlots": {}
+}

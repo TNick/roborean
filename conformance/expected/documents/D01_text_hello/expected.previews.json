@@ -1,0 +1,12 @@
+{
+  "hello_doc": {
+    "documentId": "hello_doc",
+    "mode": "text",
+    "body": "Hello, Ada!\n",
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-text",
+      "version": "0.3.0"
+    }
+  }
+}

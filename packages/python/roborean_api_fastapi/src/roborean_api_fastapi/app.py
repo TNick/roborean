@@ -7,7 +7,15 @@ from fastapi.openapi.utils import get_openapi
 from .deps import attach_app_state
 from .errors import install_exception_handlers
 from .openapi.customize import customize_openapi
-from .routers import artifacts, compile, health, previews, projects, runs
+from .routers import (
+    artifacts,
+    compile,
+    health,
+    previews,
+    projects,
+    runs,
+    template_library,
+)
 from .settings import Settings
 
 
@@ -43,6 +51,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(runs.router)
     app.include_router(artifacts.router)
     app.include_router(previews.router)
+    app.include_router(template_library.router)
 
     def custom_openapi() -> dict:
         """Build and cache the customized OpenAPI schema.

@@ -79,6 +79,7 @@ make init-d           # venv, packages, pnpm, e2e-ai, pre-commit hooks
 make delint           # autofix Python + TypeScript/JS format
 make pre-commit       # run all hooks on the tree
 make test
+make verify             # full semantic + OpenAPI + dry-run parity
 make conformance
 make e2e              # Playwright (or e2e-ai verify locally)
 e2e-ai doctor         # config check from repo root
@@ -86,6 +87,9 @@ e2e-ai repair         # optional AI fix loop when tests fail
 roborean validate conformance/projects/02_set_and_copy.json
 roborean run conformance/projects/02_set_and_copy.json
 ```
+
+CLI reference (validate, compile, durable runs, render/preview):
+[`packages/python/roborean_engine/README.md`](packages/python/roborean_engine/README.md).
 
 Local registry overrides: this repo pins PyPI via `pip.ini` and npm via
 `.npmrc` so installs do not depend on a private Verdaccio at `127.0.0.1:4873`.

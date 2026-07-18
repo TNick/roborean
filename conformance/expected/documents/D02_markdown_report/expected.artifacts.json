@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "report_doc",
+      "path": "report.md",
+      "mediaType": "text/markdown",
+      "compare": "bytes"
+    }
+  ]
+}

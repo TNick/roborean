@@ -1,5 +1,6 @@
 {
   "typeId": "roborean.noop",
+  "name": "No-op",
   "version": "1.0.0",
   "configSchema": {
     "type": "object",

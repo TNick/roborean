@@ -1,7 +1,11 @@
 {
   "typeId": "roborean.noop",
+  "name": "No-op",
   "version": "1.0.0",
-  "configSchema": { "type": "object", "additionalProperties": false },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false
+  },
   "effectClass": "pure",
   "capabilities": [],
   "browserSafe": true

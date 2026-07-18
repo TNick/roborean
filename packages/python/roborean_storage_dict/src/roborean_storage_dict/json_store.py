@@ -39,6 +39,41 @@ def _write_json(path: Path, data: dict[str, Any]) -> None:
     )
 
 
+def _idempotency_index_payload(record: RunRecord) -> dict[str, Any]:
+    """Build the on-disk idempotency index document for a new run.
+
+    Args:
+        record: Run record being inserted.
+
+    Returns:
+        JSON object stored under ``idempotency/``.
+    """
+    return {
+        "runId": record.run_id,
+        "createdAt": record.created_at,
+        "requestDigest": record.request_digest,
+    }
+
+
+def _raise_idempotency_conflict(index_path: Path, record: RunRecord) -> None:
+    """Raise ``ConflictError`` after an idempotency key is already claimed.
+
+    Args:
+        index_path: Existing idempotency index file.
+        record: Run record that lost the create race.
+
+    Raises:
+        ConflictError: When the key exists for the same or a different body.
+    """
+    payload = _read_json(index_path)
+    existing_digest = payload.get("requestDigest")
+    if existing_digest and existing_digest != record.request_digest:
+        raise ConflictError(
+            "idempotency key reused with a different request body"
+        )
+    raise ConflictError("idempotency key already exists")
+
+
 class DictProjectRepository:
     """Store projects under ``<root>/projects/<id>/``.
 
@@ -162,6 +197,71 @@ class DictProjectRepository:
                 path.rmdir()
         package_dir.rmdir()
 
+    def get_file(self, project_id: str, relative_path: str) -> bytes:
+        """Read one project package file.
+
+        Args:
+            project_id: Project identifier.
+            relative_path: Path relative to the package root.
+
+        Returns:
+            Raw file bytes.
+
+        Raises:
+            NotFoundError: When the file does not exist.
+        """
+        path = self._project_dir(project_id) / relative_path
+        if not path.is_file():
+            raise NotFoundError(relative_path)
+        return path.read_bytes()
+
+    def put_file(
+        self, project_id: str, relative_path: str, data: bytes
+    ) -> None:
+        """Write one project package file.
+
+        Args:
+            project_id: Project identifier.
+            relative_path: Path relative to the package root.
+            data: Raw file bytes to persist.
+        """
+        path = self._project_dir(project_id) / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+
+    def delete_file(self, project_id: str, relative_path: str) -> None:
+        """Remove one project package file when present.
+
+        Args:
+            project_id: Project identifier.
+            relative_path: Path relative to the package root.
+        """
+        path = self._project_dir(project_id) / relative_path
+        if path.is_file():
+            path.unlink()
+
+    def list_files(self, project_id: str) -> list[str]:
+        """List relative package file paths for one project.
+
+        Args:
+            project_id: Project identifier.
+
+        Returns:
+            Sorted relative paths under the package directory.
+        """
+        package_dir = self._project_dir(project_id)
+        if not package_dir.is_dir():
+            return []
+        return sorted(
+            str(path.relative_to(package_dir)).replace("\\", "/")
+            for path in package_dir.rglob("*")
+            if path.is_file()
+            and path.name != "project.json"
+            and path.name != "project.yaml"
+            and "revisions" not in path.parts
+            and path.name != "current_revision.txt"
+        )
+
 
 class DictRunRepository:
     """Store runs under ``<root>/runs/<projectId>/<runId>/``.
@@ -281,15 +381,47 @@ class DictRunRepository:
                     "idempotency key reused with a different request body"
                 )
             raise ConflictError("idempotency key already exists")
-        self._write_record(record)
-        _write_json(
-            self._idempotency_path(record.project_id, record.idempotency_key),
-            {
-                "runId": record.run_id,
-                "createdAt": record.created_at,
-                "requestDigest": record.request_digest,
-            },
+
+        # Claim the idempotency slot before writing run artifacts so
+        # parallel writers cannot insert two runs for one key.
+        index_path = self._idempotency_path(
+            record.project_id, record.idempotency_key
         )
+        index_path.parent.mkdir(parents=True, exist_ok=True)
+        index_body = (
+            json.dumps(
+                _idempotency_index_payload(record),
+                indent=2,
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+        try:
+            with open(index_path, "x", encoding="utf-8") as handle:
+                handle.write(index_body)
+        except FileExistsError:
+            _raise_idempotency_conflict(index_path, record)
+
+        try:
+            self._write_record(record)
+        except OSError:
+            logger.debug(
+                "Run record write failed after idempotency claim for %s",
+                record.run_id,
+                exc_info=True,
+            )
+            if index_path.is_file():
+                try:
+                    payload = _read_json(index_path)
+                    if payload.get("runId") == record.run_id:
+                        index_path.unlink()
+                except OSError:
+                    logger.debug(
+                        "Could not roll back idempotency index %s",
+                        index_path,
+                        exc_info=True,
+                    )
+            raise
 
     def update(self, record: RunRecord) -> None:
         """Overwrite an existing run artifact set.

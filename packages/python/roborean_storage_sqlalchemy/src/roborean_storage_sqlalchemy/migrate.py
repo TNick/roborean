@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from .models import SchemaMetaRow
 from .session import create_all
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def current_version(engine: Engine) -> int:

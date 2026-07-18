@@ -38,13 +38,16 @@
   "documents": [
     {
       "id": "stamp",
+      "title": "Stamp",
       "type": "image",
       "driver": "roborean.image",
       "templateRef": "stamp",
       "outputTarget": "stamp.png",
       "irFamily": "raster",
       "settings": {
-        "format": "png"
+        "format": "png",
+        "textFont": "RoboreanConformanceSans.ttf",
+        "textFontSize": 16
       },
       "preview": {
         "mode": "drawing-json",

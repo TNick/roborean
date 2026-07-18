@@ -25,6 +25,13 @@ export function findSecretLeakPaths(project: Project): string[] {
 export function scrubProjectForEditor(project: Project): Project {
   return {
     ...project,
+    documents: project.documents.map((document) => ({
+      ...document,
+      title:
+        typeof document.title === "string" && document.title.trim()
+          ? document.title
+          : document.id,
+    })),
     workspace: {
       variables: project.workspace.variables.map((variable) => ({
         ...variable,

@@ -1,0 +1,26 @@
+{
+  "stamp": {
+    "documentId": "stamp",
+    "mode": "drawing-json",
+    "body": {
+      "size": [
+        200,
+        100
+      ],
+      "texts": [
+        {
+          "text": "DRAFT",
+          "anchor": [
+            20,
+            40
+          ]
+        }
+      ]
+    },
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-image",
+      "version": "0.3.0"
+    }
+  }
+}

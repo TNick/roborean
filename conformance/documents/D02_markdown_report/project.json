@@ -60,6 +60,7 @@
   "documents": [
     {
       "id": "report_doc",
+      "title": "Report",
       "type": "markdown",
       "driver": "roborean.markdown",
       "templateRef": "report",

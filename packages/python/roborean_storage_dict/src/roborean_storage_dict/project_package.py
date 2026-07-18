@@ -6,6 +6,7 @@ from pathlib import Path
 from roborean_spec import (
     CompiledProject,
     Project,
+    migrate_project,
     project_from_dict,
     project_to_dict,
 )
@@ -61,7 +62,8 @@ def load_project_dir(package_dir: Path) -> Project:
     if not isinstance(data, dict):
         raise IntegrityError(f"Project entry is not an object: {entry}")
 
-    return project_from_dict(data)
+    migrated = migrate_project(data)
+    return project_from_dict(migrated)
 
 
 def save_project_dir(

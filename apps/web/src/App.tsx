@@ -1,13 +1,20 @@
-import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider } from "@mui/material/styles";
-import { roboreanTheme } from "@roborean/ui";
+import { ThemePreferencesProvider } from "@roborean/ui";
 import { AppRoutes } from "./routes.js";
+import { FolderGateDialog } from "./storage/FolderGateDialog.js";
+import { WorkspaceProvider } from "./storage/workspaceContext.js";
 
+/**
+ * Root application shell with theme and storage providers.
+ *
+ * @returns App element.
+ */
 export function App() {
   return (
-    <ThemeProvider theme={roboreanTheme}>
-      <CssBaseline />
-      <AppRoutes />
-    </ThemeProvider>
+    <ThemePreferencesProvider>
+      <WorkspaceProvider>
+        <FolderGateDialog />
+        <AppRoutes />
+      </WorkspaceProvider>
+    </ThemePreferencesProvider>
   );
 }

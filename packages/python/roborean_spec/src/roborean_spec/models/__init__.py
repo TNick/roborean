@@ -276,10 +276,14 @@ class DocumentDefinition(Model):
 
     Attributes:
         id: Unique identifier of the document within the project.
+        title: Human-readable document title shown in the editor.
+        description: Optional multiline document description.
         type: Document family, one of ``text``, ``markdown``, ``xlsx``,
             ``docx``, ``image``, or ``dxf``.
         template_ref: Reference to the template used to render the
             document (``templateRef`` alias).
+        base_template_ref: When set, ``template_ref`` is a document-local
+            fork of this shared template id (``baseTemplateRef`` alias).
         template_manifest_ref: Optional reference to the template's
             manifest (``templateManifestRef`` alias).
         driver: Identifier of the document driver used to render the
@@ -295,8 +299,11 @@ class DocumentDefinition(Model):
     """
 
     id: str
+    title: str
+    description: str | None = None
     type: Literal["text", "markdown", "xlsx", "docx", "image", "dxf"]
     template_ref: str = Field(alias="templateRef")
+    base_template_ref: str | None = Field(default=None, alias="baseTemplateRef")
     template_manifest_ref: str | None = Field(
         default=None, alias="templateManifestRef"
     )
@@ -540,6 +547,8 @@ class BitTypeManifest(Model):
 
     Attributes:
         type_id: Unique identifier of the bit type (``typeId`` alias).
+        name: Human-readable bit type name shown in the editor and
+            catalog surfaces.
         version: Version of the bit type implementation.
         config_schema: JSON Schema describing valid bit configuration
             (``configSchema`` alias).
@@ -554,12 +563,111 @@ class BitTypeManifest(Model):
     """
 
     type_id: str = Field(alias="typeId")
+    name: str
     version: str
     config_schema: dict[str, Any] = Field(alias="configSchema")
     effect_class: EffectClass = Field(alias="effectClass")
     capabilities: list[str]
     reads_from_config: bool = Field(default=False, alias="readsFromConfig")
     browser_safe: bool = Field(alias="browserSafe")
+
+
+class RequiredBitType(Model):
+    """Bit type dependency declared by a recipe.
+
+    Attributes:
+        type_id: Unique identifier of the required bit type
+            (``typeId`` alias).
+        version_range: Semver range satisfied by the installed bit type
+            (``versionRange`` alias).
+    """
+
+    type_id: str = Field(alias="typeId")
+    version_range: str = Field(alias="versionRange")
+
+
+class RecipeInsertPolicy(Model):
+    """Merge policy applied when importing a recipe into a project.
+
+    Attributes:
+        bit_placement: Where imported bits are inserted (``bitPlacement``
+            alias).
+        on_variable_conflict: How to resolve duplicate variable keys
+            (``onVariableConflict`` alias).
+        on_document_conflict: How to resolve duplicate document ids
+            (``onDocumentConflict`` alias).
+        on_bit_id_conflict: How to resolve duplicate bit ids
+            (``onBitIdConflict`` alias).
+    """
+
+    bit_placement: Literal["append"] = Field(alias="bitPlacement")
+    on_variable_conflict: Literal["keep-existing", "rename"] = Field(
+        alias="onVariableConflict"
+    )
+    on_document_conflict: Literal["keep-existing", "remap"] = Field(
+        alias="onDocumentConflict"
+    )
+    on_bit_id_conflict: Literal["rename"] = Field(alias="onBitIdConflict")
+
+
+class Recipe(Model):
+    """Portable bit-and-workspace fragment for project import.
+
+    Attributes:
+        schema_version: Schema version the recipe conforms to
+            (``schemaVersion`` alias).
+        kind: Discriminator identifying this envelope as a bit recipe.
+        id: Unique identifier of the recipe.
+        name: Human-readable recipe name.
+        description: Optional human-readable recipe description.
+        tags: Optional catalog tags for discovery.
+        required_bit_types: Bit types that must be installed before
+            import (``requiredBitTypes`` alias).
+        required_document_drivers: Document drivers referenced by the
+            recipe (``requiredDocumentDrivers`` alias).
+        plugin_requirements: Plugin dependency declarations
+            (``pluginRequirements`` alias).
+        workspace: Declared workspace variables grouped by name.
+        documents: Document definitions bundled with the recipe.
+        templates: Template references used by recipe documents.
+        template_contents: Optional inline template bodies keyed by
+            template id (``templateContents`` alias).
+        bits: Ordered bits appended when the recipe is imported.
+        insert_policy: Conflict-resolution policy for import
+            (``insertPolicy`` alias).
+        variables: Declared workspace variables from ``variables`` group.
+    """
+
+    schema_version: Literal["1.0.0"] = Field(alias="schemaVersion")
+    kind: Literal["bit-recipe"]
+    id: str
+    name: str
+    description: str | None = None
+    tags: list[str] = Field(default_factory=list)
+    required_bit_types: list[RequiredBitType] = Field(alias="requiredBitTypes")
+    required_document_drivers: list[str] = Field(
+        default_factory=list, alias="requiredDocumentDrivers"
+    )
+    plugin_requirements: list[dict[str, str]] = Field(
+        alias="pluginRequirements"
+    )
+    workspace: dict[str, list[Variable]]
+    documents: list[DocumentDefinition]
+    templates: list[dict[str, str]]
+    template_contents: dict[str, str] | None = Field(
+        default=None, alias="templateContents"
+    )
+    bits: list[Bit]
+    insert_policy: RecipeInsertPolicy = Field(alias="insertPolicy")
+
+    @property
+    def variables(self) -> list[Variable]:
+        """Return the declared workspace variables.
+
+        Returns:
+            Variables stored under the ``variables`` key of `workspace`.
+        """
+        return self.workspace["variables"]
 
 
 class Project(Model):

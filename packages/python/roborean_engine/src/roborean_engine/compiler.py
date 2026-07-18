@@ -15,6 +15,7 @@ from roborean_spec import (
     validate_instance,
 )
 
+from .bit_emitted_ops import validate_registered_document_bit_types
 from .bits.registry import BitTypeRegistry, builtin_registry
 from .diagnostics import (
     E_CONFIG,
@@ -25,7 +26,12 @@ from .diagnostics import (
     W_UNUSED_VARIABLE,
     Diagnostic,
 )
-from .documents import compile_documents
+from .documents import (
+    compile_documents,
+    default_driver_registry,
+    validate_bit_document_capabilities,
+)
+from .lockfile import validate_lockfile
 from .rules.parser import parse_rule
 from .rules.profile import RULE_PROFILE_VERSION
 from .rules.typecheck import RuleTypeError, typecheck_rule
@@ -246,6 +252,26 @@ def compile_project(
                     package_dir=options.package_dir,
                 )
             )
+            diagnostics.extend(
+                validate_bit_document_capabilities(
+                    project,
+                    package_dir=options.package_dir,
+                )
+            )
+            diagnostics.extend(
+                validate_registered_document_bit_types(
+                    builtin_registry(),
+                    default_driver_registry(),
+                )
+            )
+
+    diagnostics.extend(
+        validate_lockfile(
+            project,
+            package_dir=options.package_dir,
+            resolved_bit_versions=plugin_versions,
+        )
+    )
 
     if any(item.severity == "error" for item in diagnostics):
         raise CompileError(diagnostics)

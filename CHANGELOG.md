@@ -2,11 +2,54 @@
 
 ## [Unreleased]
 
+### Added
+
+- Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive
+  folder binding, Sheets-backed project/run storage, Google Docs outputs,
+  and a static GitHub Pages release job on version tags (`gh-pages`).
+- Bit type manifests require a human-facing `name` used in the editor and
+  templates library recipe catalog.
+- Global templates library: API catalog, `/templates` web page, and reusable
+  `@roborean/ui` browser with document import, recipe import, and project
+  starter creation flows.
+- Bit-recipe schema for portable workspace/document/bit fragments.
+- Document definitions require a human-facing `title`; optional
+  `description` and `baseTemplateRef` support copy-on-write template forks
+  in the editor and API.
+- Project template file CRUD in the HTTP API with dict and SQLAlchemy
+  storage backends.
+- Web UI can create blank projects, delete projects, and edit project name
+  and description (backed by existing API CRUD).
+- CI semantic gate (`make verify`): core/runtime/document conformance,
+  TypeScript document preview parity, storage integration, OpenAPI drift
+  check, dry-run parity, and schema sync; GitHub Actions split across
+  `tests.yml`, `openapi.yml`, and `platform.yml`.
+- Project package lockfile schema and compile-time enforcement; runtime
+  idempotency/retry/persistence conformance harness; document D99 capability
+  fixture; editor panels for workspace, documents, dependencies, preview, and
+  bit reordering.
+- Phase 4 editor forms (rules, bits, variables), run history panel, and
+  richer run detail downloads; `schemas/preview.schema.json` for the HTTP
+  preview response.
+- TypeScript engine golden tests for all `conformance/runs/*` compile and
+  run-results fixtures (dual-runtime parity with Python).
+- TypeScript document preview conformance for D01–D06 (`make
+  conformance-documents-ts`), driven by `expected.preview-fixtures.json`
+  goldens written by the Python document harness.
+- Vendored conformance font and PNG byte goldens for document fixture D05.
+
 ### Changed
 
+- Document conformance compares packages to
+  `conformance/expected/documents/` goldens (artifacts + previews + compile
+  errors), with `python tools/run_document_conformance.py --write` to refresh.
 - Default local API port is `8765` (`make api` / `roborean-api` / web
   `VITE_API_BASE_URL` fallback) to avoid clashing with Docker stacks on
   `8000`.
+- Project page shows title and Edit on the same toolbar as Dry-run / Run on
+  server; metadata and delete live in the Edit dialog.
+- Web app uses a shared top toolbar on every page with theme preferences
+  (white/black, spacing, font size) and a stub user menu.
 
 ## [0.1.3] - 2026-07-17
 
