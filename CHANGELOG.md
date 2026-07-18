@@ -6,7 +6,11 @@
 
 ### Added
 
-- Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive folder binding, Sheets-backed project/run storage, Google Docs outputs, and static GitHub Pages deploy via `static.yml` on version tags.
+- Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive
+  folder binding, Sheets-backed project/run storage, Google Docs outputs,
+  and static GitHub Pages deploy via `static.yml` on version tags. Folder
+  gate can create a Drive folder without Picker; optional
+  `VITE_GOOGLE_API_KEY` enables Google Picker.
 - Bit type manifests require a human-facing `name` used in the editor and templates library recipe catalog.
 - Global templates library: API catalog, `/templates` web page, and reusable `@roborean/ui` browser with document import, recipe import, and project starter creation flows.
 - Bit-recipe schema for portable workspace/document/bit fragments.

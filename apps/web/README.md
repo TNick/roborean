@@ -13,11 +13,13 @@ pnpm --filter web dev
 | `api` | Default locally, or `VITE_STORAGE_MODE=api` | FastAPI at `VITE_API_BASE_URL` |
 | `google` | `VITE_STORAGE_MODE=google` or Pages build | User-selected Drive folder + Sheets + Docs |
 
-Google Workspace mode requires a public OAuth client id:
+Google Workspace mode requires a public OAuth client id. Put it in
+`apps/web/.env.local` (gitignored; see `.env.example`):
 
 ```bash
-VITE_STORAGE_MODE=google
-VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+cp apps/web/.env.example apps/web/.env.local
+# edit VITE_GOOGLE_CLIENT_ID
+pnpm --filter web dev
 ```
 
 Never set a Google client secret in the web app. Authorize the GitHub Pages

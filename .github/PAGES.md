@@ -12,6 +12,19 @@ the official GitHub Pages actions (`upload-pages-artifact` /
 2. In GitHub Pages settings, choose **GitHub Actions** as the source (not a
    branch deploy from `gh-pages`).
 3. The deploy job uses the `github-pages` environment created by GitHub.
+4. Allow tag deploys on that environment (required for `v*` releases):
+   **Settings → Environments → github-pages → Deployment branches and
+   tags**. Either choose **All branches and tags**, or **Selected** and
+   add a tag rule for `v*` (or `v*.*.*`). If only `master` is allowed,
+   tag pushes fail with “not allowed to deploy … environment protection
+   rules”.
+5. Clear any required reviewers / wait timer unless you want manual
+   approval on every Pages deploy.
+6. Optional: set repository variable `VITE_GOOGLE_API_KEY` to a browser
+   API key (Google Cloud → Credentials → API key, restrict to HTTP
+   referrers `https://tnick.github.io/*` and `http://localhost:5173/*`,
+   and to Drive/Picker APIs). This enables the folder Picker; without it
+   users can still **Create a new folder** or paste a folder id.
 
 ## Google Cloud OAuth client
 

@@ -17,6 +17,9 @@ node_modules/
 .DS_Store
 .idea/
 .vscode/*.local
+.env
+.env.*
+!.env.example
 playground/
 .e2e-ai/
 **/test-results/
