@@ -21,10 +21,17 @@ the official GitHub Pages actions (`upload-pages-artifact` /
 5. Clear any required reviewers / wait timer unless you want manual
    approval on every Pages deploy.
 6. Optional: set repository variable `VITE_GOOGLE_API_KEY` to a browser
-   API key (Google Cloud → Credentials → API key, restrict to HTTP
-   referrers `https://tnick.github.io/*` and `http://localhost:5173/*`,
-   and to Drive/Picker APIs). This enables the folder Picker; without it
-   users can still **Create a new folder** or paste a folder id.
+   **API key** (Google Cloud → APIs & Services → Credentials → Create
+   credentials → API key). Typical keys start with `AIza`. Restrict to
+   HTTP referrers `https://tnick.github.io/*` and
+   `http://localhost:5173/*`, and enable the Google Picker API + Drive
+   API. This enables the folder Picker; without it users can still
+   **Create a new folder** or paste a folder id.
+
+   Do **not** use an OAuth client secret (`GOCSPX-…`) or the OAuth
+   client id here. Secrets must never go in repository variables or the
+   static bundle; Picker will return HTTP 401 if `developerKey` is a
+   secret.
 
 ## Google Cloud OAuth client
 

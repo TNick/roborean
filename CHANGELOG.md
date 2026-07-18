@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Reject `GOCSPX-…` values for `VITE_GOOGLE_API_KEY` (OAuth client secrets
+  are not Picker developer keys) and warn in the folder gate.
+
 ## [0.1.7] - 2026-07-18
 
 ### Changed

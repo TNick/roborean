@@ -57,11 +57,29 @@ type PickerBuilder = {
 };
 
 /**
- * Optional browser API key used by Google Picker (`setDeveloperKey`).
+ * Raw optional browser API key from Vite env (may be misconfigured).
  */
-export const GOOGLE_API_KEY = String(
+const RAW_GOOGLE_API_KEY = String(
   import.meta.env.VITE_GOOGLE_API_KEY ?? "",
 ).trim();
+
+/**
+ * True when `VITE_GOOGLE_API_KEY` looks like an OAuth client secret.
+ *
+ * Picker's `developerKey` must be an API key (often `AIza…`), never a
+ * `GOCSPX-…` client secret.
+ */
+export const GOOGLE_API_KEY_LOOKS_LIKE_SECRET =
+  /^GOCSPX-/i.test(RAW_GOOGLE_API_KEY) || /^GOCSPX_/i.test(RAW_GOOGLE_API_KEY);
+
+/**
+ * Optional browser API key used by Google Picker (`setDeveloperKey`).
+ *
+ * Empty when unset or when the value is clearly not an API key.
+ */
+export const GOOGLE_API_KEY = GOOGLE_API_KEY_LOOKS_LIKE_SECRET
+  ? ""
+  : RAW_GOOGLE_API_KEY;
 
 /**
  * Drive + Docs + Sheets scopes required for workspace mode.

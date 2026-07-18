@@ -7,7 +7,11 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { GOOGLE_API_KEY, pickDriveFolder } from "./googlePicker.js";
+import {
+  GOOGLE_API_KEY,
+  GOOGLE_API_KEY_LOOKS_LIKE_SECRET,
+  pickDriveFolder,
+} from "./googlePicker.js";
 import { useWorkspace } from "./workspaceContext.js";
 
 /**
@@ -135,7 +139,14 @@ export function FolderGateDialog() {
             Roborean stores projects in Google Sheets and Docs inside a folder
             you choose. Nothing is written until you connect a folder.
           </Typography>
-          {!GOOGLE_API_KEY ? (
+          {GOOGLE_API_KEY_LOOKS_LIKE_SECRET ? (
+            <Alert severity="warning">
+              <code>VITE_GOOGLE_API_KEY</code> looks like an OAuth client secret
+              (<code>GOCSPX-…</code>). Picker needs a Google Cloud API key
+              instead. Rotate that secret in Google Cloud, then set the variable
+              to an API key (often starts with <code>AIza</code>).
+            </Alert>
+          ) : !GOOGLE_API_KEY ? (
             <Alert severity="info">
               Optional: set a Google Cloud API key as{" "}
               <code>VITE_GOOGLE_API_KEY</code> (separate from the OAuth client
