@@ -204,8 +204,10 @@ export async function loadGooglePicker(): Promise<void> {
   }
   await new Promise<void>((resolve, reject) => {
     try {
-      // Match Google's sample: load picker (and client helpers when available).
-      host.gapi!.load("client:picker", () => resolve());
+      // Load only Picker. Loading gapi's legacy auth-aware client alongside
+      // Google Identity Services can render a second, unauthenticated sign-in
+      // surface inside the Picker iframe.
+      host.gapi!.load("picker", () => resolve());
     } catch (err) {
       reject(err instanceof Error ? err : new Error(String(err)));
     }
