@@ -1,15 +1,17 @@
 # GitHub Pages deployment
 
-Tagged releases (`v*`) publish a static browser-only Roborean build to the
-`gh-pages` branch from `.github/workflows/publish.yml`.
+Tagged releases (`v*`) and manual workflow runs deploy the static browser-only
+Roborean app via [`.github/workflows/static.yml`](workflows/static.yml) using
+the official GitHub Pages actions (`upload-pages-artifact` /
+`deploy-pages`).
 
 ## Repository settings
 
 1. Set repository variable `VITE_GOOGLE_CLIENT_ID` to the public OAuth client
    id used by the static app.
-2. In GitHub Pages settings, choose **Deploy from a branch**, branch
-   `gh-pages`, folder `/ (root)`.
-3. Protect `gh-pages` so only the release workflow updates it.
+2. In GitHub Pages settings, choose **GitHub Actions** as the source (not a
+   branch deploy from `gh-pages`).
+3. The deploy job uses the `github-pages` environment created by GitHub.
 
 ## Google Cloud OAuth client
 

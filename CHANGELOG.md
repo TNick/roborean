@@ -6,7 +6,7 @@
 
 - Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive
   folder binding, Sheets-backed project/run storage, Google Docs outputs,
-  and a static GitHub Pages release job on version tags (`gh-pages`).
+  and static GitHub Pages deploy via `static.yml` on version tags.
 - Bit type manifests require a human-facing `name` used in the editor and
   templates library recipe catalog.
 - Global templates library: API catalog, `/templates` web page, and reusable

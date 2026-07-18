@@ -12,6 +12,8 @@
 
 - Exclusive idempotency index creation for dict run storage under concurrent
   writers, with index rollback when run artifact writes fail.
+- Atomic JSON writes and an in-process lock for dict run storage so
+  concurrent readers never observe truncated run-record or index documents.
 
 ### Added
 

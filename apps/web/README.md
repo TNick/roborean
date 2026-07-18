@@ -31,11 +31,11 @@ VITE_GOOGLE_CLIENT_ID=... pnpm run build:pages
 ```
 
 This emits a self-contained bundle under `apps/web/dist` with base path
-`/roborean/` and hash routing. Tagged releases publish that bundle to the
-`gh-pages` branch via `.github/workflows/publish.yml`.
+`/roborean/` and hash routing. Tagged releases (and manual workflow runs)
+deploy that bundle via `.github/workflows/static.yml` using GitHub Pages
+Actions.
 
-Configure the GitHub repository Pages source to deploy from the `gh-pages`
-branch root.
+Configure the GitHub repository Pages source to **GitHub Actions**.
 
 ## E2E
 

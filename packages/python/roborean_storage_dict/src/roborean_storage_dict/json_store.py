@@ -2,6 +2,10 @@
 
 import json
 import logging
+import os
+import threading
+import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +15,11 @@ from roborean_storage_base import ConflictError, NotFoundError
 from .project_package import load_project_dir, save_project_dir, write_revision
 
 logger = logging.getLogger(__name__)
+
+# Windows can deny ``os.replace`` while another handle still has the
+# destination open; retry briefly before surfacing the error.
+_REPLACE_ATTEMPTS = 50
+_REPLACE_DELAY_SECONDS = 0.01
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -25,18 +34,129 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _json_text(data: dict[str, Any]) -> str:
+    """Serialize a JSON object with a trailing newline.
+
+    Args:
+        data: JSON-serializable object to write.
+
+    Returns:
+        Encoded JSON text with a trailing newline.
+    """
+    return json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+
+
+def _sibling_temp_path(path: Path) -> Path:
+    """Return a unique temp path beside ``path``.
+
+    Args:
+        path: Final destination path.
+
+    Returns:
+        Sibling path suitable for an atomic publish.
+    """
+    return path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+
+
+def _unlink_quietly(path: Path) -> None:
+    """Remove ``path`` when present without raising.
+
+    Args:
+        path: File to delete.
+    """
+    if not path.is_file():
+        return
+    try:
+        path.unlink()
+    except OSError:
+        logger.debug(
+            "Could not remove temporary file %s",
+            path,
+            exc_info=True,
+        )
+
+
+def _replace_with_retry(tmp_path: Path, path: Path) -> None:
+    """Replace ``path`` with ``tmp_path``, retrying Windows share conflicts.
+
+    Args:
+        tmp_path: Fully written temporary file.
+        path: Final destination path.
+
+    Raises:
+        OSError: When replacement still fails after retries.
+    """
+    for attempt in range(_REPLACE_ATTEMPTS):
+        try:
+            os.replace(tmp_path, path)
+            return
+        except PermissionError:
+            if attempt + 1 >= _REPLACE_ATTEMPTS:
+                raise
+            logger.debug(
+                "Retrying atomic replace of %s after share conflict",
+                path,
+                exc_info=True,
+            )
+            time.sleep(_REPLACE_DELAY_SECONDS)
+
+
 def _write_json(path: Path, data: dict[str, Any]) -> None:
-    """Write a JSON object with a trailing newline.
+    """Write a JSON object atomically with a trailing newline.
 
     Args:
         path: Destination file.
         data: JSON-serializable object to write.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(data, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+
+    # Publish via a sibling temp file so concurrent readers never see a
+    # truncated document from an in-place overwrite.
+    tmp_path = _sibling_temp_path(path)
+    try:
+        tmp_path.write_text(_json_text(data), encoding="utf-8")
+        _replace_with_retry(tmp_path, path)
+    except OSError:
+        _unlink_quietly(tmp_path)
+        raise
+
+
+def _create_json_exclusive(path: Path, data: dict[str, Any]) -> None:
+    """Create ``path`` with JSON only when it does not already exist.
+
+    Args:
+        path: Destination file that must not already exist.
+        data: JSON-serializable object to write.
+
+    Raises:
+        FileExistsError: When ``path`` already exists.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = _json_text(data)
+    tmp_path = _sibling_temp_path(path)
+    tmp_path.write_text(text, encoding="utf-8")
+    try:
+        # Prefer a hard link so the final name appears with full content
+        # in one step when the filesystem supports it.
+        try:
+            os.link(tmp_path, path)
+            return
+        except FileExistsError:
+            raise
+        except OSError:
+            logger.debug(
+                "Hard link unavailable for exclusive create of %s",
+                path,
+                exc_info=True,
+            )
+
+        # Fallback: exclusive empty create as a claim, then replace with
+        # the complete document.
+        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.close(fd)
+        _replace_with_retry(tmp_path, path)
+    finally:
+        _unlink_quietly(tmp_path)
 
 
 def _idempotency_index_payload(record: RunRecord) -> dict[str, Any]:
@@ -270,12 +390,14 @@ class DictRunRepository:
         root: Storage root directory.
         _runs: Directory holding one subdirectory per project's runs.
         _idempotency: Directory holding idempotency key indexes.
+        _lock: Re-entrant lock serializing in-process run I/O.
     """
 
     root: Path
 
     _runs: Path
     _idempotency: Path
+    _lock: threading.RLock
 
     def __init__(self, root: Path) -> None:
         """Create a run repository under ``root``.
@@ -286,6 +408,7 @@ class DictRunRepository:
         self.root = root
         self._runs = root / "runs"
         self._idempotency = root / "idempotency"
+        self._lock = threading.RLock()
 
     def _run_dir(self, project_id: str, run_id: str) -> Path:
         """Return the artifact directory for one run.
@@ -324,15 +447,16 @@ class DictRunRepository:
         Raises:
             NotFoundError: When no matching run directory exists.
         """
-        if not self._runs.is_dir():
-            raise NotFoundError(run_id)
+        with self._lock:
+            if not self._runs.is_dir():
+                raise NotFoundError(run_id)
 
-        # Scan every project's run directory for a matching run id.
-        for project_dir in self._runs.iterdir():
-            candidate = project_dir / run_id / "run-record.json"
-            if candidate.is_file():
-                return RunRecord.model_validate(_read_json(candidate))
-        raise NotFoundError(run_id)
+            # Scan every project's run directory for a matching run id.
+            for project_dir in self._runs.iterdir():
+                candidate = project_dir / run_id / "run-record.json"
+                if candidate.is_file():
+                    return RunRecord.model_validate(_read_json(candidate))
+            raise NotFoundError(run_id)
 
     def get_by_idempotency(
         self, project_id: str, idempotency_key: str
@@ -347,20 +471,21 @@ class DictRunRepository:
             Matching ``RunRecord``, or ``None`` when the key is unknown
             or points at a run that no longer exists.
         """
-        index = self._idempotency_path(project_id, idempotency_key)
-        if not index.is_file():
-            return None
-        payload = _read_json(index)
-        run_id = payload["runId"]
-        try:
-            return self.get(run_id)
-        except NotFoundError:
-            logger.debug(
-                "Idempotency index pointed at missing run %s",
-                run_id,
-                exc_info=True,
-            )
-            return None
+        with self._lock:
+            index = self._idempotency_path(project_id, idempotency_key)
+            if not index.is_file():
+                return None
+            payload = _read_json(index)
+            run_id = payload["runId"]
+            try:
+                return self.get(run_id)
+            except NotFoundError:
+                logger.debug(
+                    "Idempotency index pointed at missing run %s",
+                    run_id,
+                    exc_info=True,
+                )
+                return None
 
     def save(self, record: RunRecord) -> None:
         """Insert a new run and its idempotency index entry.
@@ -372,56 +497,50 @@ class DictRunRepository:
             ConflictError: When the idempotency key already exists,
                 either for the same or a different request body.
         """
-        existing = self.get_by_idempotency(
-            record.project_id, record.idempotency_key
-        )
-        if existing is not None:
-            if existing.request_digest != record.request_digest:
-                raise ConflictError(
-                    "idempotency key reused with a different request body"
-                )
-            raise ConflictError("idempotency key already exists")
-
-        # Claim the idempotency slot before writing run artifacts so
-        # parallel writers cannot insert two runs for one key.
-        index_path = self._idempotency_path(
-            record.project_id, record.idempotency_key
-        )
-        index_path.parent.mkdir(parents=True, exist_ok=True)
-        index_body = (
-            json.dumps(
-                _idempotency_index_payload(record),
-                indent=2,
-                ensure_ascii=False,
+        with self._lock:
+            existing = self.get_by_idempotency(
+                record.project_id, record.idempotency_key
             )
-            + "\n"
-        )
-        try:
-            with open(index_path, "x", encoding="utf-8") as handle:
-                handle.write(index_body)
-        except FileExistsError:
-            _raise_idempotency_conflict(index_path, record)
-
-        try:
-            self._write_record(record)
-        except OSError:
-            logger.debug(
-                "Run record write failed after idempotency claim for %s",
-                record.run_id,
-                exc_info=True,
-            )
-            if index_path.is_file():
-                try:
-                    payload = _read_json(index_path)
-                    if payload.get("runId") == record.run_id:
-                        index_path.unlink()
-                except OSError:
-                    logger.debug(
-                        "Could not roll back idempotency index %s",
-                        index_path,
-                        exc_info=True,
+            if existing is not None:
+                if existing.request_digest != record.request_digest:
+                    raise ConflictError(
+                        "idempotency key reused with a different "
+                        "request body"
                     )
-            raise
+                raise ConflictError("idempotency key already exists")
+
+            # Claim the idempotency slot before writing run artifacts so
+            # parallel writers cannot insert two runs for one key.
+            index_path = self._idempotency_path(
+                record.project_id, record.idempotency_key
+            )
+            try:
+                _create_json_exclusive(
+                    index_path, _idempotency_index_payload(record)
+                )
+            except FileExistsError:
+                _raise_idempotency_conflict(index_path, record)
+
+            try:
+                self._write_record(record)
+            except OSError:
+                logger.debug(
+                    "Run record write failed after idempotency claim " "for %s",
+                    record.run_id,
+                    exc_info=True,
+                )
+                if index_path.is_file():
+                    try:
+                        payload = _read_json(index_path)
+                        if payload.get("runId") == record.run_id:
+                            index_path.unlink()
+                    except OSError:
+                        logger.debug(
+                            "Could not roll back idempotency index %s",
+                            index_path,
+                            exc_info=True,
+                        )
+                raise
 
     def update(self, record: RunRecord) -> None:
         """Overwrite an existing run artifact set.
@@ -432,10 +551,11 @@ class DictRunRepository:
         Raises:
             NotFoundError: When no existing run record is present.
         """
-        run_dir = self._run_dir(record.project_id, record.run_id)
-        if not (run_dir / "run-record.json").is_file():
-            raise NotFoundError(record.run_id)
-        self._write_record(record)
+        with self._lock:
+            run_dir = self._run_dir(record.project_id, record.run_id)
+            if not (run_dir / "run-record.json").is_file():
+                raise NotFoundError(record.run_id)
+            self._write_record(record)
 
     def list_for_project(
         self, project_id: str, *, limit: int = 50
@@ -449,18 +569,20 @@ class DictRunRepository:
         Returns:
             Run records sorted newest first, capped at ``limit``.
         """
-        project_dir = self._runs / project_id
-        if not project_dir.is_dir():
-            return []
+        with self._lock:
+            project_dir = self._runs / project_id
+            if not project_dir.is_dir():
+                return []
 
-        # Collect every run-record.json under the project's run directory.
-        records: list[RunRecord] = []
-        for run_dir in project_dir.iterdir():
-            path = run_dir / "run-record.json"
-            if path.is_file():
-                records.append(RunRecord.model_validate(_read_json(path)))
-        records.sort(key=lambda item: item.created_at, reverse=True)
-        return records[:limit]
+            # Collect every run-record.json under the project's run
+            # directory.
+            records: list[RunRecord] = []
+            for run_dir in project_dir.iterdir():
+                path = run_dir / "run-record.json"
+                if path.is_file():
+                    records.append(RunRecord.model_validate(_read_json(path)))
+            records.sort(key=lambda item: item.created_at, reverse=True)
+            return records[:limit]
 
     def _write_record(self, record: RunRecord) -> None:
         """Write run-record and optional result/diff sidecars.
