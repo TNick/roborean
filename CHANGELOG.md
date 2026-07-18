@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-07-18
+
+### Changed
+
+- Hatch was packaging library/ twice
+
 ## [0.1.5] - 2026-07-18
 
 ### Changed
@@ -111,4 +117,5 @@
 [0.1.3]: https://github.com/TNick/roborean/compare/v0.1.2...v0.1.3
 [0.1.4]: https://github.com/TNick/roborean/compare/v0.1.3...v0.1.4
 [0.1.5]: https://github.com/TNick/roborean/compare/v0.1.4...v0.1.5
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.5...HEAD
+[0.1.6]: https://github.com/TNick/roborean/compare/v0.1.5...v0.1.6
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.6...HEAD
