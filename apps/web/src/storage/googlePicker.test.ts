@@ -1,5 +1,10 @@
-import { describe, expect, it } from "vitest";
-import { resolveGoogleAppId } from "./googlePicker.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { loadGooglePicker, resolveGoogleAppId } from "./googlePicker.js";
+
+afterEach(() => {
+  delete (globalThis as { gapi?: unknown }).gapi;
+  delete (globalThis as { google?: unknown }).google;
+});
 
 describe("resolveGoogleAppId", () => {
   it("uses an explicit app id when provided", () => {
@@ -16,5 +21,21 @@ describe("resolveGoogleAppId", () => {
 
   it("returns empty when the client id has no numeric prefix", () => {
     expect(resolveGoogleAppId("not-a-normal-client-id")).toBe("");
+  });
+});
+
+describe("loadGooglePicker", () => {
+  it("loads Picker without the legacy gapi client", async () => {
+    // Capture the requested gapi module and expose Picker in its callback.
+    const load = vi.fn((api: string, callback: () => void) => {
+      (globalThis as { google?: { picker: object } }).google = { picker: {} };
+      callback();
+    });
+    (globalThis as { gapi?: { load: typeof load } }).gapi = { load };
+
+    await loadGooglePicker();
+
+    expect(load).toHaveBeenCalledOnce();
+    expect(load).toHaveBeenCalledWith("picker", expect.any(Function));
   });
 });
