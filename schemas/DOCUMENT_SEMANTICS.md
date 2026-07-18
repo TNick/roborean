@@ -27,6 +27,9 @@ compile errors in strict mode and run errors otherwise.
 
 Namespaces: `plain.*`, `flow.*`, `sheet.*`, `drawing.*`, `raster.*`,
 plus common ops `set_metadata`, `replace_named_value`, `finalize`.
+Drivers that opt in to `replace_named_value` today: `roborean.text`,
+`roborean.markdown`, `roborean.docx`, `roborean.xlsx`, and
+`roborean.dxf` (TEXT, MTEXT, and block ATTRIB in modelspace only).
 
 ## Previews
 

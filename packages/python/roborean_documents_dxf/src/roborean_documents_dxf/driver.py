@@ -7,13 +7,16 @@ from datetime import UTC, datetime
 from typing import Any
 
 import ezdxf
+from pydantic import TypeAdapter
 from roborean_documents_base.capabilities import assert_op_allowed
+from roborean_documents_base.resolve_values import public_literal_value
 from roborean_documents_base.template_store import DocumentTemplateStore
 from roborean_spec import (
     DocumentDriverManifest,
     DocumentOperation,
     DocumentPreview,
     TemplateManifest,
+    WorkspaceValue,
 )
 
 
@@ -59,6 +62,7 @@ class DxfDocumentDriver:
             "drawing.ensure_layer",
             "drawing.insert_polyline",
             "drawing.insert_text",
+            "replace_named_value",
             "finalize",
         ],
         supportsPreview=True,
@@ -176,6 +180,49 @@ class DxfDocumentDriver:
                     "height": height,
                 }
             )
+        elif op.op == "replace_named_value":
+            value = TypeAdapter(WorkspaceValue).validate_python(data["value"])
+            rendered = str(public_literal_value(value))
+            needle = "{{" + str(data["name"]) + "}}"
+            self._replace_named_value(session, needle, rendered)
+
+    def _replace_named_value(
+        self, session: DxfSession, needle: str, rendered: str
+    ) -> None:
+        """Substitute a placeholder in TEXT, MTEXT, and ATTRIB entities.
+
+        Args:
+            session: Open DXF session holding the modelspace to scan.
+            needle: Placeholder token to search for (``{{name}}``).
+            rendered: Replacement text substituted in place of the token.
+        """
+        # TEXT uses ``dxf.text``; MTEXT uses ``.text``. Plain substring
+        # replace only; formatting control codes are left untouched.
+        for entity in session.msp.query("TEXT MTEXT"):
+            if entity.dxftype() == "TEXT":
+                current = entity.dxf.text
+                if needle not in current:
+                    continue
+                entity.dxf.text = current.replace(needle, rendered)
+                session.entities.append(
+                    {"type": "text", "text": entity.dxf.text}
+                )
+                continue
+
+            current = entity.text
+            if needle not in current:
+                continue
+            entity.text = current.replace(needle, rendered)
+            session.entities.append({"type": "mtext", "text": entity.text})
+
+        # Block-reference ATTRIB entities cover title-block style fields.
+        for insert in session.msp.query("INSERT"):
+            for attrib in insert.attribs:
+                if needle in attrib.dxf.text:
+                    attrib.dxf.text = attrib.dxf.text.replace(needle, rendered)
+                    session.entities.append(
+                        {"type": "attrib", "text": attrib.dxf.text}
+                    )
 
     def finalize(self, session: DxfSession) -> None:
         """No-op finalize.

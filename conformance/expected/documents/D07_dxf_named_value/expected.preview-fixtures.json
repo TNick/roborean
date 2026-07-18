@@ -1,0 +1,43 @@
+{
+  "documents": {
+    "named": {
+      "definition": {
+        "id": "named",
+        "type": "dxf",
+        "driver": "roborean.dxf"
+      },
+      "ops": [
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "title",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Roborean"
+          }
+        },
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "body",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Generated drawing"
+          }
+        },
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "owner",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Ada"
+          }
+        }
+      ]
+    }
+  }
+}

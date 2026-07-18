@@ -5,6 +5,8 @@
 ### Added
 
 - `roborean.dxf` driver with drawing ops and drawing-json preview.
+- `replace_named_value` support for TEXT, MTEXT, and block ATTRIB
+  placeholders in loaded DXF templates.
 
 ### Changed
 

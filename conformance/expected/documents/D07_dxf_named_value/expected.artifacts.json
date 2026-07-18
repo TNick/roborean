@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "named",
+      "path": "named.dxf",
+      "mediaType": "image/vnd.dxf",
+      "compare": "skip"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D07_dxf_named_value",
+  "name": "DXF named value",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "title",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Roborean"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "body",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Generated drawing"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "owner",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Ada"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "fill_title",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "title",
+        "fromKey": "title"
+      },
+      "reads": [
+        "title"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_body",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "body",
+        "fromKey": "body"
+      },
+      "reads": [
+        "body"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_owner",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "owner",
+        "fromKey": "owner"
+      },
+      "reads": [
+        "owner"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "named",
+      "title": "Named",
+      "type": "dxf",
+      "driver": "roborean.dxf",
+      "templateRef": "named",
+      "outputTarget": "named.dxf",
+      "irFamily": "drawing",
+      "settings": {},
+      "preview": {
+        "mode": "drawing-json",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "named",
+      "path": "templates/named.dxf"
+    }
+  ],
+  "metadata": {}
+}

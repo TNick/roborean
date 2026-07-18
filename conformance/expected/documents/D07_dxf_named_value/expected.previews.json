@@ -1,0 +1,27 @@
+{
+  "named": {
+    "documentId": "named",
+    "mode": "drawing-json",
+    "body": {
+      "entities": [
+        {
+          "type": "text",
+          "text": "Roborean"
+        },
+        {
+          "type": "mtext",
+          "text": "Generated drawing"
+        },
+        {
+          "type": "attrib",
+          "text": "Ada"
+        }
+      ]
+    },
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-dxf",
+      "version": "0.3.0"
+    }
+  }
+}

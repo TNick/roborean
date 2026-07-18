@@ -1,0 +1,29 @@
+{
+  "templateId": "named",
+  "templateVersion": "1.0.0",
+  "documentType": "dxf",
+  "driver": "roborean.dxf",
+  "requiredInputs": [
+    "title",
+    "body",
+    "owner"
+  ],
+  "capabilities": [
+    "replace_named_value",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "title": {
+      "kind": "text",
+      "required": true
+    },
+    "body": {
+      "kind": "text",
+      "required": true
+    },
+    "owner": {
+      "kind": "text",
+      "required": true
+    }
+  }
+}
