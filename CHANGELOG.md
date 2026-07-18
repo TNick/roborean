@@ -2,15 +2,17 @@
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-18
+
+### Changed
+
+- Fix google drive access
+
 ## [0.1.4] - 2026-07-18
 
 ### Added
 
-- Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive
-  folder binding, Sheets-backed project/run storage, Google Docs outputs,
-  and static GitHub Pages deploy via `static.yml` on version tags. Folder
-  gate can create a Drive folder without Picker; optional
-  `VITE_GOOGLE_API_KEY` enables Google Picker.
+- Browser-first Google Workspace mode (`@roborean/google-workspace`): Drive folder binding, Sheets-backed project/run storage, Google Docs outputs, and static GitHub Pages deploy via `static.yml` on version tags. Folder gate can create a Drive folder without Picker; optional `VITE_GOOGLE_API_KEY` enables Google Picker.
 - Bit type manifests require a human-facing `name` used in the editor and templates library recipe catalog.
 - Global templates library: API catalog, `/templates` web page, and reusable `@roborean/ui` browser with document import, recipe import, and project starter creation flows.
 - Bit-recipe schema for portable workspace/document/bit fragments.
@@ -108,4 +110,5 @@
 [0.1.2]: https://github.com/TNick/roborean/compare/v0.1.1...v0.1.2
 [0.1.3]: https://github.com/TNick/roborean/compare/v0.1.2...v0.1.3
 [0.1.4]: https://github.com/TNick/roborean/compare/v0.1.3...v0.1.4
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.4...HEAD
+[0.1.5]: https://github.com/TNick/roborean/compare/v0.1.4...v0.1.5
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.5...HEAD
