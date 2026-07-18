@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "roborean-storage-base"
-version = "0.1.11"
+version = "0.1.12"
 description = "Persistence ports for Roborean projects and runs"
 requires-python = ">=3.11"
 license = "MIT"

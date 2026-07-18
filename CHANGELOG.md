@@ -2,13 +2,16 @@
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-07-19
+
+### Changed
+
+- Improve Google Picker diagnostics
+
 ### Fixed
 
-- Google Picker now emits redacted lifecycle diagnostics in the browser console
-  and normalizes OAuth client ids mistakenly supplied as the Picker app id.
-- Google Picker now loads without the legacy Google API client, preventing a
-  second unauthenticated sign-in prompt from replacing the authenticated
-  folder picker.
+- Google Picker now emits redacted lifecycle diagnostics in the browser console and normalizes OAuth client ids mistakenly supplied as the Picker app id.
+- Google Picker now loads without the legacy Google API client, preventing a second unauthenticated sign-in prompt from replacing the authenticated folder picker.
 
 ## [0.1.10] - 2026-07-18
 
@@ -184,6 +187,7 @@
 [0.1.1]: https://github.com/TNick/roborean/compare/846ef574a1c267a96143a80cb33ffe8e935d737c...v0.1.1
 [0.1.10]: https://github.com/TNick/roborean/compare/v0.1.9...v0.1.10
 [0.1.11]: https://github.com/TNick/roborean/compare/v0.1.10...v0.1.11
+[0.1.12]: https://github.com/TNick/roborean/compare/v0.1.11...v0.1.12
 [0.1.2]: https://github.com/TNick/roborean/compare/v0.1.1...v0.1.2
 [0.1.3]: https://github.com/TNick/roborean/compare/v0.1.2...v0.1.3
 [0.1.4]: https://github.com/TNick/roborean/compare/v0.1.3...v0.1.4
@@ -192,4 +196,4 @@
 [0.1.7]: https://github.com/TNick/roborean/compare/v0.1.6...v0.1.7
 [0.1.8]: https://github.com/TNick/roborean/compare/v0.1.7...v0.1.8
 [0.1.9]: https://github.com/TNick/roborean/compare/v0.1.8...v0.1.9
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.11...HEAD
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.12...HEAD
