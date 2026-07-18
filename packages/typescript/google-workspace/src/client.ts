@@ -82,6 +82,7 @@ export function createGoogleWorkspaceClient(
 
   // Local template content cache for browser-only mode.
   const templateTexts = new Map<string, string>();
+  const gdriveExportCache = new Map<string, string>();
 
   /**
    * Build a template cache key.
@@ -363,6 +364,27 @@ export function createGoogleWorkspaceClient(
     },
 
     /**
+     * Export plain text from a gdrive: template path or raw file id.
+     *
+     * @param pathOrFileId - gdrive:{fileId} path or Drive file id.
+     * @returns Exported template plain text.
+     */
+    getGdriveTemplateText: async (pathOrFileId: string) => {
+      const fileId =
+        gdriveFileIdFromTemplatePath(pathOrFileId) ?? pathOrFileId.trim();
+      if (!fileId) {
+        throw new GoogleWorkspaceError("Invalid Google Drive template path");
+      }
+      const cached = gdriveExportCache.get(fileId);
+      if (cached !== undefined) {
+        return cached;
+      }
+      const text = await options.apis.drive.exportText(fileId);
+      gdriveExportCache.set(fileId, text);
+      return text;
+    },
+
+    /**
      * Read cached template text content.
      *
      * @param projectId - Project identifier.
@@ -371,7 +393,33 @@ export function createGoogleWorkspaceClient(
      */
     getTemplateContent: async (projectId: string, templateId: string) => {
       const text = templateTexts.get(templateKey(projectId, templateId));
-      if (text == null && options.getTemplateText) {
+      if (text != null) {
+        return {
+          templateId,
+          path: templateId,
+          contentBase64: "",
+          text,
+        };
+      }
+
+      const project = await projects.get(projectId);
+      const templateEntry = project.templates.find(
+        (entry) => entry.id === templateId,
+      );
+      const templatePath = templateEntry?.path ?? "";
+      const gdriveFileId = gdriveFileIdFromTemplatePath(templatePath);
+      if (gdriveFileId) {
+        const exported = await options.apis.drive.exportText(gdriveFileId);
+        gdriveExportCache.set(gdriveFileId, exported);
+        return {
+          templateId,
+          path: templatePath,
+          contentBase64: "",
+          text: exported,
+        };
+      }
+
+      if (options.getTemplateText) {
         const loaded = await options.getTemplateText(projectId, templateId);
         if (loaded != null) {
           templateTexts.set(templateKey(projectId, templateId), loaded);
@@ -383,15 +431,7 @@ export function createGoogleWorkspaceClient(
           };
         }
       }
-      if (text == null) {
-        throw new NotFoundError(templateId);
-      }
-      return {
-        templateId,
-        path: templateId,
-        contentBase64: "",
-        text,
-      };
+      throw new NotFoundError(templateId);
     },
 
     /**

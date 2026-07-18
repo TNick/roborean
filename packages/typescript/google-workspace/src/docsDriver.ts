@@ -172,17 +172,16 @@ function replaceAllTextRequest(
 }
 
 /**
- * Flatten ops into one insertText for blank-doc legacy mode.
+ * Flatten supported Google Docs ops into plain text for local preview.
  *
  * @param ops - Document operations emitted by bits.
  * @param templateText - Optional starting template text.
- * @returns Docs API request objects.
+ * @returns Substituted plain-text body.
  */
-function legacyBlankDocRequests(
+export function applyOpsToPlainText(
   ops: DocumentOperation[],
-  templateText: string,
-): Array<Record<string, unknown>> {
-  // Materialize a plain-text body first, then insert once into the Doc.
+  templateText = "",
+): string {
   let body = templateText;
   for (const op of ops) {
     if (op.op === "replace_named_value") {
@@ -196,13 +195,40 @@ function legacyBlankDocRequests(
         body += "\n";
       }
     } else if (op.op === "flow.append_heading") {
-      const text = String(op.text ?? "");
-      body += `${text}\n`;
+      body += `${String(op.text ?? "")}\n`;
     } else if (op.op === "plain.replace_all") {
       body = body.replaceAll(String(op.find ?? ""), String(op.replace ?? ""));
     }
   }
+  return body;
+}
 
+/**
+ * Wrap plain text as approximate HTML for preview display.
+ *
+ * @param text - Plain-text preview body.
+ * @returns HTML string safe for dangerouslySetInnerHTML-free rendering.
+ */
+export function plainTextToPreviewHtml(text: string): string {
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return `<div class="roborean-google-docs-preview"><pre>${escaped}</pre></div>`;
+}
+
+/**
+ * Flatten ops into one insertText for blank-doc legacy mode.
+ *
+ * @param ops - Document operations emitted by bits.
+ * @param templateText - Optional starting template text.
+ * @returns Docs API request objects.
+ */
+function legacyBlankDocRequests(
+  ops: DocumentOperation[],
+  templateText: string,
+): Array<Record<string, unknown>> {
+  const body = applyOpsToPlainText(ops, templateText);
   if (!body) {
     return [];
   }

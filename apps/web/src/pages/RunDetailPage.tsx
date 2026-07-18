@@ -5,6 +5,7 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { RunDetail } from "@roborean/api-types";
+import { googleDocsPreviewUrl } from "@roborean/google-workspace";
 import {
   AppToolbar,
   AppToolbarTitle,
@@ -29,6 +30,7 @@ type RunResultsView = {
     documentId: string;
     path: string;
     mediaType: string;
+    fileId?: string;
     webViewLink?: string;
   }>;
 };
@@ -48,6 +50,23 @@ function parseRunResults(raw: unknown): RunResultsView | null {
     return null;
   }
   return candidate;
+}
+
+/**
+ * Resolve a Google Docs file id from artifact metadata.
+ *
+ * @param artifact - Run artifact row.
+ * @returns Drive file id when known.
+ */
+function googleDocsFileId(
+  artifact: RunResultsView["artifacts"][number],
+): string | null {
+  if (artifact.fileId) {
+    return artifact.fileId;
+  }
+  const link = artifact.webViewLink ?? artifact.path;
+  const match = link.match(/\/document\/d\/([^/?#]+)/);
+  return match?.[1] ?? null;
 }
 
 /**
@@ -72,6 +91,11 @@ export function RunDetailPage() {
 
   // Loaded run record from the active storage client.
   const [run, setRun] = useState<RunDetail | null>(null);
+
+  // Artifact id whose in-app Google preview iframe is expanded.
+  const [expandedPreviewId, setExpandedPreviewId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!client) {
@@ -157,50 +181,89 @@ export function RunDetailPage() {
             {results.artifacts.length === 0 ? (
               <Typography variant="body2">No artifacts</Typography>
             ) : (
-              results.artifacts.map((artifact) => (
-                <Stack
-                  key={artifact.documentId}
-                  direction="row"
-                  spacing={1}
-                  alignItems="center"
-                >
-                  <Typography variant="body2">
-                    {artifact.documentId}
-                    {artifact.mediaType ? ` (${artifact.mediaType})` : ""}
-                  </Typography>
-                  {isGoogleSource && artifact.webViewLink ? (
-                    <Link
-                      href={artifact.webViewLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      variant="body2"
-                    >
-                      Open in Google Docs
-                    </Link>
-                  ) : (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => void download(artifact.documentId)}
-                    >
-                      Download
-                    </Button>
-                  )}
-                  {!isGoogleSource && client ? (
-                    <Link
-                      href={client.artifactDownloadUrl(
-                        runId,
-                        artifact.documentId,
+              results.artifacts.map((artifact) => {
+                const fileId = isGoogleSource
+                  ? googleDocsFileId(artifact)
+                  : null;
+                const previewExpanded =
+                  expandedPreviewId === artifact.documentId;
+
+                return (
+                  <Stack key={artifact.documentId} spacing={1}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Typography variant="body2">
+                        {artifact.documentId}
+                        {artifact.mediaType ? ` (${artifact.mediaType})` : ""}
+                      </Typography>
+                      {isGoogleSource && artifact.webViewLink ? (
+                        <Link
+                          href={artifact.webViewLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          variant="body2"
+                        >
+                          Open in Google Docs
+                        </Link>
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => void download(artifact.documentId)}
+                        >
+                          Download
+                        </Button>
                       )}
-                      variant="body2"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Open
-                    </Link>
-                  ) : null}
-                </Stack>
-              ))
+                      {!isGoogleSource && client ? (
+                        <Link
+                          href={client.artifactDownloadUrl(
+                            runId,
+                            artifact.documentId,
+                          )}
+                          variant="body2"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open
+                        </Link>
+                      ) : null}
+                      {isGoogleSource && fileId ? (
+                        <Button
+                          size="small"
+                          variant="text"
+                          onClick={() =>
+                            setExpandedPreviewId(
+                              previewExpanded ? null : artifact.documentId,
+                            )
+                          }
+                        >
+                          {previewExpanded
+                            ? "Hide in-app preview"
+                            : "Show in-app preview"}
+                        </Button>
+                      ) : null}
+                    </Stack>
+                    {previewExpanded && fileId ? (
+                      <Stack spacing={0.5}>
+                        <Typography variant="caption" color="text.secondary">
+                          Read-only Google preview. If the frame is blank, use
+                          Open in Google Docs.
+                        </Typography>
+                        <iframe
+                          title={`Google Docs preview ${artifact.documentId}`}
+                          src={googleDocsPreviewUrl(fileId)}
+                          sandbox="allow-scripts allow-same-origin allow-popups"
+                          style={{
+                            width: "100%",
+                            minHeight: "480px",
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        />
+                      </Stack>
+                    ) : null}
+                  </Stack>
+                );
+              })
             )}
           </Stack>
         ) : run?.results ? (

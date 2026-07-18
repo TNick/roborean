@@ -188,6 +188,25 @@ describe("google workspace client", () => {
     expect(requests.some((request) => "insertText" in request)).toBe(false);
   });
 
+  it("exports gdrive template text through the client", async () => {
+    const apis = createMemoryGoogleApis();
+    const binding = await initializeWorkspace(apis, "root", "Root");
+    const client = createGoogleWorkspaceClient({ apis, binding });
+
+    apis.files.set("template-source-1", {
+      id: "template-source-1",
+      name: "Letter template",
+      mimeType: "application/vnd.google-apps.document",
+      parents: ["templates-folder"],
+      content: "Dear {{name}},",
+      webViewLink: "https://docs.google.com/open?id=template-source-1",
+    });
+
+    await expect(
+      client.getGdriveTemplateText("gdrive:template-source-1"),
+    ).resolves.toBe("Dear {{name}},");
+  });
+
   it("ensures the templates sub-folder under a project folder", async () => {
     const apis = createMemoryGoogleApis();
     const roborean = await ensureRoboreanFolder(apis.drive, "root");

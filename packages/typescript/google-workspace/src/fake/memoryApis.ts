@@ -110,6 +110,13 @@ export function createMemoryGoogleApis(): MemoryGoogleApis {
       files.set(id, copy);
       return copy;
     },
+    async exportText(fileId, _mimeType = "text/plain") {
+      const file = files.get(fileId);
+      if (!file) {
+        throw new NotFoundError(fileId);
+      }
+      return file.content ?? `Fake exported text for ${fileId}`;
+    },
     async findChild(parentId, name, mimeType) {
       for (const file of files.values()) {
         if (

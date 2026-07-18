@@ -20,6 +20,7 @@
     "@roborean/spec": "workspace:*",
     "@roborean/ui": "workspace:*",
     "@roborean/documents-preview": "workspace:*",
+    "@roborean/google-workspace": "workspace:*",
     "@roborean/validation": "workspace:*"
   },
   "peerDependencies": {

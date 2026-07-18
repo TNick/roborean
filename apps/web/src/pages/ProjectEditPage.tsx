@@ -11,6 +11,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { Project } from "@roborean/spec";
 import { ProjectEditor } from "@roborean/editor";
+import type { GoogleWorkspaceClient } from "@roborean/google-workspace";
 import {
   AppToolbar,
   AppToolbarTitle,
@@ -176,6 +177,16 @@ export function ProjectEditPage() {
         })
       : undefined;
 
+  const googleWorkspaceClient =
+    isGoogleSource && client && "getGdriveTemplateText" in client
+      ? (client as GoogleWorkspaceClient)
+      : null;
+
+  const resolveGdriveTemplateText = googleWorkspaceClient
+    ? (templatePath: string) =>
+        googleWorkspaceClient.getGdriveTemplateText(templatePath)
+    : undefined;
+
   return (
     <PageShell>
       {error ? <Alert severity="error">{error}</Alert> : null}
@@ -191,6 +202,7 @@ export function ProjectEditPage() {
         toolbarStart={toolbarStart}
         toolbarEnd={toolbarEnd}
         googleDocTemplate={googleDocTemplate}
+        resolveGdriveTemplateText={resolveGdriveTemplateText}
       />
       <Dialog
         open={deleteConfirmOpen}

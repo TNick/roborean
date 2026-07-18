@@ -11,7 +11,8 @@
     { "path": "../engine" },
     { "path": "../validation" },
     { "path": "../ui" },
-    { "path": "../api-types" }
+    { "path": "../api-types" },
+    { "path": "../google-workspace" }
   ],
   "include": ["src/**/*"]
 }

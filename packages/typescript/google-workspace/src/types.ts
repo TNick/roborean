@@ -216,6 +216,15 @@ export type DriveApi = {
   ) => Promise<DriveFile>;
 
   /**
+   * Export a Google Doc (or other exportable file) as plain text.
+   *
+   * @param fileId - Drive file id.
+   * @param mimeType - Export MIME type.
+   * @returns Exported UTF-8 text.
+   */
+  exportText: (fileId: string, mimeType?: string) => Promise<string>;
+
+  /**
    * Find a direct child by exact name.
    *
    * @param parentId - Parent folder id.

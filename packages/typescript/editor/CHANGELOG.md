@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Local substituted preview for `roborean.google.docs` in PreviewPanel
+  (dry-run ops + exported gdrive template text or inline template body).
+- Optional `resolveGdriveTemplateText` host hook for Google Workspace mode.
+
 ### Changed
 
 - Delete for variables, bits, and documents uses one confirmation

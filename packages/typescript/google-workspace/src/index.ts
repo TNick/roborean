@@ -30,8 +30,10 @@ export {
 } from "./driveFolders.js";
 export {
   applyOpsToGoogleDoc,
+  applyOpsToPlainText,
   documentOpsToDocsRequests,
   GOOGLE_DOCS_DRIVER_MANIFEST,
+  plainTextToPreviewHtml,
   type DocsRenderMode,
   type DocsRequestOptions,
 } from "./docsDriver.js";
@@ -59,6 +61,7 @@ export {
   gdriveTemplatePath,
   GDRIVE_TEMPLATE_PREFIX,
   googleDocsEditUrl,
+  googleDocsPreviewUrl,
   isGdriveTemplatePath,
 } from "./templatePaths.js";
 export { SheetsProjectRepository } from "./repositories/projects.js";

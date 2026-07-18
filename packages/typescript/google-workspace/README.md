@@ -46,3 +46,11 @@ const templatePath = gdriveTemplatePath("abc123");
 ```
 
 Never embed a Google client secret in browser bundles.
+
+## In-app preview
+
+The editor Preview panel dry-runs document bits locally for Google Docs
+documents and applies `applyOpsToPlainText` against exported `gdrive:`
+template text (via Drive `files.export`) or cached inline template bodies.
+Run detail pages can expand a read-only `/preview` iframe for generated
+artifacts; full editing remains on `docs.google.com`.

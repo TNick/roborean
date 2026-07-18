@@ -156,6 +156,25 @@ export function createLiveGoogleApis(
       );
       return mapFile(raw);
     },
+    async exportText(fileId, mimeType = "text/plain") {
+      const token = await options.tokens.getAccessToken();
+      const headers = new Headers();
+      headers.set("Authorization", `Bearer ${token}`);
+      const query = encodeURIComponent(mimeType);
+      const response = await fetchImpl(
+        `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=${query}`,
+        { headers },
+      );
+      if (response.status === 404) {
+        throw new NotFoundError(fileId);
+      }
+      if (!response.ok) {
+        throw new GoogleWorkspaceError(
+          `${response.status} ${await response.text()}`,
+        );
+      }
+      return response.text();
+    },
     async findChild(parentId, name, mimeType) {
       const escapedName = name.replace(/'/g, "\\'");
       const clauses = [

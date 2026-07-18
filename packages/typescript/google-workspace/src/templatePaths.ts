@@ -46,3 +46,13 @@ export function gdriveTemplatePath(fileId: string): string {
 export function googleDocsEditUrl(fileId: string): string {
   return `https://docs.google.com/document/d/${fileId}/edit`;
 }
+
+/**
+ * Build a read-only Google Docs preview URL for iframe embedding.
+ *
+ * @param fileId - Google Drive file id.
+ * @returns Docs preview URL.
+ */
+export function googleDocsPreviewUrl(fileId: string): string {
+  return `https://docs.google.com/document/d/${fileId}/preview`;
+}

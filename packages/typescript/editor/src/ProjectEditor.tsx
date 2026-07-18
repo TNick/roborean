@@ -133,6 +133,14 @@ export type ProjectEditorProps = {
 
   /** Optional Google Doc template actions from the host app. */
   googleDocTemplate?: GoogleDocTemplateHostActions;
+
+  /**
+   * Export plain text from a gdrive: template path for Google Docs preview.
+   *
+   * @param templatePath - gdrive:{fileId} template path.
+   * @returns Exported template plain text.
+   */
+  resolveGdriveTemplateText?: (templatePath: string) => Promise<string>;
 };
 
 /**
@@ -171,6 +179,7 @@ export function ProjectEditor({
   toolbarStart,
   runLabel = "Run on server",
   googleDocTemplate,
+  resolveGdriveTemplateText,
 }: ProjectEditorProps) {
   // Integrated theme and account rows for compact overflow menu.
   const { themeItems, accountItems } = useRoboreanToolbarOverflowItems();
@@ -778,6 +787,7 @@ export function ProjectEditor({
         projectId={projectId}
         client={api}
         getTemplateText={(templateId) => store.getTemplateText(templateId)}
+        resolveGdriveTemplateText={resolveGdriveTemplateText}
       />
     </Panel>
   );

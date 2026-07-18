@@ -3,11 +3,20 @@ import type { DocumentDefinition, Project } from "@roborean/spec";
 import type { RunResults } from "@roborean/engine";
 import type { DocumentOperation } from "@roborean/documents-base";
 import type { createRoboreanClient } from "@roborean/api-types";
+import {
+  applyOpsToPlainText,
+  isGdriveTemplatePath,
+  plainTextToPreviewHtml,
+} from "@roborean/google-workspace";
 import { previewDocument } from "@roborean/documents-preview";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Stack, Typography } from "@roborean/ui";
 
-import { documentRequiresBackendPreview } from "../utils/documentPreview.js";
+import {
+  documentPreviewMode,
+  documentRequiresBackendPreview,
+  isGoogleDocsDriver,
+} from "../utils/documentPreview.js";
 
 /**
  * Props for the deterministic document preview panel.
@@ -35,6 +44,14 @@ export type PreviewPanelProps = {
    * @returns UTF-8 template text when known.
    */
   getTemplateText?: (templateId: string) => string;
+
+  /**
+   * Export plain text from a gdrive: template path for Google Docs preview.
+   *
+   * @param templatePath - gdrive:{fileId} template path.
+   * @returns Exported template plain text.
+   */
+  resolveGdriveTemplateText?: (templatePath: string) => Promise<string>;
 };
 
 /**
@@ -107,14 +124,22 @@ export function PreviewPanel({
   projectId,
   client,
   getTemplateText,
+  resolveGdriveTemplateText,
 }: PreviewPanelProps) {
   const [serverBody, setServerBody] = useState<string | null>(null);
   const [serverKind, setServerKind] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [googleBody, setGoogleBody] = useState<string | null>(null);
+  const [googleMode, setGoogleMode] = useState<"text" | "html">("text");
+  const [googleWarning, setGoogleWarning] = useState<string | null>(null);
+  const [googleError, setGoogleError] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
   const needsBackend =
-    document !== null && documentRequiresBackendPreview(document.type);
+    document !== null && documentRequiresBackendPreview(document);
+  const usesGoogleDocs = document !== null && isGoogleDocsDriver(document);
 
   useEffect(() => {
     if (!document || !needsBackend || !client || !projectId) {
@@ -160,6 +185,108 @@ export function PreviewPanel({
     };
   }, [client, document, needsBackend, projectId]);
 
+  useEffect(() => {
+    if (!document || !usesGoogleDocs) {
+      setGoogleBody(null);
+      setGoogleWarning(null);
+      setGoogleError(null);
+      return;
+    }
+
+    const ops = collectDocumentOps(localRun, document.id);
+    if (ops.length === 0) {
+      setGoogleBody(null);
+      setGoogleWarning(null);
+      setGoogleError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setGoogleLoading(true);
+    setGoogleError(null);
+
+    /**
+     * Build a local Google Docs preview from dry-run ops.
+     */
+    async function loadGooglePreview(): Promise<void> {
+      const templateRef = document.templateRef as string | undefined;
+      const templateEntry = project.templates.find(
+        (item) => item.id === templateRef,
+      );
+      let templateText = "";
+      let warning: string | null = null;
+
+      if (templateEntry?.path && isGdriveTemplatePath(templateEntry.path)) {
+        if (resolveGdriveTemplateText) {
+          try {
+            templateText = await resolveGdriveTemplateText(templateEntry.path);
+          } catch (err) {
+            warning =
+              err instanceof Error
+                ? `${err.message} Open the template in Google Docs and retry.`
+                : "Could not export the Google Doc template.";
+            templateText = "";
+          }
+        } else {
+          warning =
+            "Connect Google Drive to preview gdrive: templates with exported text.";
+        }
+      } else if (templateRef) {
+        templateText =
+          getTemplateText?.(templateRef) ??
+          templateHint(project, document, getTemplateText) ??
+          "";
+      }
+
+      const plainBody = applyOpsToPlainText(ops, templateText);
+      const mode = documentPreviewMode(document);
+      const body =
+        mode === "html" ? plainTextToPreviewHtml(plainBody) : plainBody;
+      const warnings: string[] = [];
+      if (warning) {
+        warnings.push(warning);
+      }
+      if (mode === "html") {
+        warnings.push(
+          "Approximate preview — open in Google Docs for native formatting.",
+        );
+      }
+
+      if (cancelled) {
+        return;
+      }
+      setGoogleBody(body);
+      setGoogleMode(mode === "html" ? "html" : "text");
+      setGoogleWarning(warnings.length > 0 ? warnings.join(" ") : null);
+    }
+
+    void loadGooglePreview()
+      .catch((err: unknown) => {
+        if (cancelled) {
+          return;
+        }
+        setGoogleError(
+          err instanceof Error ? err.message : "Google Docs preview failed",
+        );
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setGoogleLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    document,
+    getTemplateText,
+    localRun,
+    project,
+    resolveGdriveTemplateText,
+    usesGoogleDocs,
+  ]);
+
   if (!document) {
     return (
       <Typography variant="body2">Select a document to preview.</Typography>
@@ -197,6 +324,63 @@ export function PreviewPanel({
           >
             {serverBody}
           </Typography>
+        </Stack>
+      );
+    }
+  }
+
+  if (usesGoogleDocs) {
+    const ops = collectDocumentOps(localRun, document.id);
+    if (ops.length === 0) {
+      return (
+        <Typography variant="body2">
+          Run dry-run after adding document bits to preview.
+        </Typography>
+      );
+    }
+    if (googleLoading) {
+      return <CircularProgress size={24} />;
+    }
+    if (googleError) {
+      return (
+        <Typography variant="body2" color="error">
+          {googleError}
+        </Typography>
+      );
+    }
+    if (googleBody !== null) {
+      const templateRef = document.templateRef as string | undefined;
+      const template = project.templates.find(
+        (item) => item.id === templateRef,
+      );
+      return (
+        <Stack spacing={1} data-testid="preview-panel">
+          <Typography variant="body2" color="text.secondary">
+            Google Docs preview ({googleMode}) · template{" "}
+            {template?.id ?? templateRef ?? "—"}
+          </Typography>
+          {googleMode === "html" ? (
+            <Typography
+              component="div"
+              variant="body2"
+              data-testid="preview-body"
+              dangerouslySetInnerHTML={{ __html: googleBody }}
+            />
+          ) : (
+            <Typography
+              component="pre"
+              variant="body2"
+              data-testid="preview-body"
+              sx={{ whiteSpace: "pre-wrap" }}
+            >
+              {googleBody}
+            </Typography>
+          )}
+          {googleWarning ? (
+            <Typography variant="caption" color="warning.main">
+              {googleWarning}
+            </Typography>
+          ) : null}
         </Stack>
       );
     }
