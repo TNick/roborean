@@ -132,11 +132,64 @@ export function resolveGoogleAppId(
   clientId: string,
   explicitAppId = RAW_GOOGLE_APP_ID,
 ): string {
-  if (explicitAppId) {
+  if (/^\d+$/.test(explicitAppId)) {
     return explicitAppId;
   }
+
+  // Accept an OAuth client id in the override and normalize it to the project
+  // number. This is a common configuration mistake because Google calls both
+  // values an app/client id in different consoles.
+  const explicitPrefix = explicitAppId.split("-")[0] ?? "";
+  if (/^\d+$/.test(explicitPrefix)) {
+    return explicitPrefix;
+  }
+
   const prefix = clientId.split("-")[0] ?? "";
   return /^\d+$/.test(prefix) ? prefix : "";
+}
+
+/**
+ * Write redacted Picker state to the browser console for deployment support.
+ *
+ * OAuth tokens and the complete API key are deliberately excluded. The API
+ * key suffix is enough to identify which Google Cloud credential was bundled.
+ *
+ * @param stage - Picker lifecycle stage being reported.
+ * @param details - Additional non-secret state for this stage.
+ */
+export function logGooglePickerDiagnostics(
+  stage: string,
+  details: Record<string, unknown> = {},
+): void {
+  // Derive identifiers that can be compared with Google Cloud configuration.
+  const clientProjectNumber = resolveGoogleAppId(GOOGLE_CLIENT_ID, "");
+  const appId = resolveGoogleAppId(GOOGLE_CLIENT_ID);
+  const apiKeySuffix = GOOGLE_API_KEY
+    ? GOOGLE_API_KEY.slice(-4)
+    : "not-configured";
+  const host = globalThis as GoogleHost;
+
+  // Keep the diagnostic as one expandable object for easy copying from
+  // DevTools without ever printing credentials or access tokens.
+  console.info(`[Roborean Google Picker] ${stage}`, {
+    origin: globalThis.location?.origin ?? "unavailable",
+    referrer: globalThis.document?.referrer || "none",
+    secureContext: globalThis.isSecureContext,
+    apiKeyConfigured: Boolean(GOOGLE_API_KEY),
+    apiKeyLooksLikeGoogleKey: /^AIza[\w-]{35}$/.test(GOOGLE_API_KEY),
+    apiKeyLength: GOOGLE_API_KEY.length,
+    apiKeySuffix,
+    appId,
+    configuredAppId: RAW_GOOGLE_APP_ID || "derived",
+    clientProjectNumber,
+    appIdMatchesClientProject: Boolean(
+      appId && clientProjectNumber && appId === clientProjectNumber,
+    ),
+    gapiLoaded: Boolean(host.gapi?.load),
+    pickerLoaded: Boolean(host.google?.picker),
+    identityLoaded: Boolean(host.google?.accounts?.oauth2),
+    ...details,
+  });
 }
 
 /**
@@ -198,8 +251,10 @@ export async function loadGoogleIdentity(): Promise<
  */
 export async function loadGooglePicker(): Promise<void> {
   const host = globalThis as GoogleHost;
+  logGooglePickerDiagnostics("waiting for gapi");
   await waitUntil(() => Boolean(host.gapi?.load));
   if (host.google?.picker) {
+    logGooglePickerDiagnostics("Picker already loaded");
     return;
   }
   await new Promise<void>((resolve, reject) => {
@@ -213,6 +268,7 @@ export async function loadGooglePicker(): Promise<void> {
     }
   });
   await waitUntil(() => Boolean(host.google?.picker));
+  logGooglePickerDiagnostics("Picker module loaded");
 }
 
 /**
@@ -279,6 +335,7 @@ export async function pickDriveFolder(
   }
 
   ensurePickerStackingCss();
+  logGooglePickerDiagnostics("folder picker requested");
   await loadGooglePicker();
   const host = globalThis as GoogleHost;
   const pickerApi = host.google?.picker;
@@ -289,6 +346,10 @@ export async function pickDriveFolder(
   const token = await requestGoogleAccessToken(getAccessToken);
   const appId = resolveGoogleAppId(GOOGLE_CLIENT_ID);
   const origin = `${window.location.protocol}//${window.location.host}`;
+  logGooglePickerDiagnostics("OAuth token acquired", {
+    appIdApplied: Boolean(appId),
+    sharedTokenProvider: Boolean(getAccessToken),
+  });
 
   return new Promise((resolve, reject) => {
     // Folder view must explicitly allow selecting folders (not only opening them).
@@ -310,6 +371,10 @@ export async function pickDriveFolder(
 
     const picker = builder
       .setCallback((data) => {
+        logGooglePickerDiagnostics("folder picker callback", {
+          action: data.action ?? "missing",
+          selectedDocumentCount: data.docs?.length ?? 0,
+        });
         if (data.action === pickerApi.Action.PICKED) {
           const doc = data.docs?.[0];
           if (!doc?.id) {
@@ -331,6 +396,7 @@ export async function pickDriveFolder(
       })
       .build();
     picker.setVisible(true);
+    logGooglePickerDiagnostics("folder picker made visible");
 
     // Belt-and-suspenders: raise z-index on any dialog nodes Google just added.
     for (const node of document.querySelectorAll<HTMLElement>(
