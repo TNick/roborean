@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Google Picker now emits redacted lifecycle diagnostics in the browser console
+  and probes the same key/token pair against Drive to isolate Picker-only API
+  configuration failures. OAuth client ids mistakenly supplied as the Picker
+  app id are normalized to their numeric project number.
+- Google Picker now loads without the legacy Google API client, preventing a
+  second unauthenticated sign-in prompt from replacing the authenticated
+  folder picker.
+
 ## [0.1.10] - 2026-07-18
 
 ### Changed

@@ -132,11 +132,106 @@ export function resolveGoogleAppId(
   clientId: string,
   explicitAppId = RAW_GOOGLE_APP_ID,
 ): string {
-  if (explicitAppId) {
+  if (/^\d+$/.test(explicitAppId)) {
     return explicitAppId;
   }
+
+  // Accept an OAuth client id in the override and normalize it to the project
+  // number. This is a common configuration mistake because Google calls both
+  // values an app/client id in different consoles.
+  const explicitPrefix = explicitAppId.split("-")[0] ?? "";
+  if (/^\d+$/.test(explicitPrefix)) {
+    return explicitPrefix;
+  }
+
   const prefix = clientId.split("-")[0] ?? "";
   return /^\d+$/.test(prefix) ? prefix : "";
+}
+
+/**
+ * Write redacted Picker state to the browser console for deployment support.
+ *
+ * OAuth tokens and the complete API key are deliberately excluded. The API
+ * key suffix is enough to identify which Google Cloud credential was bundled.
+ *
+ * @param stage - Picker lifecycle stage being reported.
+ * @param details - Additional non-secret state for this stage.
+ */
+export function logGooglePickerDiagnostics(
+  stage: string,
+  details: Record<string, unknown> = {},
+): void {
+  // Derive identifiers that can be compared with Google Cloud configuration.
+  const clientProjectNumber = resolveGoogleAppId(GOOGLE_CLIENT_ID, "");
+  const appId = resolveGoogleAppId(GOOGLE_CLIENT_ID);
+  const apiKeySuffix = GOOGLE_API_KEY
+    ? GOOGLE_API_KEY.slice(-4)
+    : "not-configured";
+  const host = globalThis as GoogleHost;
+
+  // Keep the diagnostic as one expandable object for easy copying from
+  // DevTools without ever printing credentials or access tokens.
+  console.info(`[Roborean Google Picker] ${stage}`, {
+    origin: globalThis.location?.origin ?? "unavailable",
+    referrer: globalThis.document?.referrer || "none",
+    secureContext: globalThis.isSecureContext,
+    apiKeyConfigured: Boolean(GOOGLE_API_KEY),
+    apiKeyLooksLikeGoogleKey: /^AIza[\w-]{35}$/.test(GOOGLE_API_KEY),
+    apiKeyLength: GOOGLE_API_KEY.length,
+    apiKeySuffix,
+    appId,
+    configuredAppId: RAW_GOOGLE_APP_ID || "derived",
+    clientProjectNumber,
+    appIdMatchesClientProject: Boolean(
+      appId && clientProjectNumber && appId === clientProjectNumber,
+    ),
+    gapiLoaded: Boolean(host.gapi?.load),
+    pickerLoaded: Boolean(host.google?.picker),
+    identityLoaded: Boolean(host.google?.accounts?.oauth2),
+    ...details,
+  });
+}
+
+/**
+ * Check whether Google Drive accepts the bundled API key and OAuth token.
+ *
+ * This request distinguishes a general API-key/referrer failure from a Picker
+ * API-only failure. It never logs or returns the access token, API key, or
+ * response body.
+ *
+ * @param token - OAuth access token used only in the authorization header.
+ */
+export async function probeGooglePickerCredentials(
+  token: string,
+): Promise<void> {
+  // Ask for no user data beyond one file id; the response is never consumed.
+  const url = new URL("https://www.googleapis.com/drive/v3/files");
+  url.searchParams.set("pageSize", "1");
+  url.searchParams.set("fields", "files(id)");
+  url.searchParams.set("key", GOOGLE_API_KEY);
+
+  try {
+    // Exercise the same public key, referrer, and OAuth token combination that
+    // Picker receives while keeping both credentials out of console output.
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // Report only transport metadata. A successful Drive probe paired with a
+    // Picker 401 isolates the problem to Picker API enablement/restrictions.
+    logGooglePickerDiagnostics("credential probe completed", {
+      driveApiAcceptedCredentials: response.ok,
+      driveApiStatus: response.status,
+      pickerFailureIsolation: response.ok
+        ? "Drive accepts this key/token; check Google Picker API enablement and key API restrictions"
+        : "Drive also rejected this key/token; check key project and HTTP referrer restrictions",
+    });
+  } catch (error) {
+    // Network policy can prevent the probe without preventing the iframe.
+    logGooglePickerDiagnostics("credential probe unavailable", {
+      probeErrorType: error instanceof Error ? error.name : "unknown",
+    });
+  }
 }
 
 /**
@@ -198,19 +293,24 @@ export async function loadGoogleIdentity(): Promise<
  */
 export async function loadGooglePicker(): Promise<void> {
   const host = globalThis as GoogleHost;
+  logGooglePickerDiagnostics("waiting for gapi");
   await waitUntil(() => Boolean(host.gapi?.load));
   if (host.google?.picker) {
+    logGooglePickerDiagnostics("Picker already loaded");
     return;
   }
   await new Promise<void>((resolve, reject) => {
     try {
-      // Match Google's sample: load picker (and client helpers when available).
-      host.gapi!.load("client:picker", () => resolve());
+      // Load only Picker. Loading gapi's legacy auth-aware client alongside
+      // Google Identity Services can render a second, unauthenticated sign-in
+      // surface inside the Picker iframe.
+      host.gapi!.load("picker", () => resolve());
     } catch (err) {
       reject(err instanceof Error ? err : new Error(String(err)));
     }
   });
   await waitUntil(() => Boolean(host.google?.picker));
+  logGooglePickerDiagnostics("Picker module loaded");
 }
 
 /**
@@ -277,6 +377,7 @@ export async function pickDriveFolder(
   }
 
   ensurePickerStackingCss();
+  logGooglePickerDiagnostics("folder picker requested");
   await loadGooglePicker();
   const host = globalThis as GoogleHost;
   const pickerApi = host.google?.picker;
@@ -287,6 +388,11 @@ export async function pickDriveFolder(
   const token = await requestGoogleAccessToken(getAccessToken);
   const appId = resolveGoogleAppId(GOOGLE_CLIENT_ID);
   const origin = `${window.location.protocol}//${window.location.host}`;
+  logGooglePickerDiagnostics("OAuth token acquired", {
+    appIdApplied: Boolean(appId),
+    sharedTokenProvider: Boolean(getAccessToken),
+  });
+  void probeGooglePickerCredentials(token);
 
   return new Promise((resolve, reject) => {
     // Folder view must explicitly allow selecting folders (not only opening them).
@@ -308,6 +414,10 @@ export async function pickDriveFolder(
 
     const picker = builder
       .setCallback((data) => {
+        logGooglePickerDiagnostics("folder picker callback", {
+          action: data.action ?? "missing",
+          selectedDocumentCount: data.docs?.length ?? 0,
+        });
         if (data.action === pickerApi.Action.PICKED) {
           const doc = data.docs?.[0];
           if (!doc?.id) {
@@ -329,6 +439,7 @@ export async function pickDriveFolder(
       })
       .build();
     picker.setVisible(true);
+    logGooglePickerDiagnostics("folder picker made visible");
 
     // Belt-and-suspenders: raise z-index on any dialog nodes Google just added.
     for (const node of document.querySelectorAll<HTMLElement>(
