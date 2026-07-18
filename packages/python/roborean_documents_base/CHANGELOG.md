@@ -16,5 +16,7 @@
 
 ### Fixed
 
+- Wheel build no longer duplicates `library/` assets (removed redundant
+  Hatch `force-include` that conflicted with package inclusion).
 - Lower inter-package dependency pins to `>=0.1.1` to match lockstep
   release versions.
