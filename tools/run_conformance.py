@@ -1,6 +1,7 @@
 """Run Python conformance fixtures against their expected outcome."""
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -69,15 +70,41 @@ def _run_python(root: Path, write: bool) -> list[str]:
     return failures
 
 
+def _pnpm_executable() -> str:
+    """Resolve the ``pnpm`` executable on PATH.
+
+    Returns:
+        Absolute path to ``pnpm`` (or ``pnpm.cmd`` on Windows).
+
+    Raises:
+        FileNotFoundError: When pnpm is not available.
+    """
+    executable = shutil.which("pnpm")
+    if executable is None:
+        raise FileNotFoundError("pnpm executable not found on PATH")
+    return executable
+
+
 def _run_typescript(root: Path) -> list[str]:
     """Execute the TypeScript package conformance Vitest suite."""
+    # Do not use shell=True: on POSIX a argv list becomes
+    # ``sh -c pnpm --filter ...`` and only ``pnpm`` runs (no filter).
+    try:
+        command = [
+            _pnpm_executable(),
+            "--filter",
+            "@roborean/engine",
+            "test",
+        ]
+    except FileNotFoundError as error:
+        return [f"typescript conformance failed:\n{error}"]
+
     completed = subprocess.run(
-        ["pnpm", "--filter", "@roborean/engine", "test"],
+        command,
         cwd=root,
         check=False,
         capture_output=True,
         text=True,
-        shell=True,
     )
     if completed.returncode == 0:
         return []

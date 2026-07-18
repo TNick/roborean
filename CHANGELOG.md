@@ -51,6 +51,11 @@
 - Web app uses a shared top toolbar on every page with theme preferences
   (white/black, spacing, font size) and a stub user menu.
 
+### Fixed
+
+- `tools/run_conformance.py` invokes pnpm without `shell=True` so Linux CI
+  actually runs `@roborean/engine` tests instead of bare `pnpm` help.
+
 ## [0.1.3] - 2026-07-17
 
 ## [0.1.2] - 2026-07-17
