@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Google Workspace folder gate no longer stacks a MUI modal backdrop under the
+  connect panel after account chooser; create/pick/connect share one OAuth
+  session so actions stay usable after sign-in.
+- Folder-gate Picker hint clarifies that `VITE_GOOGLE_API_KEY` is a Google
+  Cloud API key, not the OAuth client id.
+
 ## [0.1.6] - 2026-07-18
 
 ### Changed

@@ -1,11 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { jsx as _jsx } from "react/jsx-runtime";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   clearBinding,
   createBrowserTokenProvider,
@@ -15,94 +9,24 @@ import {
   loadBinding,
   saveBinding,
   validateBinding,
-  type GoogleApis,
-  type GoogleWorkspaceClient,
-  type WorkspaceBinding,
 } from "@roborean/google-workspace";
 import { createRoboreanClient } from "@roborean/api-types";
 import { API_BASE_URL, GOOGLE_CLIENT_ID, IS_GOOGLE_MODE } from "../config.js";
-
-/**
- * Shared storage client surface used by pages and the editor.
- */
-export type AppStorageClient =
-  ReturnType<typeof createRoboreanClient> | GoogleWorkspaceClient;
-
-/**
- * Google Workspace connection state for the web shell.
- */
-export type WorkspaceContextValue = {
-  /**
-   * True when the app is in browser Google Workspace mode.
-   */
-  isGoogleMode: boolean;
-
-  /**
-   * True while connection validation is in progress.
-   */
-  loading: boolean;
-
-  /**
-   * Active Drive/Sheets binding when connected.
-   */
-  binding: WorkspaceBinding | null;
-
-  /**
-   * Storage client used by pages, or null until connected in Google mode.
-   */
-  client: AppStorageClient | null;
-
-  /**
-   * Shared Google API clients for the browser session, when in Google mode.
-   */
-  apis: GoogleApis | null;
-
-  /**
-   * Return a usable OAuth access token from the shared session provider.
-   *
-   * @returns Access token string.
-   */
-  getAccessToken: (() => Promise<string>) | null;
-
-  /**
-   * Last connection error message.
-   */
-  error: string | null;
-
-  /**
-   * Connect to a user-selected Drive folder.
-   *
-   * @param rootFolderId - Selected folder id.
-   * @param rootFolderName - Selected folder display name.
-   */
-  connectFolder: (
-    rootFolderId: string,
-    rootFolderName: string,
-  ) => Promise<void>;
-
-  /**
-   * Disconnect and clear the stored binding.
-   */
-  disconnect: () => void;
-};
-
-const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
-
+const WorkspaceContext = createContext(null);
 /**
  * Provide storage client and Google folder connection state.
  *
  * @param props - Provider children.
  * @returns Context provider element.
  */
-export function WorkspaceProvider({ children }: { children: ReactNode }) {
+export function WorkspaceProvider({ children }) {
   // Connection validation / client bootstrap state.
   const [loading, setLoading] = useState(IS_GOOGLE_MODE);
-  const [binding, setBinding] = useState<WorkspaceBinding | null>(null);
-  const [client, setClient] = useState<AppStorageClient | null>(
+  const [binding, setBinding] = useState(null);
+  const [client, setClient] = useState(
     IS_GOOGLE_MODE ? null : createRoboreanClient({ baseUrl: API_BASE_URL }),
   );
-  const [error, setError] = useState<string | null>(null);
-
+  const [error, setError] = useState(null);
   // One OAuth token provider + API suite for the whole browser session.
   const googleSession = useMemo(() => {
     if (!IS_GOOGLE_MODE || !GOOGLE_CLIENT_ID) {
@@ -114,30 +38,25 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       apis: createLiveGoogleApis({ tokens }),
     };
   }, []);
-
   useEffect(() => {
     if (!IS_GOOGLE_MODE) {
       return;
     }
-
     let cancelled = false;
-
     /**
      * Validate any stored binding on startup.
      */
-    async function restore(): Promise<void> {
+    async function restore() {
       if (!googleSession) {
         setError("VITE_GOOGLE_CLIENT_ID is required for Google Workspace mode");
         setLoading(false);
         return;
       }
-
       const stored = loadBinding();
       if (!stored) {
         setLoading(false);
         return;
       }
-
       try {
         const validated = await validateBinding(googleSession.apis, stored);
         if (cancelled) {
@@ -170,23 +89,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
       }
     }
-
     void restore();
     return () => {
       cancelled = true;
     };
   }, [googleSession]);
-
   /**
    * Initialize and persist a binding for the selected folder.
    *
    * @param rootFolderId - Selected folder id.
    * @param rootFolderName - Selected folder display name.
    */
-  async function connectFolder(
-    rootFolderId: string,
-    rootFolderName: string,
-  ): Promise<void> {
+  async function connectFolder(rootFolderId, rootFolderName) {
     if (!googleSession) {
       throw new Error("Google APIs are unavailable");
     }
@@ -215,18 +129,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }
-
   /**
    * Clear the stored binding and disconnect the client.
    */
-  function disconnect(): void {
+  function disconnect() {
     clearBinding();
     setBinding(null);
     setClient(null);
     setError(null);
   }
-
-  const value: WorkspaceContextValue = {
+  const value = {
     isGoogleMode: IS_GOOGLE_MODE,
     loading,
     binding,
@@ -239,20 +151,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     connectFolder,
     disconnect,
   };
-
-  return (
-    <WorkspaceContext.Provider value={value}>
-      {children}
-    </WorkspaceContext.Provider>
-  );
+  return _jsx(WorkspaceContext.Provider, { value: value, children: children });
 }
-
 /**
  * Read the workspace storage context.
  *
  * @returns Workspace context value.
  */
-export function useWorkspace(): WorkspaceContextValue {
+export function useWorkspace() {
   const value = useContext(WorkspaceContext);
   if (!value) {
     throw new Error("useWorkspace requires WorkspaceProvider");

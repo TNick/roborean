@@ -1,68 +1,10 @@
 import { GOOGLE_CLIENT_ID } from "../config.js";
-
-/**
- * Window surface used for Google Identity Services and the Picker.
- */
-type GoogleHost = {
-  google?: {
-    picker?: {
-      PickerBuilder: new () => {
-        addView: (view: unknown) => unknown;
-        setOAuthToken: (token: string) => unknown;
-        setDeveloperKey: (key: string) => unknown;
-        setCallback: (
-          cb: (data: {
-            action?: string;
-            docs?: Array<{ id?: string; name?: string }>;
-          }) => void,
-        ) => unknown;
-        build: () => { setVisible: (visible: boolean) => void };
-      };
-      ViewId: { FOLDERS: unknown };
-      Action: { PICKED: string; CANCEL: string };
-    };
-    accounts?: {
-      oauth2?: {
-        initTokenClient: (config: {
-          client_id: string;
-          scope: string;
-          callback: (response: {
-            access_token?: string;
-            error?: string;
-          }) => void;
-          error_callback?: (err: { type?: string }) => void;
-        }) => { requestAccessToken: (opts?: { prompt?: string }) => void };
-      };
-    };
-  };
-  gapi?: {
-    load: (api: string, callback: () => void) => void;
-  };
-};
-
-/**
- * Fluent Google Picker builder methods all return the builder.
- */
-type PickerBuilder = {
-  addView: (view: unknown) => PickerBuilder;
-  setOAuthToken: (token: string) => PickerBuilder;
-  setDeveloperKey: (key: string) => PickerBuilder;
-  setCallback: (
-    cb: (data: {
-      action?: string;
-      docs?: Array<{ id?: string; name?: string }>;
-    }) => void,
-  ) => PickerBuilder;
-  build: () => { setVisible: (visible: boolean) => void };
-};
-
 /**
  * Optional browser API key used by Google Picker (`setDeveloperKey`).
  */
 export const GOOGLE_API_KEY = String(
   import.meta.env.VITE_GOOGLE_API_KEY ?? "",
 ).trim();
-
 /**
  * Drive + Docs + Sheets scopes required for workspace mode.
  */
@@ -71,7 +13,6 @@ export const GOOGLE_WORKSPACE_SCOPES = [
   "https://www.googleapis.com/auth/documents",
   "https://www.googleapis.com/auth/spreadsheets",
 ].join(" ");
-
 /**
  * Wait until a predicate becomes true or the timeout elapses.
  *
@@ -79,10 +20,7 @@ export const GOOGLE_WORKSPACE_SCOPES = [
  * @param timeoutMs - Maximum wait time.
  * @returns Promise that resolves when ready.
  */
-async function waitUntil(
-  isReady: () => boolean,
-  timeoutMs = 15_000,
-): Promise<void> {
+async function waitUntil(isReady, timeoutMs = 15_000) {
   const started = Date.now();
   while (!isReady()) {
     if (Date.now() - started > timeoutMs) {
@@ -91,39 +29,34 @@ async function waitUntil(
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 }
-
 /**
  * Ensure Google Identity Services is available on the page.
  *
  * @returns GIS oauth2 namespace.
  */
-export async function loadGoogleIdentity(): Promise<
-  NonNullable<NonNullable<GoogleHost["google"]>["accounts"]>["oauth2"]
-> {
-  const host = globalThis as GoogleHost;
+export async function loadGoogleIdentity() {
+  const host = globalThis;
   await waitUntil(() => Boolean(host.google?.accounts?.oauth2));
-  return host.google!.accounts!.oauth2!;
+  return host.google.accounts.oauth2;
 }
-
 /**
  * Load the Google Picker API via gapi.
  */
-export async function loadGooglePicker(): Promise<void> {
-  const host = globalThis as GoogleHost;
+export async function loadGooglePicker() {
+  const host = globalThis;
   await waitUntil(() => Boolean(host.gapi?.load));
   if (host.google?.picker) {
     return;
   }
-  await new Promise<void>((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     try {
-      host.gapi!.load("picker", () => resolve());
+      host.gapi.load("picker", () => resolve());
     } catch (err) {
       reject(err instanceof Error ? err : new Error(String(err)));
     }
   });
   await waitUntil(() => Boolean(host.google?.picker));
 }
-
 /**
  * Request an OAuth access token with Google Identity Services.
  *
@@ -135,9 +68,9 @@ export async function loadGooglePicker(): Promise<void> {
  * @returns Access token string.
  */
 export async function requestGoogleAccessToken(
-  getAccessToken?: () => Promise<string>,
+  getAccessToken,
   scope = GOOGLE_WORKSPACE_SCOPES,
-): Promise<string> {
+) {
   if (getAccessToken) {
     return getAccessToken();
   }
@@ -145,9 +78,6 @@ export async function requestGoogleAccessToken(
     throw new Error("Missing VITE_GOOGLE_CLIENT_ID");
   }
   const oauth2 = await loadGoogleIdentity();
-  if (!oauth2) {
-    throw new Error("Google Identity Services is not loaded");
-  }
   return new Promise((resolve, reject) => {
     const client = oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
@@ -166,31 +96,23 @@ export async function requestGoogleAccessToken(
     client.requestAccessToken({ prompt: "" });
   });
 }
-
 /**
  * Open the Drive folder picker and return the selected folder.
  *
  * @param getAccessToken - Optional shared token getter from WorkspaceProvider.
  * @returns Selected folder id and name.
  */
-export async function pickDriveFolder(
-  getAccessToken?: () => Promise<string>,
-): Promise<{
-  id: string;
-  name: string;
-}> {
+export async function pickDriveFolder(getAccessToken) {
   await loadGooglePicker();
-  const host = globalThis as GoogleHost;
+  const host = globalThis;
   const pickerApi = host.google?.picker;
   if (!pickerApi) {
     throw new Error("Google Picker failed to load");
   }
-
   const token = await requestGoogleAccessToken(getAccessToken);
-
   return new Promise((resolve, reject) => {
     // Build a folder-only picker; API key is optional but preferred.
-    const builder = new pickerApi.PickerBuilder() as unknown as PickerBuilder;
+    const builder = new pickerApi.PickerBuilder();
     builder.addView(pickerApi.ViewId.FOLDERS).setOAuthToken(token);
     if (GOOGLE_API_KEY) {
       builder.setDeveloperKey(GOOGLE_API_KEY);

@@ -1,54 +1,52 @@
 import { useState } from "react";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
+import CircularProgress from "@mui/material/CircularProgress";
+import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { FormTextField } from "@roborean/ui";
-import { GOOGLE_CLIENT_ID } from "../config.js";
-import {
-  createDriveFolder,
-  GOOGLE_API_KEY,
-  pickDriveFolder,
-} from "./googlePicker.js";
+import { GOOGLE_API_KEY, pickDriveFolder } from "./googlePicker.js";
 import { useWorkspace } from "./workspaceContext.js";
 
 /**
- * Blocking dialog that forces Drive folder selection in Google mode.
+ * Full-page gate that requires a Google Drive folder before the app shell.
  *
- * @returns Folder gate dialog element, or null when not required.
+ * Rendered as a page overlay (not MUI Dialog) so Google OAuth / Picker UI
+ * does not stack under a modal backdrop.
+ *
+ * @returns Folder connection panel, or null when not required.
  */
 export function FolderGateDialog() {
-  const { isGoogleMode, binding, loading, error, connectFolder } =
-    useWorkspace();
+  const {
+    isGoogleMode,
+    loading,
+    binding,
+    apis,
+    getAccessToken,
+    connectFolder,
+    error,
+  } = useWorkspace();
 
-  // Manual folder fields used when the Google Picker is unavailable.
+  // Local form / busy state for the gate actions.
   const [folderId, setFolderId] = useState("");
   const [folderName, setFolderName] = useState("Roborean data");
-  const [connecting, setConnecting] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  // Only block Google mode until a binding exists.
   if (!isGoogleMode || binding) {
     return null;
   }
 
   /**
-   * Connect using the manual folder fields.
+   * Persist the chosen folder through the shared workspace session.
    *
-   * @returns Promise that settles when connect finishes.
+   * @param id - Drive folder id.
+   * @param name - Drive folder display name.
    */
-  async function connectManual(): Promise<void> {
-    const id = folderId.trim();
-    const name = folderName.trim() || "Roborean folder";
-    if (!id) {
-      setLocalError("Folder id is required");
-      return;
-    }
-    setConnecting(true);
+  async function finish(id: string, name: string): Promise<void> {
+    setBusy(true);
     setLocalError(null);
     try {
       await connectFolder(id, name);
@@ -57,134 +55,152 @@ export function FolderGateDialog() {
         err instanceof Error ? err.message : "Failed to connect folder",
       );
     } finally {
-      setConnecting(false);
+      setBusy(false);
     }
   }
 
   /**
-   * Create a new Drive folder and bind the workspace to it.
-   *
-   * @returns Promise that settles when connect finishes.
+   * Create a new Drive folder via the shared API client, then connect.
    */
-  async function connectNewFolder(): Promise<void> {
-    setConnecting(true);
+  async function onCreateFolder(): Promise<void> {
+    if (!apis) {
+      setLocalError("Google APIs are unavailable");
+      return;
+    }
+    setBusy(true);
     setLocalError(null);
     try {
-      const name = folderName.trim() || "Roborean data";
-      const created = await createDriveFolder(name);
+      const created = await apis.drive.createFolder(
+        folderName.trim() || "Roborean data",
+        "root",
+      );
       await connectFolder(created.id, created.name);
     } catch (err) {
       setLocalError(
-        err instanceof Error ? err.message : "Failed to create Drive folder",
+        err instanceof Error ? err.message : "Failed to create folder",
       );
     } finally {
-      setConnecting(false);
+      setBusy(false);
     }
   }
 
   /**
-   * Open the Google Picker after loading the picker library.
-   *
-   * @returns Promise that settles when a folder is chosen or cancelled.
+   * Open Google Picker with the shared OAuth token, then connect.
    */
-  async function connectWithPicker(): Promise<void> {
-    if (!GOOGLE_CLIENT_ID) {
-      setLocalError("Missing VITE_GOOGLE_CLIENT_ID for this static build");
-      return;
-    }
-
-    setConnecting(true);
+  async function onPickFolder(): Promise<void> {
+    setBusy(true);
     setLocalError(null);
-
     try {
-      const selected = await pickDriveFolder();
+      const selected = await pickDriveFolder(getAccessToken ?? undefined);
       await connectFolder(selected.id, selected.name);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Folder picker failed";
-      // Keep the dialog usable when picker/API key is unavailable.
-      if (
-        message.includes("Picker") ||
-        message.includes("Timed out") ||
-        message.includes("cancelled")
-      ) {
-        setLocalError(
-          `${message}. You can create a new folder or paste a Drive folder id below.`,
-        );
-      } else {
-        setLocalError(message);
-      }
+      setLocalError(
+        err instanceof Error ? err.message : "Folder picker failed",
+      );
     } finally {
-      setConnecting(false);
+      setBusy(false);
     }
   }
 
+  // Disable actions while bootstrapping, connecting, or missing APIs.
+  const actionsDisabled = busy || loading || !apis || !getAccessToken;
+  const message = localError ?? error;
+
   return (
-    <Dialog open fullWidth maxWidth="sm">
-      <DialogTitle>Select a Google Drive folder</DialogTitle>
-      <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
-          <Typography variant="body2" color="text.secondary">
-            Roborean stores projects in a companion Google Sheet and writes
-            generated documents as Google Docs under the folder you choose.
-            Everything is written only inside that folder.
+    <Box
+      sx={{
+        position: "fixed",
+        inset: 0,
+        zIndex: (theme) => theme.zIndex.modal,
+        bgcolor: "background.default",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        p: 2,
+      }}
+    >
+      <Paper
+        elevation={2}
+        sx={{
+          width: "100%",
+          maxWidth: 480,
+          p: 3,
+        }}
+      >
+        <Stack spacing={2}>
+          <Typography variant="h6" component="h1">
+            Select a Google Drive folder
           </Typography>
-          {!GOOGLE_CLIENT_ID ? (
-            <Alert severity="error">
-              Missing `VITE_GOOGLE_CLIENT_ID` for this static build.
-            </Alert>
-          ) : null}
+          <Typography variant="body2" color="text.secondary">
+            Roborean stores projects in Google Sheets and Docs inside a folder
+            you choose. Nothing is written until you connect a folder.
+          </Typography>
           {!GOOGLE_API_KEY ? (
             <Alert severity="info">
-              Optional: set `VITE_GOOGLE_API_KEY` for Google Picker. Without it,
-              use “Create a new folder” or paste a folder id.
+              Optional: set a Google Cloud API key as{" "}
+              <code>VITE_GOOGLE_API_KEY</code> (separate from the OAuth client
+              id) to enable Google Picker. Without it, use &quot;Create a new
+              folder&quot; or paste a folder id.
             </Alert>
           ) : null}
-          {error ? <Alert severity="error">{error}</Alert> : null}
-          {localError ? <Alert severity="error">{localError}</Alert> : null}
-          <Button
-            variant="contained"
-            disabled={connecting || loading || !GOOGLE_CLIENT_ID}
-            onClick={() => void connectNewFolder()}
-          >
-            Create a new folder
-          </Button>
-          <Button
-            variant="outlined"
-            disabled={connecting || loading || !GOOGLE_CLIENT_ID}
-            onClick={() => void connectWithPicker()}
-          >
-            Choose folder with Google Picker
-          </Button>
+          {message ? <Alert severity="error">{message}</Alert> : null}
+          {(busy || loading) && (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <CircularProgress size={18} />
+              <Typography variant="body2" color="text.secondary">
+                {busy ? "Connecting to Google Drive…" : "Checking session…"}
+              </Typography>
+            </Stack>
+          )}
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+            <Button
+              variant="contained"
+              disabled={actionsDisabled}
+              onClick={() => {
+                void onCreateFolder();
+              }}
+            >
+              Create a new folder
+            </Button>
+            <Button
+              variant="outlined"
+              disabled={actionsDisabled}
+              onClick={() => {
+                void onPickFolder();
+              }}
+            >
+              Choose folder with Google Picker
+            </Button>
+          </Stack>
           <Typography variant="subtitle2">Or paste a folder id</Typography>
-          <Typography variant="caption" color="text.secondary">
-            In Drive, open the folder and copy the id from the URL after
-            `/folders/`.
-          </Typography>
-          <FormTextField
+          <TextField
             label="Folder id"
             value={folderId}
             onChange={(event) => setFolderId(event.target.value)}
             fullWidth
             required
+            disabled={busy || loading}
           />
-          <FormTextField
+          <TextField
             label="Folder display name"
             value={folderName}
             onChange={(event) => setFolderName(event.target.value)}
             fullWidth
+            disabled={busy || loading}
           />
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              variant="contained"
+              disabled={actionsDisabled || !folderId.trim()}
+              onClick={() => {
+                void finish(folderId.trim(), folderName.trim() || folderId);
+              }}
+            >
+              Use this folder
+            </Button>
+          </Box>
         </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          variant="contained"
-          disabled={connecting || loading || !folderId.trim()}
-          onClick={() => void connectManual()}
-        >
-          Use this folder
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </Paper>
+    </Box>
   );
 }
