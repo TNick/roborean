@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-07-18
+
+### Changed
+
+- Moe google picker
+
 ### Fixed
 
-- Reject `GOCSPX-…` values for `VITE_GOOGLE_API_KEY` (OAuth client secrets
-  are not Picker developer keys) and warn in the folder gate.
+- Reject `GOCSPX-…` values for `VITE_GOOGLE_API_KEY` (OAuth client secrets are not Picker developer keys) and warn in the folder gate.
 
 ## [0.1.7] - 2026-07-18
 
@@ -135,4 +140,5 @@
 [0.1.5]: https://github.com/TNick/roborean/compare/v0.1.4...v0.1.5
 [0.1.6]: https://github.com/TNick/roborean/compare/v0.1.5...v0.1.6
 [0.1.7]: https://github.com/TNick/roborean/compare/v0.1.6...v0.1.7
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.7...HEAD
+[0.1.8]: https://github.com/TNick/roborean/compare/v0.1.7...v0.1.8
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.8...HEAD
