@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D08_xlsx_named_value",
+  "name": "XLSX named value",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "project_name",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Alpha"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "region",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "North"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "fill_project",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "project_name",
+        "fromKey": "project_name"
+      },
+      "reads": [
+        "project_name"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_region",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "region",
+        "fromKey": "region"
+      },
+      "reads": [
+        "region"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "named",
+      "title": "Named",
+      "type": "xlsx",
+      "driver": "roborean.xlsx",
+      "templateRef": "named",
+      "outputTarget": "named.xlsx",
+      "irFamily": "sheet",
+      "settings": {},
+      "preview": {
+        "mode": "html",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "named",
+      "path": "templates/named.xlsx"
+    }
+  ],
+  "metadata": {}
+}

@@ -29,7 +29,9 @@ Namespaces: `plain.*`, `flow.*`, `sheet.*`, `drawing.*`, `raster.*`,
 plus common ops `set_metadata`, `replace_named_value`, `finalize`.
 Drivers that opt in to `replace_named_value` today: `roborean.text`,
 `roborean.markdown`, `roborean.docx`, `roborean.xlsx`, and
-`roborean.dxf` (TEXT, MTEXT, and block ATTRIB in modelspace only).
+`roborean.dxf` (modelspace TEXT, MTEXT, INSERT ATTRIB, block ATTDEF,
+MULTILEADER text and block attribs, DIMENSION override and geometry
+text, and ACAD_TABLE cell strings via in-place tag rewrite).
 
 ## Previews
 

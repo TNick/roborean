@@ -1,0 +1,52 @@
+{
+  "documents": {
+    "named": {
+      "definition": {
+        "id": "named",
+        "type": "xlsx",
+        "driver": "roborean.xlsx"
+      },
+      "ops": [
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "project_name",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Alpha"
+          }
+        },
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "region",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "North"
+          }
+        }
+      ],
+      "sheetRows": {
+        "Details": [
+          [
+            "Alpha",
+            "=A1&\"-suffix\"",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "North",
+            "",
+            ""
+          ]
+        ]
+      }
+    }
+  }
+}

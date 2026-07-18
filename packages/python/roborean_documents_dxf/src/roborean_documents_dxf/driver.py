@@ -1,6 +1,7 @@
 """DXF document driver using ezdxf."""
 
 import io
+import logging
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -18,6 +19,10 @@ from roborean_spec import (
     TemplateManifest,
     WorkspaceValue,
 )
+
+from .acad_table_text import replace_in_acad_table
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -189,15 +194,24 @@ class DxfDocumentDriver:
     def _replace_named_value(
         self, session: DxfSession, needle: str, rendered: str
     ) -> None:
-        """Substitute a placeholder in TEXT, MTEXT, and ATTRIB entities.
+        """Substitute a placeholder across supported DXF text carriers.
 
         Args:
             session: Open DXF session holding the modelspace to scan.
             needle: Placeholder token to search for (``{{name}}``).
             rendered: Replacement text substituted in place of the token.
         """
-        # TEXT uses ``dxf.text``; MTEXT uses ``.text``. Plain substring
-        # replace only; formatting control codes are left untouched.
+        self._replace_in_text_mtext(session, needle, rendered)
+        self._replace_in_insert_attribs(session, needle, rendered)
+        self._replace_in_attdefs(session, needle, rendered)
+        self._replace_in_mleaders(session, needle, rendered)
+        self._replace_in_dimensions(session, needle, rendered)
+        self._replace_in_acad_tables(session, needle, rendered)
+
+    def _replace_in_text_mtext(
+        self, session: DxfSession, needle: str, rendered: str
+    ) -> None:
+        """Replace placeholders in modelspace TEXT and MTEXT entities."""
         for entity in session.msp.query("TEXT MTEXT"):
             if entity.dxftype() == "TEXT":
                 current = entity.dxf.text
@@ -215,14 +229,98 @@ class DxfDocumentDriver:
             entity.text = current.replace(needle, rendered)
             session.entities.append({"type": "mtext", "text": entity.text})
 
-        # Block-reference ATTRIB entities cover title-block style fields.
+    def _replace_in_insert_attribs(
+        self, session: DxfSession, needle: str, rendered: str
+    ) -> None:
+        """Replace placeholders in block-reference ATTRIB entities."""
         for insert in session.msp.query("INSERT"):
             for attrib in insert.attribs:
-                if needle in attrib.dxf.text:
-                    attrib.dxf.text = attrib.dxf.text.replace(needle, rendered)
+                if needle not in attrib.dxf.text:
+                    continue
+                attrib.dxf.text = attrib.dxf.text.replace(needle, rendered)
+                session.entities.append(
+                    {"type": "attrib", "text": attrib.dxf.text}
+                )
+
+    def _replace_in_attdefs(
+        self, session: DxfSession, needle: str, rendered: str
+    ) -> None:
+        """Replace placeholders in block-definition ATTDEF entities."""
+        for block in session.doc.blocks:
+            if block.name.startswith("*"):
+                continue
+            for attdef in block.query("ATTDEF"):
+                if needle not in attdef.dxf.text:
+                    continue
+                attdef.dxf.text = attdef.dxf.text.replace(needle, rendered)
+                session.entities.append(
+                    {"type": "attdef", "text": attdef.dxf.text}
+                )
+
+    def _replace_in_mleaders(
+        self, session: DxfSession, needle: str, rendered: str
+    ) -> None:
+        """Replace placeholders in MULTILEADER text and block attribs."""
+        for leader in session.msp.query("MLEADER MULTILEADER"):
+            content = leader.get_mtext_content()
+            if needle in content:
+                leader.set_mtext_content(content.replace(needle, rendered))
+                session.entities.append(
+                    {"type": "mleader", "text": leader.get_mtext_content()}
+                )
+
+            for attrib in leader.block_attribs:
+                if needle not in attrib.text:
+                    continue
+                attrib.text = attrib.text.replace(needle, rendered)
+                session.entities.append(
+                    {"type": "mleader", "text": attrib.text}
+                )
+
+    def _replace_in_dimensions(
+        self, session: DxfSession, needle: str, rendered: str
+    ) -> None:
+        """Replace placeholders in dimension overrides and geometry text."""
+        for dimension in session.msp.query("DIMENSION"):
+            if needle in dimension.dxf.text:
+                dimension.dxf.text = dimension.dxf.text.replace(
+                    needle, rendered
+                )
+                session.entities.append(
+                    {"type": "dimension", "text": dimension.dxf.text}
+                )
+
+            block = dimension.get_geometry_block()
+            if block is None:
+                continue
+
+            for entity in block.query("TEXT MTEXT"):
+                if entity.dxftype() == "TEXT":
+                    current = entity.dxf.text
+                    if needle not in current:
+                        continue
+                    entity.dxf.text = current.replace(needle, rendered)
                     session.entities.append(
-                        {"type": "attrib", "text": attrib.dxf.text}
+                        {"type": "dimension", "text": entity.dxf.text}
                     )
+                    continue
+
+                current = entity.text
+                if needle not in current:
+                    continue
+                entity.text = current.replace(needle, rendered)
+                session.entities.append(
+                    {"type": "dimension", "text": entity.text}
+                )
+
+    def _replace_in_acad_tables(
+        self, session: DxfSession, needle: str, rendered: str
+    ) -> None:
+        """Replace placeholders in ACAD_TABLE cell strings."""
+        for table in session.msp.query("ACAD_TABLE"):
+            changed = replace_in_acad_table(table, needle, rendered)
+            for text in changed:
+                session.entities.append({"type": "acad_table", "text": text})
 
     def finalize(self, session: DxfSession) -> None:
         """No-op finalize.

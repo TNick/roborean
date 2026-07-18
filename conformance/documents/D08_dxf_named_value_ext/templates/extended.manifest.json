@@ -1,0 +1,34 @@
+{
+  "templateId": "extended",
+  "templateVersion": "1.0.0",
+  "documentType": "dxf",
+  "driver": "roborean.dxf",
+  "requiredInputs": [
+    "attdef_slot",
+    "note",
+    "dim_label",
+    "label"
+  ],
+  "capabilities": [
+    "replace_named_value",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "attdef_slot": {
+      "kind": "text",
+      "required": true
+    },
+    "note": {
+      "kind": "text",
+      "required": true
+    },
+    "dim_label": {
+      "kind": "text",
+      "required": true
+    },
+    "label": {
+      "kind": "text",
+      "required": true
+    }
+  }
+}

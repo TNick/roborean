@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D08_dxf_named_value_ext",
+  "name": "DXF named value extended",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "attdef_slot",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Block"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "note",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Callout"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "dim_label",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Width"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "label",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Table title"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "fill_attdef",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "extended",
+        "name": "attdef_slot",
+        "fromKey": "attdef_slot"
+      },
+      "reads": [
+        "attdef_slot"
+      ],
+      "writes": [],
+      "emits": [
+        "extended"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_note",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "extended",
+        "name": "note",
+        "fromKey": "note"
+      },
+      "reads": [
+        "note"
+      ],
+      "writes": [],
+      "emits": [
+        "extended"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_dim",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "extended",
+        "name": "dim_label",
+        "fromKey": "dim_label"
+      },
+      "reads": [
+        "dim_label"
+      ],
+      "writes": [],
+      "emits": [
+        "extended"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_label",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "extended",
+        "name": "label",
+        "fromKey": "label"
+      },
+      "reads": [
+        "label"
+      ],
+      "writes": [],
+      "emits": [
+        "extended"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "extended",
+      "title": "Extended",
+      "type": "dxf",
+      "driver": "roborean.dxf",
+      "templateRef": "extended",
+      "outputTarget": "extended.dxf",
+      "irFamily": "drawing",
+      "settings": {},
+      "preview": {
+        "mode": "drawing-json",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "extended",
+      "path": "templates/extended.dxf"
+    }
+  ],
+  "metadata": {}
+}

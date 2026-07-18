@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "named",
+      "path": "named.xlsx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "compare": "semantic"
+    }
+  ]
+}

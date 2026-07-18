@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "named",
+      "path": "named.docx",
+      "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "compare": "semantic"
+    }
+  ]
+}

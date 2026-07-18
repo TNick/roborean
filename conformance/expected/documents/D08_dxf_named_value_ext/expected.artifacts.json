@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "documentId": "extended",
+      "path": "extended.dxf",
+      "mediaType": "image/vnd.dxf",
+      "compare": "skip"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "documents": {
+    "named": {
+      "definition": {
+        "id": "named",
+        "type": "docx",
+        "driver": "roborean.docx"
+      },
+      "ops": [
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "greeting",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Ada"
+          }
+        },
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "table_note",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "On time"
+          }
+        },
+        {
+          "documentId": "named",
+          "op": "replace_named_value",
+          "name": "header_title",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Weekly"
+          }
+        }
+      ],
+      "paragraphTexts": [
+        "Dear Ada,",
+        "Title: Weekly"
+      ]
+    }
+  }
+}

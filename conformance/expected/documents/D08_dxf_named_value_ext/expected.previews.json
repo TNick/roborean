@@ -1,0 +1,31 @@
+{
+  "extended": {
+    "documentId": "extended",
+    "mode": "drawing-json",
+    "body": {
+      "entities": [
+        {
+          "type": "attdef",
+          "text": "Block"
+        },
+        {
+          "type": "mleader",
+          "text": "Callout"
+        },
+        {
+          "type": "dimension",
+          "text": "Width"
+        },
+        {
+          "type": "acad_table",
+          "text": "Table title"
+        }
+      ]
+    },
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-dxf",
+      "version": "0.3.0"
+    }
+  }
+}

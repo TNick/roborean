@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "conformance.D09_docx_named_value",
+  "name": "DOCX named value",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "greeting",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Ada"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "table_note",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "On time"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      },
+      {
+        "key": "header_title",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Weekly"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "fill_greeting",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "greeting",
+        "fromKey": "greeting"
+      },
+      "reads": [
+        "greeting"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_table",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "table_note",
+        "fromKey": "table_note"
+      },
+      "reads": [
+        "table_note"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    },
+    {
+      "id": "fill_header",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "named",
+        "name": "header_title",
+        "fromKey": "header_title"
+      },
+      "reads": [
+        "header_title"
+      ],
+      "writes": [],
+      "emits": [
+        "named"
+      ],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "named",
+      "title": "Named",
+      "type": "docx",
+      "driver": "roborean.docx",
+      "templateRef": "named",
+      "outputTarget": "named.docx",
+      "irFamily": "flow",
+      "settings": {},
+      "preview": {
+        "mode": "html",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "named",
+      "path": "templates/named.docx"
+    }
+  ],
+  "metadata": {}
+}

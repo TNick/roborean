@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from openpyxl import Workbook, load_workbook
+from openpyxl.cell.cell import MergedCell
 from pydantic import TypeAdapter
 from roborean_documents_base.capabilities import assert_op_allowed
 from roborean_documents_base.resolve_values import public_literal_value
@@ -138,6 +139,34 @@ class XlsxDocumentDriver:
         session.ops_applied.append(op.model_dump(mode="json", by_alias=True))
 
         # Dispatch sheet mutations onto the openpyxl workbook.
+        if op.op == "replace_named_value":
+            value = TypeAdapter(WorkspaceValue).validate_python(data["value"])
+            rendered = str(public_literal_value(value))
+            needle = "{{" + str(data["name"]) + "}}"
+            for sheet_name in session.workbook.sheetnames:
+                sheet = session.workbook[sheet_name]
+                for row in sheet.iter_rows():
+                    for cell in row:
+                        if isinstance(cell, MergedCell):
+                            continue
+                        current = cell.value
+                        if not isinstance(current, str):
+                            continue
+                        if current.startswith("="):
+                            continue
+                        if needle in current:
+                            cell.value = current.replace(needle, rendered)
+            return
+
+        if op.op == "set_metadata":
+            key = str(data["key"])
+            value = TypeAdapter(WorkspaceValue).validate_python(data["value"])
+            rendered = str(public_literal_value(value))
+            props = session.workbook.properties
+            if hasattr(props, key):
+                setattr(props, key, rendered)
+            return
+
         if op.op == "sheet.ensure_sheet":
             name = str(data["name"])
             if name not in session.workbook.sheetnames:

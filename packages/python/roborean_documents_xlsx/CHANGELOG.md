@@ -5,6 +5,10 @@
 ### Added
 
 - `roborean.xlsx` driver with sheet operations and HTML preview.
+- `replace_named_value` scans all sheets for Mustache-like placeholders
+  in non-formula string cells, skipping merged non-anchor cells.
+- Minimal `set_metadata` support via workbook properties.
+- Package unit tests for named-value substitution.
 
 ### Changed
 

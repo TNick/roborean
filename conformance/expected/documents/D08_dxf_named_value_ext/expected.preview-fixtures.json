@@ -1,0 +1,53 @@
+{
+  "documents": {
+    "extended": {
+      "definition": {
+        "id": "extended",
+        "type": "dxf",
+        "driver": "roborean.dxf"
+      },
+      "ops": [
+        {
+          "documentId": "extended",
+          "op": "replace_named_value",
+          "name": "attdef_slot",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Block"
+          }
+        },
+        {
+          "documentId": "extended",
+          "op": "replace_named_value",
+          "name": "note",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Callout"
+          }
+        },
+        {
+          "documentId": "extended",
+          "op": "replace_named_value",
+          "name": "dim_label",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Width"
+          }
+        },
+        {
+          "documentId": "extended",
+          "op": "replace_named_value",
+          "name": "label",
+          "value": {
+            "kind": "public_literal",
+            "dataType": "string",
+            "value": "Table title"
+          }
+        }
+      ]
+    }
+  }
+}

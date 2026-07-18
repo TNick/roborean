@@ -1,0 +1,25 @@
+{
+  "templateId": "named",
+  "templateVersion": "1.0.0",
+  "documentType": "docx",
+  "driver": "roborean.docx",
+  "requiredInputs": [],
+  "capabilities": [
+    "replace_named_value",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "greeting": {
+      "kind": "text",
+      "required": true
+    },
+    "table_note": {
+      "kind": "text",
+      "required": true
+    },
+    "header_title": {
+      "kind": "text",
+      "required": true
+    }
+  }
+}

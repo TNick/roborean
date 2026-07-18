@@ -7,6 +7,10 @@
 - `roborean.dxf` driver with drawing ops and drawing-json preview.
 - `replace_named_value` support for TEXT, MTEXT, and block ATTRIB
   placeholders in loaded DXF templates.
+- Extended `replace_named_value` to ATTDEF, MULTILEADER, DIMENSION
+  override text, and ACAD_TABLE cell strings (in-place AcDbTable tag
+  rewrite; proxy graphics may lag until a CAD app regenerates the
+  table).
 
 ### Changed
 

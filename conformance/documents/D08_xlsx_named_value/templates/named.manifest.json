@@ -1,0 +1,21 @@
+{
+  "templateId": "named",
+  "templateVersion": "1.0.0",
+  "documentType": "xlsx",
+  "driver": "roborean.xlsx",
+  "requiredInputs": [],
+  "capabilities": [
+    "replace_named_value",
+    "finalize"
+  ],
+  "declaredSlots": {
+    "project_name": {
+      "kind": "cell",
+      "required": true
+    },
+    "region": {
+      "kind": "cell",
+      "required": true
+    }
+  }
+}

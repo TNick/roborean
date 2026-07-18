@@ -1,0 +1,12 @@
+{
+  "named": {
+    "documentId": "named",
+    "mode": "html",
+    "body": "<div class=\"roborean-docx\"><p>Dear Ada,</p><table><tr><td>Note: On time</td></tr></table><div class=\"roborean-docx-header\"><p>Title: Weekly</p></div></div>",
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-docx",
+      "version": "0.3.0"
+    }
+  }
+}

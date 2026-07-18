@@ -1,0 +1,12 @@
+{
+  "named": {
+    "documentId": "named",
+    "mode": "html",
+    "body": "<div class=\"roborean-xlsx\"><h3>Details</h3><table><tr><td>Alpha</td><td>=A1&\"-suffix\"</td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td>North</td><td></td><td></td></tr></table></div>",
+    "warnings": [],
+    "renderer": {
+      "package": "roborean-documents-xlsx",
+      "version": "0.3.0"
+    }
+  }
+}
