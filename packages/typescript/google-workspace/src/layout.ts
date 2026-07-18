@@ -65,6 +65,11 @@ export const SHEET_HEADERS: Record<
 export const MAX_PAYLOAD_CHARS = 45_000;
 
 /**
+ * Sub-folder name for hand-authored Google Doc templates.
+ */
+export const TEMPLATES_FOLDER_NAME = "templates";
+
+/**
  * Build the project documents folder name.
  *
  * @param projectId - Project identifier.

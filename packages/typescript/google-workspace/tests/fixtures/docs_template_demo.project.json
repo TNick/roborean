@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "google-workspace.docs_template_demo",
+  "name": "Google Docs template demo",
+  "pluginRequirements": [],
+  "workspace": {
+    "variables": [
+      {
+        "key": "name",
+        "schema": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "kind": "public_literal",
+          "dataType": "string",
+          "value": "Ada"
+        },
+        "const": false,
+        "exposure": "clientVisible"
+      }
+    ]
+  },
+  "bits": [
+    {
+      "id": "fill_name",
+      "type": "roborean.replace_named_value",
+      "when": true,
+      "config": {
+        "documentId": "letter",
+        "name": "name",
+        "fromKey": "name"
+      },
+      "reads": ["name"],
+      "writes": [],
+      "emits": ["letter"],
+      "effectClass": "document",
+      "onError": "abort",
+      "capabilities": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "letter",
+      "title": "Letter",
+      "type": "docx",
+      "driver": "roborean.google.docs",
+      "templateRef": "letter_tpl",
+      "outputTarget": "letter.gdoc",
+      "irFamily": "flow",
+      "settings": {},
+      "preview": {
+        "mode": "html",
+        "enabled": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "letter_tpl",
+      "path": "gdrive:template-source-1"
+    }
+  ],
+  "metadata": {}
+}

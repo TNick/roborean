@@ -137,6 +137,25 @@ export function createLiveGoogleApis(
       ),
     createDocument: (name, parentId) =>
       createDriveFile(name, "application/vnd.google-apps.document", parentId),
+    async copyFile(fileId, name, parentId) {
+      const raw = await googleFetch<{
+        id?: string;
+        name?: string;
+        mimeType?: string;
+        parents?: string[];
+        webViewLink?: string;
+      }>(
+        `https://www.googleapis.com/drive/v3/files/${fileId}/copy?fields=id,name,mimeType,parents,webViewLink`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name,
+            parents: [parentId],
+          }),
+        },
+      );
+      return mapFile(raw);
+    },
     async findChild(parentId, name, mimeType) {
       const escapedName = name.replace(/'/g, "\\'");
       const clauses = [

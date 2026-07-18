@@ -24,6 +24,7 @@ import {
   type StorageSource,
 } from "../config.js";
 import { useWorkspace } from "../storage/workspaceContext.js";
+import { createGoogleDocTemplateHostActions } from "../storage/googleDocTemplates.js";
 
 /**
  * Loads one project and hosts the editor with delete support.
@@ -33,7 +34,7 @@ import { useWorkspace } from "../storage/workspaceContext.js";
 export function ProjectEditPage() {
   const navigate = useNavigate();
   const { source: sourceParam = "", id = "" } = useParams();
-  const { clientFor } = useWorkspace();
+  const { clientFor, apis, binding, getAccessToken } = useWorkspace();
 
   // Parsed storage source from the route, when valid.
   const source: StorageSource | null = isStorageSource(sourceParam)
@@ -165,6 +166,16 @@ export function ProjectEditPage() {
   // Google-backed projects run in the browser; API projects use the server.
   const isGoogleSource = source === "google";
 
+  const googleDocTemplate =
+    isGoogleSource && apis && binding && getAccessToken
+      ? createGoogleDocTemplateHostActions({
+          apis,
+          binding,
+          getAccessToken,
+          projectId: id,
+        })
+      : undefined;
+
   return (
     <PageShell>
       {error ? <Alert severity="error">{error}</Alert> : null}
@@ -179,6 +190,7 @@ export function ProjectEditPage() {
         onDelete={() => setDeleteConfirmOpen(true)}
         toolbarStart={toolbarStart}
         toolbarEnd={toolbarEnd}
+        googleDocTemplate={googleDocTemplate}
       />
       <Dialog
         open={deleteConfirmOpen}

@@ -53,6 +53,7 @@ import { filterBits } from "./listFilters.js";
 
 import { VariableForm } from "./forms/VariableForm.js";
 import { DocumentForm } from "./forms/DocumentForm.js";
+import type { GoogleDocTemplateHostActions } from "./forms/DocumentTemplatePanel.js";
 import { BitDetailPanel } from "./panels/BitDetailPanel.js";
 import { listBitManifests } from "./bitManifestRegistry.js";
 import { DependencyGraphPanel } from "./panels/DependencyGraphPanel.js";
@@ -129,6 +130,9 @@ export type ProjectEditorProps = {
    * Label for the durable run action button.
    */
   runLabel?: string;
+
+  /** Optional Google Doc template actions from the host app. */
+  googleDocTemplate?: GoogleDocTemplateHostActions;
 };
 
 /**
@@ -166,6 +170,7 @@ export function ProjectEditor({
   toolbarEnd,
   toolbarStart,
   runLabel = "Run on server",
+  googleDocTemplate,
 }: ProjectEditorProps) {
   // Integrated theme and account rows for compact overflow menu.
   const { themeItems, accountItems } = useRoboreanToolbarOverflowItems();
@@ -593,6 +598,7 @@ export function ProjectEditor({
           onTemplateDelete={(templateId) =>
             store.markTemplateDeleted(templateId)
           }
+          googleDocTemplate={googleDocTemplate}
           onChange={(next) => {
             store.updateDocument(selectedDocument.id, next);
             syncProject();

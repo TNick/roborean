@@ -10,12 +10,25 @@ Browser-only Google Workspace storage and document adapter for Roborean.
 - Native Google Docs as generated document outputs
 - Fake/in-memory implementations for unit tests
 
+## Google Doc templates
+
+Projects can reference hand-authored Google Doc templates using the
+`gdrive:{fileId}` convention in `project.templates[].path`. During a run,
+the client copies the linked template into the project folder and applies
+`replaceAllText` / end-of-document `insertText` requests so native Docs
+formatting survives placeholder substitution.
+
+Template Docs created from the editor live under
+`Roborean/project-{id}/templates/`. Documents without a `gdrive:` template
+keep the legacy blank-doc plus flattened plain-text insert path.
+
 ## Usage
 
 ```ts
 import {
   createGoogleWorkspaceClient,
   createMemoryGoogleApis,
+  gdriveTemplatePath,
 } from "@roborean/google-workspace";
 
 const apis = createMemoryGoogleApis();
@@ -28,6 +41,8 @@ const client = createGoogleWorkspaceClient({
     schemaVersion: 1,
   },
 });
+
+const templatePath = gdriveTemplatePath("abc123");
 ```
 
 Never embed a Google client secret in browser bundles.

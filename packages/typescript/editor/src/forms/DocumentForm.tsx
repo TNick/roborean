@@ -3,7 +3,10 @@ import type { DocumentDefinition, Project } from "@roborean/spec";
 import MenuItem from "@mui/material/MenuItem";
 import { FormStack, FormTextField } from "@roborean/ui";
 
-import { DocumentTemplatePanel } from "./DocumentTemplatePanel.js";
+import {
+  DocumentTemplatePanel,
+  type GoogleDocTemplateHostActions,
+} from "./DocumentTemplatePanel.js";
 
 /**
  * Props for the document definition form.
@@ -64,6 +67,9 @@ export type DocumentFormProps = {
    * @param templateId - Template identifier to remove from storage.
    */
   onTemplateDelete?: (templateId: string) => void;
+
+  /** Optional Google Doc template actions from the host app. */
+  googleDocTemplate?: GoogleDocTemplateHostActions;
 };
 
 const PREVIEW_MODES = ["text", "html", "json", "drawing-json"] as const;
@@ -117,6 +123,7 @@ export function DocumentForm({
   setTemplateText,
   setTemplateBytes,
   onTemplateDelete,
+  googleDocTemplate,
 }: DocumentFormProps) {
   const preview = previewFields(document);
 
@@ -171,6 +178,7 @@ export function DocumentForm({
         setTemplateText={setTemplateText}
         setTemplateBytes={setTemplateBytes}
         onTemplateDelete={onTemplateDelete}
+        googleDocTemplate={googleDocTemplate}
       />
       <FormTextField
         size="small"

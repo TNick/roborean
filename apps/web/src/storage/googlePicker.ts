@@ -15,7 +15,11 @@ type GoogleHost = {
         setCallback: (
           cb: (data: {
             action?: string;
-            docs?: Array<{ id?: string; name?: string }>;
+            docs?: Array<{
+              id?: string;
+              name?: string;
+              url?: string;
+            }>;
           }) => void,
         ) => unknown;
         build: () => { setVisible: (visible: boolean) => void };
@@ -23,6 +27,7 @@ type GoogleHost = {
       DocsView: new (viewId?: unknown) => {
         setIncludeFolders: (include: boolean) => unknown;
         setSelectFolderEnabled: (enabled: boolean) => unknown;
+        setMimeTypes: (mimeTypes: string) => unknown;
       };
       ViewId: { FOLDERS: unknown; DOCS: unknown };
       Action: { PICKED: string; CANCEL: string };
@@ -58,7 +63,7 @@ type PickerBuilder = {
   setCallback: (
     cb: (data: {
       action?: string;
-      docs?: Array<{ id?: string; name?: string }>;
+      docs?: Array<{ id?: string; name?: string; url?: string }>;
     }) => void,
   ) => PickerBuilder;
   build: () => { setVisible: (visible: boolean) => void };
@@ -70,6 +75,7 @@ type PickerBuilder = {
 type DocsView = {
   setIncludeFolders: (include: boolean) => DocsView;
   setSelectFolderEnabled: (enabled: boolean) => DocsView;
+  setMimeTypes: (mimeTypes: string) => DocsView;
 };
 
 /**
@@ -325,6 +331,93 @@ export async function pickDriveFolder(
     picker.setVisible(true);
 
     // Belt-and-suspenders: raise z-index on any dialog nodes Google just added.
+    for (const node of document.querySelectorAll<HTMLElement>(
+      ".picker-dialog, .picker-dialog-bg",
+    )) {
+      node.style.zIndex = node.classList.contains("picker-dialog-bg")
+        ? "20000"
+        : "20001";
+    }
+  });
+}
+
+/**
+ * Open the Drive file picker and return a selected Google Doc.
+ *
+ * @param getAccessToken - Optional shared token getter from WorkspaceProvider.
+ * @returns Selected document id, name, and web view link.
+ */
+export async function pickDriveFile(
+  getAccessToken?: () => Promise<string>,
+): Promise<{
+  id: string;
+  name: string;
+  webViewLink?: string;
+}> {
+  if (!GOOGLE_API_KEY) {
+    throw new Error(
+      GOOGLE_API_KEY_LOOKS_LIKE_SECRET
+        ? "VITE_GOOGLE_API_KEY looks like an OAuth client secret; use an API key (AIza…)"
+        : "VITE_GOOGLE_API_KEY is required for Google Picker",
+    );
+  }
+
+  ensurePickerStackingCss();
+  await loadGooglePicker();
+  const host = globalThis as GoogleHost;
+  const pickerApi = host.google?.picker;
+  if (!pickerApi) {
+    throw new Error("Google Picker failed to load");
+  }
+
+  const token = await requestGoogleAccessToken(getAccessToken);
+  const appId = resolveGoogleAppId(GOOGLE_CLIENT_ID);
+  const origin = `${window.location.protocol}//${window.location.host}`;
+
+  return new Promise((resolve, reject) => {
+    const docsView = new pickerApi.DocsView(
+      pickerApi.ViewId.DOCS,
+    ) as unknown as DocsView;
+    docsView.setIncludeFolders(false);
+    docsView.setSelectFolderEnabled(false);
+    docsView.setMimeTypes("application/vnd.google-apps.document");
+
+    let builder = new pickerApi.PickerBuilder() as unknown as PickerBuilder;
+    builder = builder
+      .addView(docsView)
+      .setOAuthToken(token)
+      .setDeveloperKey(GOOGLE_API_KEY)
+      .setOrigin(origin);
+
+    if (appId) {
+      builder = builder.setAppId(appId);
+    }
+
+    const picker = builder
+      .setCallback((data) => {
+        if (data.action === pickerApi.Action.PICKED) {
+          const doc = data.docs?.[0];
+          if (!doc?.id) {
+            reject(new Error("No document selected"));
+            return;
+          }
+          resolve({
+            id: doc.id,
+            name: doc.name ?? "Google Doc template",
+            webViewLink: doc.url,
+          });
+          return;
+        }
+        if (
+          data.action === pickerApi.Action.CANCEL ||
+          data.action === "cancel"
+        ) {
+          reject(new Error("Document selection cancelled"));
+        }
+      })
+      .build();
+    picker.setVisible(true);
+
     for (const node of document.querySelectorAll<HTMLElement>(
       ".picker-dialog, .picker-dialog-bg",
     )) {

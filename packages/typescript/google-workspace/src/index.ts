@@ -24,9 +24,16 @@ export {
   type GoogleWorkspaceClientOptions,
 } from "./client.js";
 export {
+  ensureProjectFolder,
+  ensureRoboreanFolder,
+  ensureTemplatesFolder,
+} from "./driveFolders.js";
+export {
   applyOpsToGoogleDoc,
   documentOpsToDocsRequests,
   GOOGLE_DOCS_DRIVER_MANIFEST,
+  type DocsRenderMode,
+  type DocsRequestOptions,
 } from "./docsDriver.js";
 export {
   ConflictError,
@@ -43,9 +50,17 @@ export {
   ROBOREAN_FOLDER_NAME,
   SHEET_HEADERS,
   SHEET_TABS,
+  TEMPLATES_FOLDER_NAME,
   WORKSPACE_SCHEMA_VERSION,
   projectFolderName,
 } from "./layout.js";
+export {
+  gdriveFileIdFromTemplatePath,
+  gdriveTemplatePath,
+  GDRIVE_TEMPLATE_PREFIX,
+  googleDocsEditUrl,
+  isGdriveTemplatePath,
+} from "./templatePaths.js";
 export { SheetsProjectRepository } from "./repositories/projects.js";
 export { SheetsRunRepository } from "./repositories/runs.js";
 export type {

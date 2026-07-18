@@ -2,11 +2,12 @@ import type { DocumentOperation } from "@roborean/documents-base";
 import { compileProject, runProject } from "@roborean/engine";
 import type { Project } from "@roborean/spec";
 import { applyOpsToGoogleDoc } from "./docsDriver.js";
+import { ensureProjectFolder, ensureRoboreanFolder } from "./driveFolders.js";
 import { GoogleWorkspaceError, NotFoundError } from "./errors.js";
-import { projectFolderName, ROBOREAN_FOLDER_NAME } from "./layout.js";
 import { SheetsProjectRepository } from "./repositories/projects.js";
 import { SheetsRunRepository } from "./repositories/runs.js";
 import { newId } from "./serialize.js";
+import { gdriveFileIdFromTemplatePath } from "./templatePaths.js";
 import type { GoogleApis, WorkspaceBinding } from "./types.js";
 
 /**
@@ -201,57 +202,65 @@ export function createGoogleWorkspaceClient(
       }> = [];
 
       if (!body.dryRun && opsByDocument.size > 0) {
-        const roborean = await options.apis.drive.findChild(
+        const roborean = await ensureRoboreanFolder(
+          options.apis.drive,
           options.binding.rootFolderId,
-          ROBOREAN_FOLDER_NAME,
-          "application/vnd.google-apps.folder",
         );
-        if (!roborean) {
-          throw new GoogleWorkspaceError("Roborean folder missing");
-        }
 
-        let projectFolder = await options.apis.drive.findChild(
+        const projectFolder = await ensureProjectFolder(
+          options.apis.drive,
           roborean.id,
-          projectFolderName(id),
-          "application/vnd.google-apps.folder",
+          id,
         );
-        if (!projectFolder) {
-          projectFolder = await options.apis.drive.createFolder(
-            projectFolderName(id),
-            roborean.id,
-          );
-        }
 
         for (const [documentId, ops] of opsByDocument) {
           const definition = project.documents.find(
             (document) => document.id === documentId,
           );
           const title = definition?.title ?? documentId;
-          const created = await options.apis.drive.createDocument(
-            `${title}-${results.runId.slice(0, 8)}`,
-            projectFolder.id,
-          );
-
-          // Resolve optional template text for named-value replacement.
-          let templateText = "";
           const templateRef =
             typeof definition?.templateRef === "string"
               ? definition.templateRef
               : "";
-          if (templateRef) {
-            templateText =
-              templateTexts.get(templateKey(id, templateRef)) ??
-              (options.getTemplateText
-                ? ((await options.getTemplateText(id, templateRef)) ?? "")
-                : "");
-          }
+          const templateEntry = templateRef
+            ? project.templates.find((entry) => entry.id === templateRef)
+            : undefined;
+          const gdriveTemplateId = templateEntry?.path
+            ? gdriveFileIdFromTemplatePath(templateEntry.path)
+            : null;
 
-          await applyOpsToGoogleDoc(
-            options.apis.docs,
-            created.id,
-            ops,
-            templateText,
-          );
+          const outputName = `${title}-${results.runId.slice(0, 8)}`;
+          const created = gdriveTemplateId
+            ? await options.apis.drive.copyFile(
+                gdriveTemplateId,
+                outputName,
+                projectFolder.id,
+              )
+            : await options.apis.drive.createDocument(
+                outputName,
+                projectFolder.id,
+              );
+
+          if (gdriveTemplateId) {
+            await applyOpsToGoogleDoc(options.apis.docs, created.id, ops, {
+              renderMode: "native",
+            });
+          } else {
+            // Resolve optional inline template text for legacy blank-doc mode.
+            let templateText = "";
+            if (templateRef) {
+              templateText =
+                templateTexts.get(templateKey(id, templateRef)) ??
+                (options.getTemplateText
+                  ? ((await options.getTemplateText(id, templateRef)) ?? "")
+                  : "");
+            }
+
+            await applyOpsToGoogleDoc(options.apis.docs, created.id, ops, {
+              templateText,
+              renderMode: "legacy",
+            });
+          }
 
           artifacts.push({
             documentId,

@@ -27,16 +27,42 @@ export const GOOGLE_DOCS_DRIVER_MANIFEST: DriverManifest = {
 };
 
 /**
+ * How document ops are translated into Docs API requests.
+ */
+export type DocsRenderMode = "legacy" | "native";
+
+/**
+ * Options for translating document ops into Docs API requests.
+ */
+export type DocsRequestOptions = {
+  /**
+   * Optional starting template text for legacy blank-doc mode.
+   */
+  templateText?: string;
+
+  /**
+   * Legacy mode flattens ops into one insertText; native mode uses
+   * replaceAllText and end-of-document inserts on a copied template.
+   */
+  renderMode?: DocsRenderMode;
+};
+
+/**
  * Translate supported document ops into Docs API batchUpdate requests.
  *
  * @param ops - Document operations emitted by bits.
- * @param templateText - Optional starting template text.
+ * @param options - Render mode and optional legacy template text.
  * @returns Docs API request objects.
  */
 export function documentOpsToDocsRequests(
   ops: DocumentOperation[],
-  templateText = "",
+  options: DocsRequestOptions | string = "",
 ): Array<Record<string, unknown>> {
+  const normalized: DocsRequestOptions =
+    typeof options === "string" ? { templateText: options } : options;
+  const renderMode = normalized.renderMode ?? "legacy";
+  const templateText = normalized.templateText ?? "";
+
   // Reject unsupported ops before any write begins.
   for (const op of ops) {
     if (!GOOGLE_DOCS_DRIVER_MANIFEST.capabilities.includes(op.op)) {
@@ -46,6 +72,116 @@ export function documentOpsToDocsRequests(
     }
   }
 
+  if (renderMode === "native") {
+    return nativeTemplateRequests(ops);
+  }
+
+  return legacyBlankDocRequests(ops, templateText);
+}
+
+/**
+ * Apply supported ops to a Google Doc.
+ *
+ * @param docs - Docs API client.
+ * @param documentId - Target Google Doc id.
+ * @param ops - Document operations.
+ * @param options - Render mode and optional legacy template text.
+ */
+export async function applyOpsToGoogleDoc(
+  docs: DocsApi,
+  documentId: string,
+  ops: DocumentOperation[],
+  options: DocsRequestOptions | string = "",
+): Promise<void> {
+  const requests = documentOpsToDocsRequests(ops, options);
+  if (requests.length === 0) {
+    return;
+  }
+  await docs.batchUpdate(documentId, requests);
+}
+
+/**
+ * Build replaceAllText and end-of-document insert requests for native mode.
+ *
+ * @param ops - Document operations emitted by bits.
+ * @returns Docs API request objects.
+ */
+function nativeTemplateRequests(
+  ops: DocumentOperation[],
+): Array<Record<string, unknown>> {
+  const requests: Array<Record<string, unknown>> = [];
+  let appendText = "";
+
+  for (const op of ops) {
+    if (op.op === "replace_named_value") {
+      requests.push(
+        replaceAllTextRequest(`{{${String(op.name)}}}`, publicValue(op.value)),
+      );
+      continue;
+    }
+    if (op.op === "plain.replace_all") {
+      requests.push(
+        replaceAllTextRequest(String(op.find ?? ""), String(op.replace ?? "")),
+      );
+      continue;
+    }
+    if (op.op === "plain.append_text" || op.op === "flow.append_paragraph") {
+      appendText += String(op.text ?? "");
+      if (!appendText.endsWith("\n")) {
+        appendText += "\n";
+      }
+      continue;
+    }
+    if (op.op === "flow.append_heading") {
+      appendText += `${String(op.text ?? "")}\n`;
+    }
+  }
+
+  if (appendText) {
+    requests.push({
+      insertText: {
+        endOfSegmentLocation: { segmentId: "" },
+        text: appendText,
+      },
+    });
+  }
+
+  return requests;
+}
+
+/**
+ * Build a replaceAllText request for the Docs API.
+ *
+ * @param find - Needle text.
+ * @param replace - Replacement text.
+ * @returns Docs API request object.
+ */
+function replaceAllTextRequest(
+  find: string,
+  replace: string,
+): Record<string, unknown> {
+  return {
+    replaceAllText: {
+      containsText: {
+        text: find,
+        matchCase: true,
+      },
+      replaceText: replace,
+    },
+  };
+}
+
+/**
+ * Flatten ops into one insertText for blank-doc legacy mode.
+ *
+ * @param ops - Document operations emitted by bits.
+ * @param templateText - Optional starting template text.
+ * @returns Docs API request objects.
+ */
+function legacyBlankDocRequests(
+  ops: DocumentOperation[],
+  templateText: string,
+): Array<Record<string, unknown>> {
   // Materialize a plain-text body first, then insert once into the Doc.
   let body = templateText;
   for (const op of ops) {
@@ -79,27 +215,6 @@ export function documentOpsToDocsRequests(
       },
     },
   ];
-}
-
-/**
- * Apply supported ops to a newly created Google Doc.
- *
- * @param docs - Docs API client.
- * @param documentId - Target Google Doc id.
- * @param ops - Document operations.
- * @param templateText - Optional template text.
- */
-export async function applyOpsToGoogleDoc(
-  docs: DocsApi,
-  documentId: string,
-  ops: DocumentOperation[],
-  templateText = "",
-): Promise<void> {
-  const requests = documentOpsToDocsRequests(ops, templateText);
-  if (requests.length === 0) {
-    return;
-  }
-  await docs.batchUpdate(documentId, requests);
 }
 
 /**

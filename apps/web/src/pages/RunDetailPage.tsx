@@ -165,15 +165,27 @@ export function RunDetailPage() {
                   alignItems="center"
                 >
                   <Typography variant="body2">
-                    {artifact.path} ({artifact.mediaType})
+                    {artifact.documentId}
+                    {artifact.mediaType ? ` (${artifact.mediaType})` : ""}
                   </Typography>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => void download(artifact.documentId)}
-                  >
-                    {isGoogleSource ? "Open Doc" : "Download"}
-                  </Button>
+                  {isGoogleSource && artifact.webViewLink ? (
+                    <Link
+                      href={artifact.webViewLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      variant="body2"
+                    >
+                      Open in Google Docs
+                    </Link>
+                  ) : (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => void download(artifact.documentId)}
+                    >
+                      Download
+                    </Button>
+                  )}
                   {!isGoogleSource && client ? (
                     <Link
                       href={client.artifactDownloadUrl(

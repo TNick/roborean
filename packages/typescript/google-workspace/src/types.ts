@@ -202,6 +202,20 @@ export type DriveApi = {
   createDocument: (name: string, parentId: string) => Promise<DriveFile>;
 
   /**
+   * Copy a Drive file into a parent folder.
+   *
+   * @param fileId - Source file id.
+   * @param name - Name for the copy.
+   * @param parentId - Destination parent folder id.
+   * @returns Copied file metadata.
+   */
+  copyFile: (
+    fileId: string,
+    name: string,
+    parentId: string,
+  ) => Promise<DriveFile>;
+
+  /**
    * Find a direct child by exact name.
    *
    * @param parentId - Parent folder id.

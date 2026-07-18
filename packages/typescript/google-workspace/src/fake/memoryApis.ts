@@ -93,6 +93,23 @@ export function createMemoryGoogleApis(): MemoryGoogleApis {
     async createDocument(name, parentId) {
       return createFile(name, "application/vnd.google-apps.document", parentId);
     },
+    async copyFile(fileId, name, parentId) {
+      const source = files.get(fileId);
+      if (!source) {
+        throw new NotFoundError(fileId);
+      }
+      const id = allocateId();
+      const copy: DriveFile & { content?: string } = {
+        id,
+        name,
+        mimeType: source.mimeType,
+        parents: [parentId],
+        webViewLink: `https://docs.google.com/open?id=${id}`,
+        content: source.content,
+      };
+      files.set(id, copy);
+      return copy;
+    },
     async findChild(parentId, name, mimeType) {
       for (const file of files.values()) {
         if (
