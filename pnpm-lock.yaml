@@ -29,6 +29,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react@18.3.1)
+      '@googleworkspace/drive-picker-react':
+        specifier: ^0.2.0
+        version: 0.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/icons-material':
         specifier: ^6.4.0
         version: 6.5.0(@mui/material@6.5.0(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.31)(react@18.3.1)
@@ -687,6 +690,15 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@googleworkspace/drive-picker-element@0.7.3':
+    resolution: {integrity: sha512-z1hZh1HsPAQ19lencw2x3FcUVoymWYexcWgq66iXum4mUfWWaQ37oGtQ6hGvM8dyrC81G79P26gq7HhRtbGb2Q==}
+
+  '@googleworkspace/drive-picker-react@0.2.0':
+    resolution: {integrity: sha512-3CIEZ7U+HDKd8UoXG3l/fPSZFhxajC3MYNIqAZQSba2totuYKVTQMOJsgonO7OnnJq88YD35n7whCF4i5QUyvA==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2011,6 +2023,14 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.1':
     optional: true
+
+  '@googleworkspace/drive-picker-element@0.7.3': {}
+
+  '@googleworkspace/drive-picker-react@0.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@googleworkspace/drive-picker-element': 0.7.3
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:

@@ -1,14 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  loadGooglePicker,
   logGooglePickerDiagnostics,
-  probeGooglePickerCredentials,
+  probeGoogleOAuthToken,
   resolveGoogleAppId,
 } from "./googlePicker.js";
 
 afterEach(() => {
-  delete (globalThis as { gapi?: unknown }).gapi;
-  delete (globalThis as { google?: unknown }).google;
+  vi.restoreAllMocks();
 });
 
 describe("resolveGoogleAppId", () => {
@@ -48,65 +46,39 @@ describe("resolveGoogleAppId", () => {
 });
 
 describe("logGooglePickerDiagnostics", () => {
-  it("reports runtime state without printing credential values", () => {
+  it("reports redacted deployment state and clarifies referrer diagnostics", () => {
     const info = vi.spyOn(console, "info").mockImplementation(() => {});
-
     logGooglePickerDiagnostics("test stage", { accessTokenPresent: true });
-
-    expect(info).toHaveBeenCalledWith(
-      "[Roborean Google Picker] test stage",
-      expect.objectContaining({
-        accessTokenPresent: true,
-        apiKeyConfigured: false,
-        apiKeySuffix: "not-configured",
-      }),
-    );
-    info.mockRestore();
+    const details = info.mock.calls[0]?.[1] as Record<string, unknown>;
+    expect(details).toMatchObject({
+      accessTokenPresent: true,
+      inboundDocumentReferrer: "none",
+      outboundHttpRefererInspectableInNetworkPanel: true,
+    });
+    expect(details).not.toHaveProperty("referrer");
+    expect(JSON.stringify(details)).not.toContain("test-oauth-token");
   });
 });
 
-describe("probeGooglePickerCredentials", () => {
-  it("reports whether Drive accepts the same credential pair", async () => {
+describe("probeGoogleOAuthToken", () => {
+  it("uses only the OAuth authorization header for the Drive request", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(new Response(null, { status: 200 }));
     const info = vi.spyOn(console, "info").mockImplementation(() => {});
-
-    await probeGooglePickerCredentials("test-oauth-token");
-
-    expect(fetchMock).toHaveBeenCalledOnce();
-
-    // Inspect the request separately to ensure diagnostics do not receive it.
+    await probeGoogleOAuthToken("test-oauth-token");
     const [requestUrl, requestInit] = fetchMock.mock.calls[0] ?? [];
     expect(String(requestUrl)).toContain("/drive/v3/files");
+    expect(String(requestUrl)).not.toContain("key=");
     expect(requestInit).toEqual({
       headers: { Authorization: "Bearer test-oauth-token" },
     });
     expect(info).toHaveBeenLastCalledWith(
-      "[Roborean Google Picker] credential probe completed",
+      "[Roborean Google Picker] OAuth token probe completed",
       expect.objectContaining({
-        driveApiAcceptedCredentials: true,
+        driveApiAcceptedOAuthToken: true,
         driveApiStatus: 200,
       }),
     );
-
-    fetchMock.mockRestore();
-    info.mockRestore();
-  });
-});
-
-describe("loadGooglePicker", () => {
-  it("loads Picker without the legacy gapi client", async () => {
-    // Capture the requested gapi module and expose Picker in its callback.
-    const load = vi.fn((api: string, callback: () => void) => {
-      (globalThis as { google?: { picker: object } }).google = { picker: {} };
-      callback();
-    });
-    (globalThis as { gapi?: { load: typeof load } }).gapi = { load };
-
-    await loadGooglePicker();
-
-    expect(load).toHaveBeenCalledOnce();
-    expect(load).toHaveBeenCalledWith("picker", expect.any(Function));
   });
 });

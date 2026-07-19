@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- GitHub Pages builds now provide an app-scoped favicon instead of allowing the
+  browser and Google Picker to resolve the missing site-root `favicon.ico`.
+
 ## [0.1.13] - 2026-07-19
 
 ### Changed
