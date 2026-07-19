@@ -138,6 +138,9 @@ importers:
       '@roborean/api-types':
         specifier: workspace:*
         version: link:../api-types
+      '@roborean/documents-base':
+        specifier: workspace:*
+        version: link:../documents-base
       '@roborean/documents-preview':
         specifier: workspace:*
         version: link:../documents-preview
@@ -156,6 +159,9 @@ importers:
       '@roborean/validation':
         specifier: workspace:*
         version: link:../validation
+      ajv:
+        specifier: ^8.20.0
+        version: 8.20.0
     devDependencies:
       '@emotion/react':
         specifier: ^11.14.0

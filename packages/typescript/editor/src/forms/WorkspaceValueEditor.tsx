@@ -67,7 +67,11 @@ export function WorkspaceValueEditor({
     : valueTypeFromPublicLiteral(
         value.kind === "public_literal"
           ? value
-          : defaultWorkspaceValueForKind("public_literal"),
+          : ({
+              kind: "public_literal",
+              dataType: "string",
+              value: "",
+            } as Extract<WorkspaceValue, { kind: "public_literal" }>),
         validationSchema,
       );
 
@@ -191,11 +195,12 @@ export function WorkspaceValueEditor({
             value={value.domain ?? ""}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               const domain = event.target.value;
-              const next = { ...value, domain };
               if (!domain.trim()) {
-                delete next.domain;
+                const { domain: _domain, ...withoutDomain } = value;
+                onChange(withoutDomain);
+                return;
               }
-              onChange(next);
+              onChange({ ...value, domain });
             }}
           />
         </>

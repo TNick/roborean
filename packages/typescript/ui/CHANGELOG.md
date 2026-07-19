@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- Restore standalone TypeScript builds with MUI default-export resolution and valid menu ARIA semantics.
+
 - Toolbar overflow menu omits dividers when the section above them is
   empty (for example theme rows with no page actions).
 - Dark theme uses lighter primary and secondary colors so text buttons

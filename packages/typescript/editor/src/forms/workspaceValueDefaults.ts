@@ -84,7 +84,10 @@ export function bindPublicLiteralToVariableSchema(
   const literal =
     value.kind === "public_literal"
       ? value
-      : defaultWorkspaceValueForKind("public_literal");
+      : ({ kind: "public_literal", dataType: "string", value: "" } as Extract<
+          WorkspaceValue,
+          { kind: "public_literal" }
+        >);
 
   return applyPublicLiteralValueType(literal, valueType, schema);
 }

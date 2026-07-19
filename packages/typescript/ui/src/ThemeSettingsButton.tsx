@@ -95,7 +95,7 @@ export function ThemeSettingsButton({
         variant="text"
         color="inherit"
         aria-controls={open ? "theme-settings-menu" : undefined}
-        aria-haspopup="true"
+        aria-haspopup="menu"
         aria-expanded={open ? true : undefined}
         onClick={(event: MouseEvent<HTMLButtonElement>) =>
           setAnchorEl(event.currentTarget)

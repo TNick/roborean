@@ -138,8 +138,12 @@ export function PreviewPanel({
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const needsBackend =
-    document !== null && documentRequiresBackendPreview(document);
-  const usesGoogleDocs = document !== null && isGoogleDocsDriver(document);
+    document !== null &&
+    documentRequiresBackendPreview(
+      document as { type: string; driver?: string },
+    );
+  const usesGoogleDocs =
+    document !== null && isGoogleDocsDriver(document as { driver?: string });
 
   useEffect(() => {
     if (!document || !needsBackend || !client || !projectId) {
@@ -193,7 +197,8 @@ export function PreviewPanel({
       return;
     }
 
-    const ops = collectDocumentOps(localRun, document.id);
+    const selectedDocument = document;
+    const ops = collectDocumentOps(localRun, selectedDocument.id);
     if (ops.length === 0) {
       setGoogleBody(null);
       setGoogleWarning(null);
@@ -209,7 +214,7 @@ export function PreviewPanel({
      * Build a local Google Docs preview from dry-run ops.
      */
     async function loadGooglePreview(): Promise<void> {
-      const templateRef = document.templateRef as string | undefined;
+      const templateRef = selectedDocument.templateRef as string | undefined;
       const templateEntry = project.templates.find(
         (item) => item.id === templateRef,
       );
@@ -234,12 +239,12 @@ export function PreviewPanel({
       } else if (templateRef) {
         templateText =
           getTemplateText?.(templateRef) ??
-          templateHint(project, document, getTemplateText) ??
+          templateHint(project, selectedDocument, getTemplateText) ??
           "";
       }
 
       const plainBody = applyOpsToPlainText(ops, templateText);
-      const mode = documentPreviewMode(document);
+      const mode = documentPreviewMode(selectedDocument);
       const body =
         mode === "html" ? plainTextToPreviewHtml(plainBody) : plainBody;
       const warnings: string[] = [];
@@ -396,7 +401,10 @@ export function PreviewPanel({
   }
 
   const preview = previewDocument({
-    definition: document,
+    definition: {
+      ...document,
+      driver: typeof document.driver === "string" ? document.driver : "",
+    },
     ops,
     templateText: templateHint(project, document, getTemplateText),
   });

@@ -35,7 +35,7 @@ export function UserMenuButton({
         variant="text"
         color="inherit"
         aria-controls={open ? "user-menu" : undefined}
-        aria-haspopup="true"
+        aria-haspopup="menu"
         aria-expanded={open ? true : undefined}
         onClick={(event: MouseEvent<HTMLButtonElement>) =>
           setAnchorEl(event.currentTarget)
