@@ -25,3 +25,7 @@
   linked Google Doc templates for in-app preview.
 
 ### Fixed
+
+- The first browser Google Workspace token request now explicitly selects an
+  account, keeping the Google Picker and Drive API session aligned when users
+  have multiple Google accounts.

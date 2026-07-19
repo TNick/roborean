@@ -89,6 +89,7 @@ export function createBrowserTokenProvider(
   // Cache the latest token until near expiry.
   let cachedToken: string | null = null;
   let expiresAt = 0;
+  let hasSelectedGoogleAccount = false;
 
   /**
    * Request a fresh access token from GIS.
@@ -118,10 +119,14 @@ export function createBrowserTokenProvider(
           cachedToken = response.access_token;
           const expiresIn = Number(response.expires_in ?? 3600);
           expiresAt = Date.now() + Math.max(60, expiresIn - 60) * 1000;
+          hasSelectedGoogleAccount = true;
           resolve(response.access_token);
         },
       });
-      client.requestAccessToken({ prompt: "" });
+      // Let the user choose the account that will be used by Drive and Picker.
+      client.requestAccessToken({
+        prompt: hasSelectedGoogleAccount ? "" : "select_account",
+      });
     });
   }
 
