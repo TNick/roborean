@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-07-19
+
+### Changed
+
+- One last time
+
 ## [0.1.15] - 2026-07-19
 
 ### Changed
@@ -219,6 +225,7 @@
 [0.1.13]: https://github.com/TNick/roborean/compare/v0.1.12...v0.1.13
 [0.1.14]: https://github.com/TNick/roborean/compare/v0.1.13...v0.1.14
 [0.1.15]: https://github.com/TNick/roborean/compare/v0.1.14...v0.1.15
+[0.1.16]: https://github.com/TNick/roborean/compare/v0.1.15...v0.1.16
 [0.1.2]: https://github.com/TNick/roborean/compare/v0.1.1...v0.1.2
 [0.1.3]: https://github.com/TNick/roborean/compare/v0.1.2...v0.1.3
 [0.1.4]: https://github.com/TNick/roborean/compare/v0.1.3...v0.1.4
@@ -227,4 +234,4 @@
 [0.1.7]: https://github.com/TNick/roborean/compare/v0.1.6...v0.1.7
 [0.1.8]: https://github.com/TNick/roborean/compare/v0.1.7...v0.1.8
 [0.1.9]: https://github.com/TNick/roborean/compare/v0.1.8...v0.1.9
-[unreleased]: https://github.com/TNick/roborean/compare/v0.1.15...HEAD
+[unreleased]: https://github.com/TNick/roborean/compare/v0.1.16...HEAD
