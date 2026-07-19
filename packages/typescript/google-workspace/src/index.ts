@@ -78,3 +78,14 @@ export type {
   SheetsApi,
   WorkspaceBinding,
 } from "./types.js";
+
+export {
+  getGoogleTemplateLibraryEntry,
+  getGoogleTemplateLibrarySeed,
+  googleSeedId,
+  listGoogleTemplateLibrary,
+} from "./library.js";
+export type {
+  GoogleTemplateLibraryEntry,
+  GoogleTemplateSeed,
+} from "./library.js";

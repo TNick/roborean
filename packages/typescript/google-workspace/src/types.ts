@@ -239,6 +239,15 @@ export type DriveApi = {
   ) => Promise<DriveFile | null>;
 
   /**
+   * List direct children, optionally restricted to one MIME type.
+   *
+   * @param parentId - Parent folder id.
+   * @param mimeType - Optional MIME type filter.
+   * @returns Matching child files.
+   */
+  listChildren: (parentId: string, mimeType?: string) => Promise<DriveFile[]>;
+
+  /**
    * Load file metadata by id.
    *
    * @param fileId - Drive file id.

@@ -2,12 +2,25 @@ import type { DocumentOperation } from "@roborean/documents-base";
 import { compileProject, runProject } from "@roborean/engine";
 import type { Project } from "@roborean/spec";
 import { applyOpsToGoogleDoc } from "./docsDriver.js";
-import { ensureProjectFolder, ensureRoboreanFolder } from "./driveFolders.js";
+import {
+  ensureProjectFolder,
+  ensureRoboreanFolder,
+  ensureTemplatesFolder,
+} from "./driveFolders.js";
 import { GoogleWorkspaceError, NotFoundError } from "./errors.js";
 import { SheetsProjectRepository } from "./repositories/projects.js";
 import { SheetsRunRepository } from "./repositories/runs.js";
 import { newId } from "./serialize.js";
-import { gdriveFileIdFromTemplatePath } from "./templatePaths.js";
+import {
+  gdriveFileIdFromTemplatePath,
+  gdriveTemplatePath,
+} from "./templatePaths.js";
+import {
+  getGoogleTemplateLibraryEntry,
+  getGoogleTemplateLibrarySeed,
+  googleSeedId,
+  listGoogleTemplateLibrary,
+} from "./library.js";
 import type { GoogleApis, WorkspaceBinding } from "./types.js";
 
 /**
@@ -470,29 +483,93 @@ export function createGoogleWorkspaceClient(
       templateTexts.delete(templateKey(projectId, templateId));
     },
 
-    /**
-     * Template library is not hosted in Google Workspace mode.
-     *
-     * @returns Empty catalog.
-     */
-    listTemplateLibrary: async () => [],
+    /** List the bundled Google Docs catalog for browser-only deployments. */
+    listTemplateLibrary: async () => listGoogleTemplateLibrary(),
 
-    /**
-     * Template library detail is unavailable in Google Workspace mode.
-     *
-     * @param entryId - Catalog entry id.
-     */
+    /** Load one bundled Google Docs catalog entry. */
     getTemplateLibraryEntry: async (entryId: string) => {
-      throw new NotFoundError(entryId);
+      const entry = getGoogleTemplateLibraryEntry(entryId);
+      if (!entry) {
+        throw new NotFoundError(entryId);
+      }
+      return entry;
     },
 
-    /**
-     * Template library content is unavailable in Google Workspace mode.
-     *
-     * @param entryId - Catalog entry id.
-     */
+    /** Return a bundled seed body for one document catalog entry. */
     getTemplateLibraryContent: async (entryId: string) => {
-      throw new NotFoundError(entryId);
+      const entry = getGoogleTemplateLibraryEntry(entryId);
+      const seedId = entry?.path ? googleSeedId(entry.path) : undefined;
+      const seed = seedId ? getGoogleTemplateLibrarySeed(seedId) : undefined;
+      if (!entry || !seed) {
+        throw new NotFoundError(entryId);
+      }
+      return {
+        templateId: entryId,
+        path: entry.path ?? "",
+        contentBase64: "",
+        text: seed.text,
+      };
+    },
+
+    /** Materialize a bundled text seed as a real Google Doc template. */
+    materializeSeedDoc: async (
+      projectId: string,
+      title: string,
+      seedText: string,
+    ) => {
+      const roborean = await ensureRoboreanFolder(
+        options.apis.drive,
+        options.binding.rootFolderId,
+      );
+      const projectFolder = await ensureProjectFolder(
+        options.apis.drive,
+        roborean.id,
+        projectId,
+      );
+      const templatesFolder = await ensureTemplatesFolder(
+        options.apis.drive,
+        projectFolder.id,
+      );
+      const created = await options.apis.drive.createDocument(
+        title,
+        templatesFolder.id,
+      );
+      if (seedText) {
+        await options.apis.docs.batchUpdate(created.id, [
+          { insertText: { location: { index: 1 }, text: seedText } },
+        ]);
+      }
+      return {
+        fileId: created.id,
+        path: gdriveTemplatePath(created.id),
+        webViewLink: created.webViewLink,
+      };
+    },
+
+    /** List Google Docs already owned by this project's templates folder. */
+    listProjectDriveTemplates: async (projectId: string) => {
+      const roborean = await ensureRoboreanFolder(
+        options.apis.drive,
+        options.binding.rootFolderId,
+      );
+      const projectFolder = await ensureProjectFolder(
+        options.apis.drive,
+        roborean.id,
+        projectId,
+      );
+      const templatesFolder = await ensureTemplatesFolder(
+        options.apis.drive,
+        projectFolder.id,
+      );
+      const files = await options.apis.drive.listChildren(
+        templatesFolder.id,
+        "application/vnd.google-apps.document",
+      );
+      return files.map((file) => ({
+        id: file.id,
+        name: file.name,
+        webViewLink: file.webViewLink,
+      }));
     },
 
     /**

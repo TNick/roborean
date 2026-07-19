@@ -54,3 +54,10 @@ documents and applies `applyOpsToPlainText` against exported `gdrive:`
 template text (via Drive `files.export`) or cached inline template bodies.
 Run detail pages can expand a read-only `/preview` iframe for generated
 artifacts; full editing remains on `docs.google.com`.
+
+## Google Docs template catalog
+
+Google-only deployments include a small browser catalog of Google Docs seeds.
+Importing a seed creates a real document inside the project `templates/` folder
+and saves only its `gdrive:{fileId}` reference in the project. The internal
+`gdrive-seed:` token is catalog-only and is never persisted in user projects.

@@ -207,6 +207,31 @@ describe("google workspace client", () => {
     ).resolves.toBe("Dear {{name}},");
   });
 
+  it("lists the bundled catalog and materializes a seed in templates", async () => {
+    const apis = createMemoryGoogleApis();
+    const binding = await initializeWorkspace(apis, "root", "Root");
+    const client = createGoogleWorkspaceClient({ apis, binding });
+
+    await expect(client.listTemplateLibrary()).resolves.toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: "gdoc-letter" })]),
+    );
+    const created = await client.materializeSeedDoc(
+      "catalog-project",
+      "Letter template",
+      "Dear {{name}}",
+    );
+
+    expect(created.path).toBe(`gdrive:${created.fileId}`);
+    expect(apis.docsRequests.get(created.fileId)?.[0]).toEqual(
+      expect.objectContaining({ insertText: expect.any(Object) }),
+    );
+    await expect(
+      client.listProjectDriveTemplates("catalog-project"),
+    ).resolves.toContainEqual(
+      expect.objectContaining({ id: created.fileId, name: "Letter template" }),
+    );
+  });
+
   it("ensures the templates sub-folder under a project folder", async () => {
     const apis = createMemoryGoogleApis();
     const roborean = await ensureRoboreanFolder(apis.drive, "root");

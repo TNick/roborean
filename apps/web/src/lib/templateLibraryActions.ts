@@ -11,6 +11,9 @@ import type {
 
 /** Client surface used by template library actions. */
 export type TemplateLibraryClient = {
+  listProjects: () => Promise<
+    Array<{ id: string; name: string; schemaVersion: string }>
+  >;
   getTemplateLibraryEntry: (entryId: string) => Promise<TemplateLibraryDetail>;
   getTemplateLibraryContent: (entryId: string) => Promise<{
     text?: string | null;
@@ -27,6 +30,11 @@ export type TemplateLibraryClient = {
     templateId: string,
     body: { text?: string; contentBase64?: string },
   ) => Promise<unknown>;
+  materializeSeedDoc?: (
+    projectId: string,
+    title: string,
+    seedText: string,
+  ) => Promise<{ fileId: string; path: string; webViewLink?: string }>;
 };
 
 /**
@@ -121,23 +129,44 @@ export async function useProjectStarter(
   }
 
   // Assign a fresh stored project id while keeping the starter body.
-  const project: Project = {
+  let project: Project = {
     ...starter,
     id: projectIdFromName(starter.name || entry.title),
   };
+
+  if (client.materializeSeedDoc) {
+    const templates = await Promise.all(
+      project.templates.map(async (template) => {
+        if (!template.path.startsWith("gdrive-seed:")) return template;
+        const seedId = template.path.slice("gdrive-seed:".length);
+        const content = await client.getTemplateLibraryContent(
+          seedId === "letter" ? "gdoc-letter" : `gdoc-${seedId}`,
+        );
+        const materialized = await client.materializeSeedDoc(
+          project.id,
+          `${entry.title} template`,
+          content.text ?? "",
+        );
+        return { ...template, path: materialized.path };
+      }),
+    );
+    project = { ...project, templates };
+  }
 
   const created = await client.createProject({ project });
   const createdProject = created.project as Project;
   const projectId = createdProject.id;
 
-  // Upload starter template bytes through the library content endpoint.
-  for (const template of createdProject.templates) {
-    const libraryId = templateLibraryIdForTemplate(template.id, entry.id);
-    const content = await client.getTemplateLibraryContent(libraryId);
-    await client.putTemplateContent(projectId, template.id, {
-      text: content.text ?? undefined,
-      contentBase64: content.contentBase64,
-    });
+  // API-backed starters retain their existing binary/template upload path.
+  if (!client.materializeSeedDoc) {
+    for (const template of createdProject.templates) {
+      const libraryId = templateLibraryIdForTemplate(template.id, entry.id);
+      const content = await client.getTemplateLibraryContent(libraryId);
+      await client.putTemplateContent(projectId, template.id, {
+        text: content.text ?? undefined,
+        contentBase64: content.contentBase64,
+      });
+    }
   }
 
   return projectId;
@@ -224,13 +253,29 @@ export async function importDocumentTemplate(
     templates: [...project.templates, { id: templateId, path: templatePath }],
   };
 
+  if (client.materializeSeedDoc && entry.path?.startsWith("gdrive-seed:")) {
+    const content = await client.getTemplateLibraryContent(entry.id);
+    const materialized = await client.materializeSeedDoc(
+      projectId,
+      `${entry.title} template`,
+      content.text ?? "",
+    );
+    updated.templates = updated.templates.map((template) =>
+      template.id === templateId
+        ? { ...template, path: materialized.path }
+        : template,
+    );
+  }
+
   await client.updateProject(projectId, { project: updated });
 
-  const content = await client.getTemplateLibraryContent(entry.id);
-  await client.putTemplateContent(projectId, templateId, {
-    text: content.text ?? undefined,
-    contentBase64: content.contentBase64,
-  });
+  if (!client.materializeSeedDoc) {
+    const content = await client.getTemplateLibraryContent(entry.id);
+    await client.putTemplateContent(projectId, templateId, {
+      text: content.text ?? undefined,
+      contentBase64: content.contentBase64,
+    });
+  }
 
   return projectId;
 }

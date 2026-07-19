@@ -388,6 +388,18 @@ export function DocumentTemplatePanel({
     }
   }
 
+  /** Remove the current Google Doc reference without deleting the Drive file. */
+  function handleUnlinkGoogleTemplate(): void {
+    if (!templateRef) {
+      return;
+    }
+    onProjectChange({
+      ...project,
+      templates: project.templates.filter((entry) => entry.id !== templateRef),
+    });
+    onDocumentChange({ ...document, templateRef: undefined });
+  }
+
   /**
    * Confirm a pending Google Doc as the linked template.
    */
@@ -428,7 +440,9 @@ export function DocumentTemplatePanel({
             disabled={busy}
             onClick={() => void handleLinkGoogleTemplate()}
           >
-            Link existing Google Doc
+            {linkedGdriveFileId
+              ? "Change linked Google Doc"
+              : "Link existing Google Doc"}
           </Button>
           {pendingGoogleTemplate ? (
             <Button
@@ -442,16 +456,26 @@ export function DocumentTemplatePanel({
         </Stack>
       ) : null}
       {linkedGdriveFileId ? (
-        <Link
-          href={googleDocsEditUrl(linkedGdriveFileId)}
-          target="_blank"
-          rel="noreferrer"
-          variant="body2"
-        >
-          Open template in Google Docs
-        </Link>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Link
+            href={googleDocsEditUrl(linkedGdriveFileId)}
+            target="_blank"
+            rel="noreferrer"
+            variant="body2"
+          >
+            Open template in Google Docs
+          </Link>
+          <Button
+            variant="text"
+            color="inherit"
+            disabled={busy}
+            onClick={handleUnlinkGoogleTemplate}
+          >
+            Unlink
+          </Button>
+        </Stack>
       ) : null}
-      {textEditable ? (
+      {!linkedGdriveFileId && textEditable ? (
         <FormTextField
           size="small"
           label="Template body"
@@ -463,7 +487,7 @@ export function DocumentTemplatePanel({
             void applyTextEdit(event.target.value)
           }
         />
-      ) : (
+      ) : !linkedGdriveFileId ? (
         <Stack direction="row" spacing={1} alignItems="center">
           <Button
             variant="outlined"
@@ -479,7 +503,7 @@ export function DocumentTemplatePanel({
             onChange={(event) => void handleBinaryUpload(event)}
           />
         </Stack>
-      )}
+      ) : null}
       {localCopy ? (
         <Button
           variant="outlined"

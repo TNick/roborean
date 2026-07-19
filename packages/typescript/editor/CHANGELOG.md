@@ -4,6 +4,7 @@
 
 ### Added
 
+- Google Drive-backed document templates now hide binary copy-on-write controls and offer open, retarget, and unlink lifecycle actions.
 - Local substituted preview for `roborean.google.docs` in PreviewPanel
   (dry-run ops + exported gdrive template text or inline template body).
 - Optional `resolveGdriveTemplateText` host hook for Google Workspace mode.
@@ -107,7 +108,6 @@
   clipping the leftmost column.
 - Dependency graph node labels and edges use theme palette colors so they stay
   visible in the black theme.
-
 
 ## [0.1.3] - 2026-07-17
 

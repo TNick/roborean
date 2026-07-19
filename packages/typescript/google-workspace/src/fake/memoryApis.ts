@@ -129,6 +129,13 @@ export function createMemoryGoogleApis(): MemoryGoogleApis {
       }
       return null;
     },
+    async listChildren(parentId, mimeType) {
+      return [...files.values()].filter(
+        (file) =>
+          file.parents.includes(parentId) &&
+          (!mimeType || file.mimeType === mimeType),
+      );
+    },
     async getFile(fileId) {
       const file = files.get(fileId);
       if (!file) {

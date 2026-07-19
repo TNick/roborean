@@ -18,16 +18,16 @@ import {
   RoboreanResponsiveToolbarEnd,
   TemplatesLibrary,
 } from "@roborean/ui";
-import { createClient } from "../api/createClient.js";
 import { ToolbarNavButton } from "../components/ToolbarNavButton.js";
 import { PageShell } from "../components/PageShell.js";
-import { IS_API_AVAILABLE, projectPath } from "../config.js";
+import { projectPath } from "../config.js";
 import {
   importDocumentTemplate,
   importRecipe,
   useProjectStarter,
 } from "../lib/templateLibraryActions.js";
 import { useWorkspace } from "../storage/workspaceContext.js";
+import type { TemplateLibraryClient } from "../lib/templateLibraryActions.js";
 
 /**
  * Global templates library page with import and starter actions.
@@ -36,7 +36,9 @@ import { useWorkspace } from "../storage/workspaceContext.js";
  */
 export function TemplatesLibraryPage() {
   const navigate = useNavigate();
-  const { isApiAvailable } = useWorkspace();
+  const { isApiAvailable, client } = useWorkspace();
+  const storageSource = isApiAvailable ? "api" : "google";
+  const libraryClient = client as TemplateLibraryClient | null;
 
   // Catalog rows loaded from the API.
   const [entries, setEntries] = useState<TemplateLibraryEntry[]>([]);
@@ -69,10 +71,9 @@ export function TemplatesLibraryPage() {
    * @returns Promise that settles when entries are stored.
    */
   const loadCatalog = useCallback(async () => {
-    if (!IS_API_AVAILABLE || !isApiAvailable) {
+    if (!libraryClient) {
       setEntries([]);
       setLoading(false);
-      setError(null);
       return;
     }
 
@@ -80,7 +81,7 @@ export function TemplatesLibraryPage() {
     setError(null);
 
     try {
-      const rows = await createClient().listTemplateLibrary();
+      const rows = await libraryClient.listTemplateLibrary();
       setEntries(rows);
     } catch (err) {
       setEntries([]);
@@ -88,7 +89,7 @@ export function TemplatesLibraryPage() {
     } finally {
       setLoading(false);
     }
-  }, [isApiAvailable]);
+  }, [libraryClient]);
 
   useEffect(() => {
     void loadCatalog();
@@ -134,7 +135,8 @@ export function TemplatesLibraryPage() {
     setError(null);
 
     try {
-      const rows = await createClient().listProjects();
+      if (!libraryClient) throw new Error("Storage is not connected");
+      const rows = await libraryClient.listProjects();
       setProjects(rows);
     } catch (err) {
       setProjects([]);
@@ -157,7 +159,8 @@ export function TemplatesLibraryPage() {
     setPickerOpen(false);
 
     await withBusy(entry.id, async () => {
-      const client = createClient();
+      if (!libraryClient) throw new Error("Storage is not connected");
+      const client = libraryClient;
 
       if (pendingAction.kind === "document") {
         await importDocumentTemplate(client, projectId, entry);
@@ -165,7 +168,7 @@ export function TemplatesLibraryPage() {
         await importRecipe(client, projectId, entry);
       }
 
-      navigate(projectPath("api", projectId));
+      navigate(projectPath(storageSource, projectId));
     });
 
     setPendingAction(null);
@@ -182,8 +185,7 @@ export function TemplatesLibraryPage() {
       <Stack spacing={2}>
         {!isApiAvailable ? (
           <Alert severity="info">
-            The templates library requires the optional FastAPI backend. In
-            Google-only builds, create blank projects and edit them locally.
+            Templates are copied into your Google Drive when imported.
           </Alert>
         ) : null}
         {error ? <Alert severity="error">{error}</Alert> : null}
@@ -197,8 +199,9 @@ export function TemplatesLibraryPage() {
           onImportRecipe={(entry) => void openProjectPicker("recipe", entry)}
           onUseProjectStarter={(entry) => {
             void withBusy(entry.id, async () => {
-              const projectId = await useProjectStarter(createClient(), entry);
-              navigate(projectPath("api", projectId));
+              if (!libraryClient) throw new Error("Storage is not connected");
+              const projectId = await useProjectStarter(libraryClient, entry);
+              navigate(projectPath(storageSource, projectId));
             });
           }}
         />

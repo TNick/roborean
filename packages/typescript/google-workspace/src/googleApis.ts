@@ -200,6 +200,25 @@ export function createLiveGoogleApis(
       const first = raw.files?.[0];
       return first ? mapFile(first) : null;
     },
+    async listChildren(parentId, mimeType) {
+      const clauses = [`'${parentId}' in parents`, "trashed = false"];
+      if (mimeType) {
+        clauses.push(`mimeType = '${mimeType}'`);
+      }
+      const query = encodeURIComponent(clauses.join(" and "));
+      const raw = await googleFetch<{
+        files?: Array<{
+          id?: string;
+          name?: string;
+          mimeType?: string;
+          parents?: string[];
+          webViewLink?: string;
+        }>;
+      }>(
+        `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType,parents,webViewLink)&pageSize=100`,
+      );
+      return (raw.files ?? []).map(mapFile);
+    },
     async getFile(fileId) {
       const raw = await googleFetch<{
         id?: string;
