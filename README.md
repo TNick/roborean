@@ -4,7 +4,8 @@ Roborean is a **project → workspace → bits → documents** system for
 repeatable, template-driven content generation. A project is a portable
 package: typed global variables, ordered conditional bits, and document
 definitions that render from templates into text, Markdown, Office, DXF,
-images, and similar formats.
+images, and similar formats. Try the
+[hosted web app](https://tnick.github.io/roborean/).
 
 The product center is a **versioned project format and dual-runtime
 execution semantics**, not the website. Publishable Python and TypeScript

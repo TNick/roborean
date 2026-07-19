@@ -63,6 +63,8 @@ export function logGooglePickerDiagnostics(
   console.info(`[Roborean Google Picker] ${stage}`, {
     origin,
     pagePath: globalThis.location?.pathname ?? "unavailable",
+    pageHref: globalThis.location?.href ?? "unavailable",
+    documentBaseUri: globalThis.document?.baseURI ?? "unavailable",
     inboundDocumentReferrer: globalThis.document?.referrer || "none",
     outboundHttpRefererInspectableInNetworkPanel: true,
     browserRestrictionCandidates:
@@ -166,6 +168,10 @@ export async function pickDriveFolder(
   validatePickerConfiguration();
   const token = await requestGoogleAccessToken(getAccessToken);
   void probeGoogleOAuthToken(token);
+  logGooglePickerDiagnostics("opening folder picker", {
+    appIdApplied: Boolean(resolveGoogleAppId(GOOGLE_CLIENT_ID)),
+    sharedTokenProvider: Boolean(getAccessToken),
+  });
   const selected = await openGooglePickerWithReact({
     kind: "folder",
     oauthToken: token,
@@ -184,6 +190,10 @@ export async function pickDriveFile(
   validatePickerConfiguration();
   const token = await requestGoogleAccessToken(getAccessToken);
   void probeGoogleOAuthToken(token);
+  logGooglePickerDiagnostics("opening document picker", {
+    appIdApplied: Boolean(resolveGoogleAppId(GOOGLE_CLIENT_ID)),
+    sharedTokenProvider: Boolean(getAccessToken),
+  });
   return openGooglePickerWithReact({
     kind: "google-document",
     oauthToken: token,

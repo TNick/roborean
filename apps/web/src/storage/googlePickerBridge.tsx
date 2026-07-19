@@ -57,6 +57,23 @@ function PickerView({ kind }: { kind: PickerKind }) {
   );
 }
 
+/** Return only safe fields from an opaque Google Picker error event. */
+function redactPickerErrorDetail(detail: unknown): Record<string, unknown> {
+  if (!detail || typeof detail !== "object") {
+    return { type: typeof detail };
+  }
+  const record = detail as Record<string, unknown>;
+  const safeKeys = ["action", "code", "error", "message", "status"];
+  return Object.fromEntries(
+    safeKeys
+      .filter(
+        (key) =>
+          typeof record[key] === "string" || typeof record[key] === "number",
+      )
+      .map((key) => [key, record[key]]),
+  );
+}
+
 /** Open the official React Picker wrapper through an imperative Promise API. */
 export function openGooglePickerWithReact(
   options: OpenGooglePickerOptions,
@@ -68,6 +85,7 @@ export function openGooglePickerWithReact(
     const root = createRoot(host);
     let settled = false;
     let timeoutId: number | undefined;
+    let observer: MutationObserver | undefined;
 
     /** Settle once and asynchronously dispose the temporary React tree. */
     function settle(
@@ -82,6 +100,7 @@ export function openGooglePickerWithReact(
       if (timeoutId !== undefined) {
         window.clearTimeout(timeoutId);
       }
+      observer?.disconnect();
       if (outcome.type === "resolve") {
         resolve(outcome.value);
       } else {
@@ -117,17 +136,41 @@ export function openGooglePickerWithReact(
       });
     }
 
-    // The React wrapper does not expose picker-error, so subscribe directly
-    // to the underlying official custom element after React commits it.
-    queueMicrotask(() => {
+    // The React wrapper does not expose picker-error. Observe the temporary
+    // host because React may commit after a microtask, then subscribe exactly
+    // once to the official custom element's native error event.
+    function attachPickerErrorHandler(): boolean {
       const picker = host.querySelector("drive-picker");
-      picker?.addEventListener("picker-error", () => {
+      if (!picker || picker.dataset.roboreanErrorHandler === "true") {
+        return Boolean(picker);
+      }
+      picker.dataset.roboreanErrorHandler = "true";
+      picker.addEventListener("picker-error", (event) => {
+        const detail = (event as CustomEvent<unknown>).detail;
+        options.onDiagnostic?.("picker reported an error", {
+          errorDetail: redactPickerErrorDetail(detail),
+        });
         settle({
           type: "reject",
-          error: new Error("Google Picker reported an error"),
+          error: new Error(
+            "Google Picker reported an error; check the browser Network panel for the failing picker request",
+          ),
         });
       });
+      options.onDiagnostic?.("official picker mounted", {
+        documentBaseUri: document.baseURI,
+        pageHref: window.location.href,
+      });
+      return true;
+    }
+
+    observer = new MutationObserver(() => {
+      if (attachPickerErrorHandler()) {
+        observer?.disconnect();
+      }
     });
+    observer.observe(host, { childList: true, subtree: true });
+    attachPickerErrorHandler();
 
     timeoutId = window.setTimeout(() => {
       options.onDiagnostic?.("picker timed out", {
