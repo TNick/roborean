@@ -41,6 +41,10 @@ export function ConnectDriveDialog(props: ConnectDriveDialogProps) {
         position: "fixed",
         inset: 0,
         zIndex: (theme) => theme.zIndex.modal,
+        'body[data-roborean-picker-active="true"] &': {
+          zIndex: 0,
+          pointerEvents: "none",
+        },
         bgcolor: "rgba(0, 0, 0, 0.4)",
         display: "flex",
         alignItems: "center",

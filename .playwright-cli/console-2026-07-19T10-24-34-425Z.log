@@ -1,0 +1,7 @@
+[      68ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT @ chrome-extension://invalid/:0
+[    2441ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT @ chrome-extension://invalid/:0
+[    2545ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ https://docs.google.com/drivesharing/clientmodel?id=1nNoBBDsVlVC4FMaoHdjUbOAJ8IubWxbBqkhGDErBBzI&foreignService=kix&authuser=0&origin=https%3A%2F%2Fdocs.google.com:0
+[    2637ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT @ chrome-extension://invalid/:0
+[    2644ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT @ chrome-extension://invalid/:0
+[    2647ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT @ chrome-extension://invalid/:0
+[   10420ms] [ERROR] Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED @ https://lh3.googleusercontent.com/ogw/AF2bZyiDa5COGtwOO1aKSgIcAlkAqdaCjwbjPQpSBUQ7LzYbNx0=s32-c-mo:0

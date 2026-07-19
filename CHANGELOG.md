@@ -2,7 +2,27 @@
 
 ## [Unreleased]
 
-## [0.1.16] - 2026-07-19
+### Added
+
+- `make webg` starts the browser app in the same Google Drive-only storage
+  mode used by GitHub Pages, without FastAPI.
+
+### Changed
+
+- GitHub Pages and other Google-only builds now show **Browse templates
+  library** on the home page and load the bundled Google Docs catalog without
+  requiring the FastAPI backend.
+
+### Fixed
+
+- Google Picker no longer closes after 60 seconds while users are browsing
+  Drive; its timeout is now opt-in for bounded callers only.
+
+- Google Picker is now raised above the Drive-folder gate while active instead
+  of rendering invisibly below the full-page overlay.
+
+- Templates library rendering no longer crashes when a catalog response
+  contains malformed rows.
 
 ### Changed
 

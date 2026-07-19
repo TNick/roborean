@@ -1,0 +1,121 @@
+- generic [ref=f3e69]:
+  - banner [ref=f3e70]:
+    - generic [ref=f3e71]:
+      - link "Back" [ref=f3e262] [cursor=pointer]:
+        - /url: "#/projects"
+      - heading "Google document generation verification" [level=1] [ref=f3e263]
+      - button "Edit" [ref=f3e264] [cursor=pointer]
+      - button "Dry-run" [ref=f3e265] [cursor=pointer]
+      - button "Save" [ref=f3e266] [cursor=pointer]
+      - button "Run in browser" [ref=f3e267] [cursor=pointer]
+      - paragraph [ref=f3e164]: Unsaved changes
+      - generic [ref=f3e89]:
+        - button "Theme" [ref=f3e268] [cursor=pointer]
+        - button "Account" [ref=f3e269] [cursor=pointer]
+  - generic [ref=f3e98]:
+    - generic [ref=f3e100]:
+      - generic [ref=f3e101]:
+        - heading "Variables" [level=6] [ref=f3e270]
+        - generic [ref=f3e104]:
+          - list [ref=f3e106]
+          - generic [ref=f3e107]:
+            - button "Add" [ref=f3e271] [cursor=pointer]
+            - button "Remove" [disabled]
+      - generic [ref=f3e109]:
+        - heading "Bits" [level=6] [ref=f3e272]
+        - list [ref=f3e113]
+        - generic [ref=f3e114]:
+          - button "Add" [ref=f3e273] [cursor=pointer]
+          - button "Remove" [disabled]
+      - generic [ref=f3e116]:
+        - generic [ref=f3e117]:
+          - heading "Documents" [level=6] [ref=f3e274]
+          - button "Search documents" [ref=f3e275] [cursor=pointer]
+        - generic [ref=f3e119]:
+          - list [ref=f3e121]:
+            - button "Document 1 docx · roborean.google.docs" [ref=f3e276] [cursor=pointer]:
+              - generic [ref=f3e169]:
+                - generic [ref=f3e170]: Document 1
+                - paragraph [ref=f3e173]: docx · roborean.google.docs
+          - generic [ref=f3e122]:
+            - button "Add" [ref=f3e277] [cursor=pointer]
+            - button "Remove" [ref=f3e278] [cursor=pointer]
+      - generic [ref=f3e124]:
+        - heading "Run history" [level=6] [ref=f3e279]
+        - generic [ref=f3e127]:
+          - generic [ref=f3e128]:
+            - paragraph [ref=f3e129]: Server runs
+            - button "Refresh" [ref=f3e280] [cursor=pointer]
+          - list [ref=f3e132]:
+            - paragraph [ref=f3e133]: No runs yet
+    - generic [ref=f3e135]:
+      - generic [ref=f3e136]:
+        - heading "Document" [level=6] [ref=f3e281]
+        - button "Delete" [ref=f3e282] [cursor=pointer]
+      - generic [ref=f3e180]:
+        - generic [ref=f3e181]:
+          - generic [ref=f3e182]: Title
+          - generic [ref=f3e183]:
+            - textbox "Title" [ref=f3e283]: Document 1
+            - group:
+              - generic: Title
+        - generic [ref=f3e185]:
+          - generic: Description
+          - generic [ref=f3e186]:
+            - textbox "Description" [ref=f3e284]
+            - group:
+              - generic: Description
+        - generic [ref=f3e188]:
+          - generic [ref=f3e189]: Type
+          - generic [ref=f3e190]:
+            - textbox "Type" [ref=f3e285]: docx
+            - group:
+              - generic: Type
+        - generic [ref=f3e192]:
+          - generic [ref=f3e193]: Driver
+          - generic [ref=f3e194]:
+            - textbox "Driver" [ref=f3e286]: roborean.google.docs
+            - group:
+              - generic: Driver
+        - generic [ref=f3e196]:
+          - paragraph [ref=f3e198]: Template
+          - generic [ref=f3e199]: No template file linked
+          - generic [ref=f3e200]:
+            - button "Create Google Doc template" [ref=f3e201] [cursor=pointer]
+            - button "Link existing Google Doc" [ref=f3e202] [cursor=pointer]
+          - button "Replace template file" [ref=f3e288] [cursor=pointer]
+        - generic [ref=f3e206]:
+          - generic [ref=f3e207]: Output target
+          - generic [ref=f3e208]:
+            - textbox "Output target" [ref=f3e289]: doc_1.txt
+            - group:
+              - generic: Output target
+        - generic [ref=f3e210]:
+          - generic [ref=f3e211]: Preview mode
+          - generic [ref=f3e212]:
+            - combobox "Preview mode text" [ref=f3e290] [cursor=pointer]: text
+            - textbox: text
+            - group:
+              - generic: Preview mode
+        - generic [ref=f3e214]:
+          - generic [ref=f3e215]: Preview enabled
+          - generic [ref=f3e216]:
+            - combobox "Preview enabled yes" [ref=f3e291] [cursor=pointer]: "yes"
+            - textbox: "yes"
+            - group:
+              - generic: Preview enabled
+    - generic [ref=f3e140]:
+      - heading "Diagnostics" [level=6] [ref=f3e292]
+      - generic [ref=f3e144]:
+        - heading "Dependencies" [level=6] [ref=f3e293]
+        - generic [ref=f3e147]:
+          - paragraph [ref=f3e148]: Dependencies (1 nodes, 0 edges)
+          - generic [ref=f3e149]: Scroll to zoom · drag to pan · double-click to reset
+          - img "Dependency graph" [ref=f3e294]:
+            - generic [ref=f3e218]: doc_1
+      - generic [ref=f3e152]:
+        - heading "Dry-run" [level=6] [ref=f3e295]
+        - paragraph [ref=f3e155]: not run
+      - generic [ref=f3e156]:
+        - heading "Preview" [level=6] [ref=f3e296]
+        - paragraph [ref=f3e159]: Run dry-run after adding document bits to preview.

@@ -1,0 +1,11 @@
+- generic [ref=f3e22]:
+  - banner [ref=f3e23]:
+    - generic [ref=f3e24]:
+      - link "Home" [ref=f3e26] [cursor=pointer]:
+        - /url: "#/"
+      - heading "Projects" [level=1] [ref=f3e30]
+      - button "New project" [ref=f3e31] [cursor=pointer]
+      - generic [ref=f3e35]:
+        - button "Theme" [ref=f3e36] [cursor=pointer]
+        - button "Account" [ref=f3e40] [cursor=pointer]
+  - list [ref=f3e45]

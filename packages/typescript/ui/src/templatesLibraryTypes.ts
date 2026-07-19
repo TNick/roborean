@@ -123,6 +123,29 @@ export type TemplatesLibraryProps = {
 };
 
 /**
+ * Drop malformed catalog rows before rendering or filtering.
+ *
+ * @param entries - Raw catalog list from an API or bundled source.
+ * @returns Valid catalog entries only.
+ */
+export function coerceTemplateLibraryEntries(
+  entries: unknown,
+): TemplateLibraryEntry[] {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  return entries.filter(
+    (entry): entry is TemplateLibraryEntry =>
+      entry != null &&
+      typeof entry === "object" &&
+      typeof (entry as TemplateLibraryEntry).id === "string" &&
+      typeof (entry as TemplateLibraryEntry).title === "string" &&
+      typeof (entry as TemplateLibraryEntry).kind === "string",
+  );
+}
+
+/**
  * Filter catalog entries by kind and optional search query.
  *
  * @param entries - Full catalog list.
@@ -137,7 +160,8 @@ export function filterTemplateLibraryEntries(
 ): TemplateLibraryEntry[] {
   // Keep only rows for the active tab.
   const normalized = query.trim().toLowerCase();
-  const tabEntries = entries.filter((entry) => entry.kind === kind);
+  const rows = coerceTemplateLibraryEntries(entries);
+  const tabEntries = rows.filter((entry) => entry.kind === kind);
 
   if (!normalized) {
     return tabEntries;
@@ -166,7 +190,7 @@ export function filterTemplateLibraryEntries(
 export function documentTypeFilters(entries: TemplateLibraryEntry[]): string[] {
   const types = new Set<string>();
 
-  for (const entry of entries) {
+  for (const entry of coerceTemplateLibraryEntries(entries)) {
     if (entry.kind === "document" && entry.documentType) {
       types.add(entry.documentType);
     }
@@ -184,7 +208,7 @@ export function documentTypeFilters(entries: TemplateLibraryEntry[]): string[] {
 export function recipeTagFilters(entries: TemplateLibraryEntry[]): string[] {
   const tags = new Set<string>();
 
-  for (const entry of entries) {
+  for (const entry of coerceTemplateLibraryEntries(entries)) {
     if (entry.kind !== "recipe") {
       continue;
     }

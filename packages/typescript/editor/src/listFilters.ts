@@ -38,10 +38,17 @@ export function matchesSearchText(haystack: string, query: string): boolean {
 /**
  * Build searchable text from a workspace default value.
  *
- * @param defaultValue - Variable default value definition.
+ * @param defaultValue - Variable default value definition, when present.
  * @returns Flattened searchable content for the value.
  */
-export function workspaceValueSearchText(defaultValue: WorkspaceValue): string {
+export function workspaceValueSearchText(
+  defaultValue: WorkspaceValue | undefined,
+): string {
+  // Skip incomplete persisted variables while the editor remains usable.
+  if (!defaultValue) {
+    return "";
+  }
+
   switch (defaultValue.kind) {
     case "public_literal":
       return String(defaultValue.value);

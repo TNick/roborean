@@ -101,6 +101,9 @@
 
 ### Fixed
 
+- Variable list search now tolerates incomplete persisted variables without a
+  `defaultValue` instead of crashing the project editor.
+
 - Restore standalone TypeScript builds by resolving UI libraries with bundler-style package exports and declaring direct preview/schema dependencies.
 
 - Set/copy variable bits auto-sync `writes` / `reads` from config so picking

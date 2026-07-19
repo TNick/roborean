@@ -27,6 +27,10 @@ export function FolderGateDialog() {
         position: "fixed",
         inset: 0,
         zIndex: (theme) => theme.zIndex.modal,
+        'body[data-roborean-picker-active="true"] &': {
+          zIndex: 0,
+          pointerEvents: "none",
+        },
         bgcolor: "background.default",
         display: "flex",
         alignItems: "center",

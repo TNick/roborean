@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  coerceTemplateLibraryEntries,
   documentTypeFilters,
   filterTemplateLibraryEntries,
   recipeTagFilters,
@@ -52,5 +53,15 @@ describe("TemplatesLibrary helpers", () => {
 
   it("collects recipe tag chips", () => {
     expect(recipeTagFilters(SAMPLE_ENTRIES)).toEqual(["recipe", "workspace"]);
+  });
+
+  it("drops malformed catalog rows", () => {
+    expect(
+      coerceTemplateLibraryEntries([
+        SAMPLE_ENTRIES[0],
+        undefined,
+        { id: "broken" },
+      ]),
+    ).toEqual([SAMPLE_ENTRIES[0]]);
   });
 });

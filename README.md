@@ -77,6 +77,7 @@ See [`AGENTS.md`](AGENTS.md) for contributor and agent conventions.
 
 ```bash
 make init-d           # venv, packages, pnpm, e2e-ai, pre-commit hooks
+make webg             # Google Drive-only web app; no FastAPI
 make delint           # autofix Python + TypeScript/JS format
 make pre-commit       # run all hooks on the tree
 make test

@@ -1,0 +1,38 @@
+- generic [ref=e2]:
+  - generic [ref=e5]:
+    - heading "Select a Google Drive folder" [level=1] [ref=e6]
+    - paragraph [ref=e7]: Roborean stores projects in Google Sheets and Docs inside a folder you choose. Nothing is written until you connect a folder.
+    - generic [ref=e8]:
+      - button "Create a new folder" [ref=e9] [cursor=pointer]
+      - button "Choose folder with Google Picker" [ref=e10] [cursor=pointer]
+    - heading "Or paste a folder id" [level=6] [ref=e11]
+    - generic [ref=e12]:
+      - generic:
+        - text: Folder id
+        - generic: "*"
+      - generic [ref=e13]:
+        - textbox "Folder id" [ref=e14]
+        - group:
+          - generic: Folder id *
+    - generic [ref=e15]:
+      - generic [ref=e16]: Folder display name
+      - generic [ref=e17]:
+        - textbox "Folder display name" [ref=e18]: Roborean data
+        - group:
+          - generic: Folder display name
+    - generic [ref=e19]:
+      - button "Use this folder" [disabled]
+  - generic [ref=e20]:
+    - banner [ref=e21]:
+      - generic [ref=e22]:
+        - heading "Roborean" [level=1] [ref=e23]
+        - generic [ref=e24]:
+          - button "Theme" [ref=e25] [cursor=pointer]
+          - button "Account" [ref=e28] [cursor=pointer]
+    - generic [ref=e31]:
+      - heading "Schema-first projects, workspace bits, and document generation." [level=6] [ref=e32]
+      - generic [ref=e33]:
+        - link "Open projects" [ref=e34] [cursor=pointer]:
+          - /url: "#/projects"
+        - link "Browse templates library" [ref=e35] [cursor=pointer]:
+          - /url: "#/templates"

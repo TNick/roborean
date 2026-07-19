@@ -42,6 +42,17 @@ describe("listFilters", () => {
       expect(variableSearchText(variable)).toContain("Acme Corp");
     });
 
+    it("keeps incomplete persisted variables searchable", () => {
+      // Model an older variable record that has no default value yet.
+      const incomplete = {
+        key: "missingDefault",
+        schema: { type: "string" },
+        exposure: "clientVisible",
+      } as Variable;
+
+      expect(variableSearchText(incomplete)).toBe("missingDefault");
+      expect(filterVariables([incomplete], "missing")).toEqual([incomplete]);
+    });
     it("includes secret ref and display hint content", () => {
       const text = workspaceValueSearchText({
         kind: "secret_ref",

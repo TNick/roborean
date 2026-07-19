@@ -413,6 +413,7 @@ export type {
   TemplatesLibraryProps,
 } from "./templatesLibraryTypes.js";
 export {
+  coerceTemplateLibraryEntries,
   documentTypeFilters,
   filterTemplateLibraryEntries,
   recipeTagFilters,

@@ -4,9 +4,6 @@ import {
 } from "@googleworkspace/drive-picker-react";
 import { createRoot } from "react-dom/client";
 
-/** Default maximum time to wait for a Google Picker response. */
-export const DEFAULT_PICKER_TIMEOUT_MS = 60_000;
-
 /** Supported temporary Picker views. */
 export type PickerKind = "folder" | "google-document";
 
@@ -24,6 +21,9 @@ export type OpenGooglePickerOptions = {
   developerKey: string;
   appId?: string;
   origin: string;
+  /**
+   * Optional watchdog used only by callers that require a bounded interaction.
+   */
   timeoutMs?: number;
   onDiagnostic?: (stage: string, details?: Record<string, unknown>) => void;
 };
@@ -81,6 +81,9 @@ export function openGooglePickerWithReact(
   return new Promise((resolve, reject) => {
     // Create an isolated React host that exists only for this Picker session.
     const host = document.createElement("div");
+
+    // Move application overlays behind Google Picker while its dialog is active.
+    document.body.dataset.roboreanPickerActive = "true";
     document.body.appendChild(host);
     const root = createRoot(host);
     let settled = false;
@@ -101,6 +104,9 @@ export function openGooglePickerWithReact(
         window.clearTimeout(timeoutId);
       }
       observer?.disconnect();
+
+      // Restore application overlay stacking after the Picker session settles.
+      delete document.body.dataset.roboreanPickerActive;
       if (outcome.type === "resolve") {
         resolve(outcome.value);
       } else {
@@ -172,16 +178,22 @@ export function openGooglePickerWithReact(
     observer.observe(host, { childList: true, subtree: true });
     attachPickerErrorHandler();
 
-    timeoutId = window.setTimeout(() => {
-      options.onDiagnostic?.("picker timed out", {
-        timeoutMs: options.timeoutMs ?? DEFAULT_PICKER_TIMEOUT_MS,
-      });
-      settle({
-        type: "reject",
-        error: new Error("Google Picker did not complete within 60 seconds"),
-      });
-    }, options.timeoutMs ?? DEFAULT_PICKER_TIMEOUT_MS);
-
+    // Apply a timeout only when a caller deliberately requests one. Users can
+    // spend more than a minute browsing Drive, so the production Picker must
+    // remain open until Google reports Pick, Cancel, or an actual error.
+    if (options.timeoutMs !== undefined) {
+      timeoutId = window.setTimeout(() => {
+        options.onDiagnostic?.("picker timed out", {
+          timeoutMs: options.timeoutMs,
+        });
+        settle({
+          type: "reject",
+          error: new Error(
+            `Google Picker did not complete within ${options.timeoutMs} ms`,
+          ),
+        });
+      }, options.timeoutMs);
+    }
     root.render(
       <DrivePicker
         app-id={options.appId}

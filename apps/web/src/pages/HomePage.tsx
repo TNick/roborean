@@ -76,17 +76,15 @@ export function HomePage() {
           >
             Open projects
           </Button>
-          {isApiAvailable ? (
-            <Button
-              component={RouterLink}
-              to="/templates"
-              variant="outlined"
-              size={compactLayout ? "large" : "medium"}
-              fullWidth={compactLayout}
-            >
-              Browse templates library
-            </Button>
-          ) : null}
+          <Button
+            component={RouterLink}
+            to="/templates"
+            variant="outlined"
+            size={compactLayout ? "large" : "medium"}
+            fullWidth={compactLayout}
+          >
+            Browse templates library
+          </Button>
           {!isGoogleMode && isGoogleAvailable && !binding ? (
             <Button
               variant="outlined"

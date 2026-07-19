@@ -83,6 +83,7 @@ export {
 } from "./CollapsibleSearchField.js";
 export {
   TemplatesLibrary,
+  coerceTemplateLibraryEntries,
   documentTypeFilters,
   filterTemplateLibraryEntries,
   recipeTagFilters,

@@ -1,0 +1,242 @@
+[  222046ms] [INFO] [Roborean Google Picker] opening folder picker {origin: http://localhost:5173, pagePath: /, pageHref: http://localhost:5173/, documentBaseUri: http://localhost:5173/, inboundDocumentReferrer: http://localhost:5173/} @ http://localhost:5173/src/storage/googlePicker.ts?t=1784456353899:28
+[  222051ms] [INFO] [Roborean Google Picker] official picker mounted {origin: http://localhost:5173, pagePath: /, pageHref: http://localhost:5173/, documentBaseUri: http://localhost:5173/, inboundDocumentReferrer: http://localhost:5173/} @ http://localhost:5173/src/storage/googlePicker.ts?t=1784456353899:28
+[  222582ms] [INFO] [Roborean Google Picker] OAuth token probe completed {origin: http://localhost:5173, pagePath: /, pageHref: http://localhost:5173/, documentBaseUri: http://localhost:5173/, inboundDocumentReferrer: http://localhost:5173/} @ http://localhost:5173/src/storage/googlePicker.ts?t=1784456353899:28
+[  282385ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:3680:22)
+[  282406ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:3680:22)
+[  282413ms] [ERROR] The above error occurred in the <WorkspacePanel> component:
+
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:32:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:614:19)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:614:19)
+    at SplitPane (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/ui/src/index.tsx?t=1784455065141:252:29)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at ProjectEditor (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/ProjectEditor.tsx?t=1784455065141:81:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at PageShell (http://localhost:5173/src/components/PageShell.tsx:18:29)
+    at ProjectEditPage (http://localhost:5173/src/pages/ProjectEditPage.tsx?t=1784456353899:45:20)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:7604:3)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:7543:13)
+    at HashRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:10897:3)
+    at AppRoutes
+    at WorkspaceProvider (http://localhost:5173/src/storage/workspaceContext.tsx?t=1784454297930:44:37)
+    at DefaultPropsProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1722:3)
+    at RtlProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1698:3)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1654:5)
+    at ThemeProvider2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1849:5)
+    at ThemeProviderNoVars (http://localhost:5173/node_modules/.vite/deps/chunk-ZGL7DM47.js?v=0ae3d726:277:10)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-ZGL7DM47.js?v=0ae3d726:359:3)
+    at ThemePreferencesProvider (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/ui/src/ThemePreferencesProvider.tsx?t=1784399184859:33:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14079
+[  282414ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:19806:22)
+[  334391ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:21608
+[  344298ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:3680:22)
+[  344320ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:3680:22)
+[  344329ms] [ERROR] The above error occurred in the <WorkspacePanel> component:
+
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:32:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at ProjectEditor (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/ProjectEditor.tsx?t=1784455065141:81:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at PageShell (http://localhost:5173/src/components/PageShell.tsx:18:29)
+    at ProjectEditPage (http://localhost:5173/src/pages/ProjectEditPage.tsx?t=1784456353899:45:20)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:7604:3)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:7543:13)
+    at HashRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:10897:3)
+    at AppRoutes
+    at WorkspaceProvider (http://localhost:5173/src/storage/workspaceContext.tsx?t=1784454297930:44:37)
+    at DefaultPropsProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1722:3)
+    at RtlProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1698:3)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1654:5)
+    at ThemeProvider2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1849:5)
+    at ThemeProviderNoVars (http://localhost:5173/node_modules/.vite/deps/chunk-ZGL7DM47.js?v=0ae3d726:277:10)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-ZGL7DM47.js?v=0ae3d726:359:3)
+    at ThemePreferencesProvider (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/ui/src/ThemePreferencesProvider.tsx?t=1784399184859:33:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14079
+[  344329ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784455065141:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:19806:22)
+[  406546ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784456561653:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:3680:22)
+[  406566ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784456561653:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:3680:22)
+[  406577ms] [ERROR] The above error occurred in the <WorkspacePanel> component:
+
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784456561653:32:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at ProjectEditor (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/ProjectEditor.tsx?t=1784456561653:81:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ZNSDLBOX.js?v=0ae3d726:2320:45
+    at Grid2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:3684:24)
+    at PageShell (http://localhost:5173/src/components/PageShell.tsx:18:29)
+    at ProjectEditPage (http://localhost:5173/src/pages/ProjectEditPage.tsx?t=1784456353899:45:20)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:7604:3)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:7543:13)
+    at HashRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=0ae3d726:10897:3)
+    at AppRoutes
+    at WorkspaceProvider (http://localhost:5173/src/storage/workspaceContext.tsx?t=1784454297930:44:37)
+    at DefaultPropsProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1722:3)
+    at RtlProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1698:3)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1654:5)
+    at ThemeProvider2 (http://localhost:5173/node_modules/.vite/deps/chunk-WEVN7IWQ.js?v=0ae3d726:1849:5)
+    at ThemeProviderNoVars (http://localhost:5173/node_modules/.vite/deps/chunk-ZGL7DM47.js?v=0ae3d726:277:10)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-ZGL7DM47.js?v=0ae3d726:359:3)
+    at ThemePreferencesProvider (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/ui/src/ThemePreferencesProvider.tsx?t=1784399184859:33:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14079
+[  406578ms] TypeError: Cannot read properties of undefined (reading 'kind')
+    at workspaceValueSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:14:24)
+    at variableSearchText (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:35:5)
+    at http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:40:37
+    at Array.filter (<anonymous>)
+    at filterVariables (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/listFilters.ts?t=1784456561653:39:20)
+    at WorkspacePanel (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/editor/src/panels/WorkspacePanel.tsx?t=1784456561653:46:21)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:11596:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:14974:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:15962:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:19806:22)
+[  437395ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-XI35OFE4.js?v=0ae3d726:21608
+[  450183ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  450187ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  450190ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  456645ms] [INFO] [Roborean Google Picker] opening document picker {origin: http://localhost:5173, pagePath: /, pageHref: http://localhost:5173/#/projects/google/google.docs.hello.eb60722b, documentBaseUri: http://localhost:5173/#/projects/google/google.docs.hello.eb60722b, inboundDocumentReferrer: http://localhost:5173/} @ http://localhost:5173/src/storage/googlePicker.ts?t=1784456353899:28
+[  456647ms] [INFO] [Roborean Google Picker] official picker mounted {origin: http://localhost:5173, pagePath: /, pageHref: http://localhost:5173/#/projects/google/google.docs.hello.eb60722b, documentBaseUri: http://localhost:5173/#/projects/google/google.docs.hello.eb60722b, inboundDocumentReferrer: http://localhost:5173/} @ http://localhost:5173/src/storage/googlePicker.ts?t=1784456353899:28
+[  456853ms] [ERROR] Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED @ http://csi.gstatic.com/csi?v=3&s=gapi_global&action=global&it=blt.0&srt=4&tbsrt=19541&tran=16&e=abc_l0,abc_m0,abc_u0&rt=:0
+[  456854ms] [ERROR] Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED @ http://csi.gstatic.com/csi?v=3&s=gapi_module&action=client__picker&it=mli.13,mei.5&tran=16&e=abc_l0,abc_m0,abc_pclient__picker,abc_u0&rt=:0
+[  456854ms] [ERROR] Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED @ http://csi.gstatic.com/csi?v=3&s=gapi_module&action=gapi_iframes___client__picke1&it=mli.6,mei.0&tran=16&e=abc_l0,abc_m0,abc_pgapi_iframes___client__picke1,abc_u0&rt=:0
+[  457064ms] [INFO] [Roborean Google Picker] OAuth token probe completed {origin: http://localhost:5173, pagePath: /, pageHref: http://localhost:5173/#/projects/google/google.docs.hello.eb60722b, documentBaseUri: http://localhost:5173/#/projects/google/google.docs.hello.eb60722b, inboundDocumentReferrer: http://localhost:5173/} @ http://localhost:5173/src/storage/googlePicker.ts?t=1784456353899:28
+[  471313ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  471338ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  471530ms] NotFoundError: letter_tpl_1
+    at Object.getTemplateContent (http://localhost:5173/@fs/D:/prog/roborean/packages/typescript/google-workspace/src/client.ts?t=1784453233604:316:13)
+[  487439ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  535910ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  546412ms] [WARNING] MUI: You have provided an out-of-range value `none` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `text`, `html`, `json`, `drawing-json`. @ http://localhost:5173/node_modules/.vite/deps/@mui_material_TextField.js?v=0ae3d726:2615
+[  549331ms] [WARNING] Blocked aria-hidden on an element because its descendant retained focus. The focus must not be hidden from assistive technology users. Avoid using aria-hidden on a focused element or its ancestor. Consider using the inert attribute instead, which will also prevent focus. For more details, see the aria-hidden section of the WAI-ARIA specification at https://w3c.github.io/aria/#aria-hidden.
+Element with focus: <li.MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters Mui-selected MuiMenuItem-root MuiMenuItem-gutters Mui-selected css-3qp0m6-MuiButtonBase-root-MuiMenuItem-root>
+Ancestor with aria-hidden: <div.MuiPopover-root MuiMenu-root MuiModal-root css-pa188r-MuiModal-root-MuiPopover-root-MuiMenu-root#menu-> @ http://localhost:5173/#/projects/google/google.docs.hello.eb60722b:0

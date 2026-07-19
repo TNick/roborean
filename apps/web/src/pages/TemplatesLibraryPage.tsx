@@ -12,15 +12,17 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { ProjectSummary, TemplateLibraryEntry } from "@roborean/api-types";
+import { listGoogleTemplateLibrary } from "@roborean/google-workspace";
 import {
   AppToolbar,
   AppToolbarTitle,
+  coerceTemplateLibraryEntries,
   RoboreanResponsiveToolbarEnd,
   TemplatesLibrary,
 } from "@roborean/ui";
 import { ToolbarNavButton } from "../components/ToolbarNavButton.js";
 import { PageShell } from "../components/PageShell.js";
-import { projectPath } from "../config.js";
+import { IS_GOOGLE_ONLY, projectPath } from "../config.js";
 import {
   importDocumentTemplate,
   importRecipe,
@@ -36,9 +38,11 @@ import type { TemplateLibraryClient } from "../lib/templateLibraryActions.js";
  */
 export function TemplatesLibraryPage() {
   const navigate = useNavigate();
-  const { isApiAvailable, client } = useWorkspace();
+  const { isApiAvailable, client, googleClient } = useWorkspace();
   const storageSource = isApiAvailable ? "api" : "google";
-  const libraryClient = client as TemplateLibraryClient | null;
+  const actionClient = (
+    isApiAvailable ? client : googleClient
+  ) as TemplateLibraryClient | null;
 
   // Catalog rows loaded from the API.
   const [entries, setEntries] = useState<TemplateLibraryEntry[]>([]);
@@ -66,30 +70,34 @@ export function TemplatesLibraryPage() {
   >(null);
 
   /**
-   * Load the global catalog from the API.
+   * Load the global catalog from the API or bundled Google Docs library.
    *
    * @returns Promise that settles when entries are stored.
    */
   const loadCatalog = useCallback(async () => {
-    if (!libraryClient) {
-      setEntries([]);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
     try {
-      const rows = await libraryClient.listTemplateLibrary();
-      setEntries(rows);
+      if (IS_GOOGLE_ONLY) {
+        setEntries(coerceTemplateLibraryEntries(listGoogleTemplateLibrary()));
+        return;
+      }
+
+      if (!client) {
+        setEntries([]);
+        return;
+      }
+
+      const rows = await client.listTemplateLibrary();
+      setEntries(coerceTemplateLibraryEntries(rows));
     } catch (err) {
       setEntries([]);
       setError(err instanceof Error ? err.message : "Failed to load catalog");
     } finally {
       setLoading(false);
     }
-  }, [libraryClient]);
+  }, [client]);
 
   useEffect(() => {
     void loadCatalog();
@@ -135,8 +143,8 @@ export function TemplatesLibraryPage() {
     setError(null);
 
     try {
-      if (!libraryClient) throw new Error("Storage is not connected");
-      const rows = await libraryClient.listProjects();
+      if (!actionClient) throw new Error("Storage is not connected");
+      const rows = await actionClient.listProjects();
       setProjects(rows);
     } catch (err) {
       setProjects([]);
@@ -159,8 +167,8 @@ export function TemplatesLibraryPage() {
     setPickerOpen(false);
 
     await withBusy(entry.id, async () => {
-      if (!libraryClient) throw new Error("Storage is not connected");
-      const client = libraryClient;
+      if (!actionClient) throw new Error("Storage is not connected");
+      const client = actionClient;
 
       if (pendingAction.kind === "document") {
         await importDocumentTemplate(client, projectId, entry);
@@ -185,7 +193,8 @@ export function TemplatesLibraryPage() {
       <Stack spacing={2}>
         {!isApiAvailable ? (
           <Alert severity="info">
-            Templates are copied into your Google Drive when imported.
+            Templates are copied into your Google Drive when imported. Connect a
+            Drive folder from the home page before using starters or imports.
           </Alert>
         ) : null}
         {error ? <Alert severity="error">{error}</Alert> : null}
@@ -199,8 +208,8 @@ export function TemplatesLibraryPage() {
           onImportRecipe={(entry) => void openProjectPicker("recipe", entry)}
           onUseProjectStarter={(entry) => {
             void withBusy(entry.id, async () => {
-              if (!libraryClient) throw new Error("Storage is not connected");
-              const projectId = await useProjectStarter(libraryClient, entry);
+              if (!actionClient) throw new Error("Storage is not connected");
+              const projectId = await useProjectStarter(actionClient, entry);
               navigate(projectPath(storageSource, projectId));
             });
           }}

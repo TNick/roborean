@@ -1,0 +1,212 @@
+- generic [ref=f3e1]:
+  - generic [ref=f3e69]:
+    - banner [ref=f3e70]:
+      - generic [ref=f3e71]:
+        - link [ref=f3e222] [cursor=pointer]:
+          - /url: "#/projects"
+        - heading [level=1] [ref=f3e223]: Google document generation verification
+        - button [ref=f3e224] [cursor=pointer]: Edit
+        - button [ref=f3e225] [cursor=pointer]: Dry-run
+        - button [ref=f3e226] [cursor=pointer]: Save
+        - button [ref=f3e227] [cursor=pointer]: Run in browser
+        - paragraph [ref=f3e164]: Unsaved changes
+        - generic [ref=f3e89]:
+          - button [ref=f3e228] [cursor=pointer]: Theme
+          - button [ref=f3e229] [cursor=pointer]: Account
+    - generic [ref=f3e98]:
+      - generic [ref=f3e100]:
+        - generic [ref=f3e101]:
+          - heading [level=6] [ref=f3e230]: Variables
+          - generic [ref=f3e104]:
+            - list [ref=f3e106]
+            - generic [ref=f3e107]:
+              - button [ref=f3e231] [cursor=pointer]: Add
+              - button [disabled]: Remove
+        - generic [ref=f3e109]:
+          - heading [level=6] [ref=f3e232]: Bits
+          - list [ref=f3e113]
+          - generic [ref=f3e114]:
+            - button [ref=f3e233] [cursor=pointer]: Add
+            - button [disabled]: Remove
+        - generic [ref=f3e116]:
+          - generic [ref=f3e117]:
+            - heading [level=6] [ref=f3e234]: Documents
+            - button [ref=f3e235] [cursor=pointer]
+          - generic [ref=f3e119]:
+            - list [ref=f3e121]:
+              - button [ref=f3e236] [cursor=pointer]:
+                - generic [ref=f3e169]:
+                  - generic [ref=f3e170]: Document 1
+                  - paragraph [ref=f3e173]: text · roborean.text
+            - generic [ref=f3e122]:
+              - button [ref=f3e237] [cursor=pointer]: Add
+              - button [ref=f3e238] [cursor=pointer]: Remove
+        - generic [ref=f3e124]:
+          - heading [level=6] [ref=f3e239]: Run history
+          - generic [ref=f3e127]:
+            - generic [ref=f3e128]:
+              - paragraph [ref=f3e129]: Server runs
+              - button [ref=f3e240] [cursor=pointer]: Refresh
+            - list [ref=f3e132]:
+              - paragraph [ref=f3e133]: No runs yet
+      - generic [ref=f3e135]:
+        - generic [ref=f3e136]:
+          - heading [level=6] [ref=f3e241]: Document
+          - button [ref=f3e242] [cursor=pointer]
+        - generic [ref=f3e180]:
+          - generic [ref=f3e181]:
+            - generic [ref=f3e182]: Title
+            - generic [ref=f3e183]:
+              - textbox [ref=f3e243]: Document 1
+              - group:
+                - generic: Title
+          - generic [ref=f3e185]:
+            - generic: Description
+            - generic [ref=f3e186]:
+              - textbox [ref=f3e244]
+              - group:
+                - generic: Description
+          - generic [ref=f3e188]:
+            - generic [ref=f3e189]: Type
+            - generic [ref=f3e190]:
+              - textbox [ref=f3e245]: text
+              - group:
+                - generic: Type
+          - generic [ref=f3e192]:
+            - generic [ref=f3e193]: Driver
+            - generic [ref=f3e194]:
+              - textbox [ref=f3e246]: roborean.text
+              - group:
+                - generic: Driver
+          - generic [ref=f3e196]:
+            - paragraph [ref=f3e198]: Template
+            - generic [ref=f3e199]: templates/doc_1.txt
+            - generic [ref=f3e200]:
+              - button [disabled]: Create Google Doc template
+              - button [disabled]: Link existing Google Doc
+            - generic [ref=f3e203]:
+              - generic: Template body
+              - generic [ref=f3e204]:
+                - textbox [disabled] [ref=f3e247]
+                - group:
+                  - generic: Template body
+          - generic [ref=f3e206]:
+            - generic [ref=f3e207]: Output target
+            - generic [ref=f3e208]:
+              - textbox [ref=f3e248]: doc_1.txt
+              - group:
+                - generic: Output target
+          - generic [ref=f3e210]:
+            - generic [ref=f3e211]: Preview mode
+            - generic [ref=f3e212]:
+              - combobox [ref=f3e249] [cursor=pointer]: text
+              - textbox: text
+              - group:
+                - generic: Preview mode
+          - generic [ref=f3e214]:
+            - generic [ref=f3e215]: Preview enabled
+            - generic [ref=f3e216]:
+              - combobox [ref=f3e250] [cursor=pointer]: "yes"
+              - textbox: "yes"
+              - group:
+                - generic: Preview enabled
+      - generic [ref=f3e140]:
+        - heading [level=6] [ref=f3e251]: Diagnostics
+        - generic [ref=f3e144]:
+          - heading [level=6] [ref=f3e252]: Dependencies
+          - generic [ref=f3e147]:
+            - paragraph [ref=f3e148]: Dependencies (1 nodes, 0 edges)
+            - generic [ref=f3e149]: Scroll to zoom · drag to pan · double-click to reset
+            - img [ref=f3e253]:
+              - generic [ref=f3e218]: doc_1
+        - generic [ref=f3e152]:
+          - heading [level=6] [ref=f3e254]: Dry-run
+          - paragraph [ref=f3e155]: not run
+        - generic [ref=f3e156]:
+          - heading [level=6] [ref=f3e255]: Preview
+          - paragraph [ref=f3e159]: Run dry-run after adding document bits to preview.
+  - iframe [ref=f3e256]:
+    
+  - dialog [ref=f3e258]:
+    - iframe [active] [ref=f3e261]:
+      - generic [ref=f7e1]:
+        - generic:
+          - generic:
+            - region
+            - generic [ref=f7e3]:
+              - generic [ref=f7e4]:
+                - heading "Select a file" [level=1] [ref=f7e5]
+                - button "Close" [ref=f7e7] [cursor=pointer]
+              - generic [ref=f7e10]:
+                - tablist [ref=f7e13]:
+                  - tab "Google Drive" [selected] [ref=f7e14]
+                - generic [ref=f7e17]:
+                  - generic [ref=f7e18]:
+                    - generic [ref=f7e19]:
+                      - generic [ref=f7e20]:
+                        - generic [ref=f7e22]:
+                          - textbox "Search terms" [ref=f7e23]
+                          - button "Search" [ref=f7e24]
+                        - button "Sort options" [ref=f7e26]
+                      - generic [ref=f7e31]:
+                        - 'button "Sort by: Name" [ref=f7e32]':
+                          - generic [ref=f7e33]: Name
+                        - generic [ref=f7e35]: Owner
+                        - 'button "Sorted by: Last modified, descending. Reverse sort" [ref=f7e38]':
+                          - generic [ref=f7e39]: Last modified
+                        - listbox "Files and folders list view." [ref=f7e47]:
+                          - option "Letter template Google Docs me Last modified 1:25 PM" [active] [selected] [ref=f7e48]:
+                            - generic "Letter template Google Docs" [ref=f7e52]: Letter template
+                            - generic [ref=f7e58]: me
+                            - generic "Last modified 1:25 PM" [ref=f7e66]: 1:25 PM
+                          - option "Google Docs hello starter template Google Docs me Last modified 1:21 PM" [ref=f7e68]:
+                            - generic "Google Docs hello starter template Google Docs" [ref=f7e72]: Google Docs hello starter template
+                            - generic [ref=f7e78]: me
+                            - generic "Last modified 1:21 PM" [ref=f7e86]: 1:21 PM
+                          - option "Google Docs hello starter template Google Docs me Last modified 12:54 PM" [ref=f7e88]:
+                            - generic "Google Docs hello starter template Google Docs" [ref=f7e92]: Google Docs hello starter template
+                            - generic [ref=f7e98]: me
+                            - generic "Last modified 12:54 PM" [ref=f7e106]: 12:54 PM
+                          - option "Think Google Docs me Last modified Dec 28, 2024" [ref=f7e108]:
+                            - generic "Think Google Docs" [ref=f7e112]: Think
+                            - generic [ref=f7e118]: me
+                            - generic "Last modified Dec 28, 2024" [ref=f7e126]: Dec 28, 2024
+                          - option "Doc gen Google Docs me Last modified Nov 18, 2024" [ref=f7e128]:
+                            - generic "Doc gen Google Docs" [ref=f7e132]: Doc gen
+                            - generic [ref=f7e138]: me
+                            - generic "Last modified Nov 18, 2024" [ref=f7e146]: Nov 18, 2024
+                          - option "Expert Tehnic Google Docs me Last modified Apr 8, 2024" [ref=f7e148]:
+                            - generic "Expert Tehnic Google Docs" [ref=f7e152]: Expert Tehnic
+                            - generic [ref=f7e158]: me
+                            - generic "Last modified Apr 8, 2024" [ref=f7e166]: Apr 8, 2024
+                          - option "de trimis Tofan Google Docs me Last modified May 25, 2021" [ref=f7e168]:
+                            - generic "de trimis Tofan Google Docs" [ref=f7e172]: de trimis Tofan
+                            - generic [ref=f7e178]: me
+                            - generic "Last modified May 25, 2021" [ref=f7e186]: May 25, 2021
+                          - option "debug-credentials Google Docs me Last modified May 11, 2021" [ref=f7e188]:
+                            - generic "debug-credentials Google Docs" [ref=f7e192]: debug-credentials
+                            - generic [ref=f7e198]: me
+                            - generic "Last modified May 11, 2021" [ref=f7e206]: May 11, 2021
+                          - option "debug-credentials Google Docs me Last modified May 11, 2021" [ref=f7e208]:
+                            - generic "debug-credentials Google Docs" [ref=f7e212]: debug-credentials
+                            - generic [ref=f7e218]: me
+                            - generic "Last modified May 11, 2021" [ref=f7e226]: May 11, 2021
+                          - option "Conversație WhatsApp cu Falcescu Bogdan Google Docs me Last modified Feb 15, 2021" [ref=f7e228]:
+                            - generic "Conversație WhatsApp cu Falcescu Bogdan Google Docs" [ref=f7e232]: Conversație WhatsApp cu Falcescu Bogdan
+                            - generic [ref=f7e238]: me
+                            - generic "Last modified Feb 15, 2021" [ref=f7e246]: Feb 15, 2021
+                          - option "acadmap.log Google Docs me Last modified Apr 8, 2020" [ref=f7e248]:
+                            - generic "acadmap.log Google Docs" [ref=f7e252]: acadmap.log
+                            - generic [ref=f7e258]: me
+                            - generic "Last modified Apr 8, 2020" [ref=f7e266]: Apr 8, 2020
+                          - option "Instalare Shared Google Docs me Last modified Apr 6, 2020" [ref=f7e268]:
+                            - generic "Instalare Shared Google Docs" [ref=f7e272]:
+                              - generic [ref=f7e276]: Instalare
+                              - generic "Shared" [ref=f7e278]
+                            - generic [ref=f7e283]: me
+                            - generic "Last modified Apr 6, 2020" [ref=f7e291]: Apr 6, 2020
+                    - status
+                  - generic [ref=f7e295]:
+                    - button "Select" [ref=f7e296]
+                    - button "Cancel" [ref=f7e297]
+        - generic [ref=f7e298]: Select a file

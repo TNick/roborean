@@ -1,4 +1,4 @@
-.PHONY: init init-d test lint delint pre-commit conformance test-storage conformance-documents conformance-documents-ts conformance-runtime verify verify-core schema-sync api web platform openapi openapi-check e2e e2e-discover e2e-run e2e-repair e2e-doctor parity-dryrun pages
+.PHONY: init init-d test lint delint pre-commit conformance test-storage conformance-documents conformance-documents-ts conformance-runtime verify verify-core schema-sync api web webg platform openapi openapi-check e2e e2e-discover e2e-run e2e-repair e2e-doctor parity-dryrun pages
 
 ifeq ($(OS),Windows_NT)
 PYTHON = venv/Scripts/python.exe
@@ -49,6 +49,8 @@ api:
 web:
 	pnpm --filter web dev
 
+webg:
+	pnpm --filter web dev:google
 pages:
 	pnpm run build:pages
 

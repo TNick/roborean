@@ -27,6 +27,19 @@ Never set a Google client secret in the web app. Authorize the GitHub Pages
 origin (`https://tnick.github.io`) and local Vite origin in the Google Cloud
 OAuth client.
 
+## Google-only local development
+
+Use `make webg` to run the same Google-only storage mode as the GitHub Pages
+build. It requires `VITE_GOOGLE_CLIENT_ID` in `apps/web/.env.local`, never
+starts or calls FastAPI, and serves the app at `http://localhost:5173`.
+
+```bash
+make webg
+```
+
+Set `VITE_GOOGLE_API_KEY` and `VITE_GOOGLE_APP_ID` in `.env.local` as well to
+test Google Picker locally. The Google Cloud OAuth client and browser API key
+must allow `http://localhost:5173`.
 ## Static / GitHub Pages build
 
 ```bash
@@ -58,5 +71,6 @@ and description on the project page, then **Save**. Delete from the list
 or the project page.
 
 Browse **Templates library** from the home page (`/templates`) to use project
-starters, import document templates, or import bit recipes into an existing
-project (API mode only).
+starters, import document templates, or import bit recipes. API mode serves the
+FastAPI catalog; Google-only / Pages builds use the bundled Google Docs catalog
+and copy imported seeds into your connected Drive folder.

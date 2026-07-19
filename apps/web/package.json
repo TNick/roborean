@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:google": "node ./scripts/dev-google.mjs",
     "build": "vite build",
     "build:pages": "node ./scripts/build-pages.mjs",
     "preview": "vite preview",
